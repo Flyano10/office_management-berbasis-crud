@@ -12,15 +12,16 @@ tests/**/*.php linguist-language=PHP
 resources/js/**/*.js linguist-language=JavaScript
 public/js/**/*.js linguist-language=JavaScript
 bulk_operations_script.js linguist-language=JavaScript
+vite.config.js linguist-language=JavaScript
 
 # CSS
 *.css linguist-language=CSS
 resources/css/**/*.css linguist-language=CSS
 public/css/**/*.css linguist-language=CSS
 
-# HTML/Blade
-*.blade.php linguist-language=HTML
-resources/views/**/*.blade.php linguist-language=HTML
+# HTML/Blade - Force as PHP since it's Laravel Blade
+*.blade.php linguist-language=PHP
+resources/views/**/*.blade.php linguist-language=PHP
 
 # JSON
 *.json linguist-language=JSON
@@ -77,9 +78,6 @@ storage/logs/**/*.log linguist-language=Text
 .env.example linguist-language=Text
 .gitignore linguist-language=Text
 .gitattributes linguist-language=Text
-
-# Vite config
-vite.config.js linguist-language=JavaScript
 
 # Artisan
 artisan linguist-language=PHP
