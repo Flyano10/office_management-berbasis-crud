@@ -1,0 +1,85 @@
+# PHP
+*.php linguist-language=PHP
+app/**/*.php linguist-language=PHP
+routes/**/*.php linguist-language=PHP
+database/**/*.php linguist-language=PHP
+config/**/*.php linguist-language=PHP
+bootstrap/**/*.php linguist-language=PHP
+tests/**/*.php linguist-language=PHP
+
+# JavaScript
+*.js linguist-language=JavaScript
+resources/js/**/*.js linguist-language=JavaScript
+public/js/**/*.js linguist-language=JavaScript
+bulk_operations_script.js linguist-language=JavaScript
+
+# CSS
+*.css linguist-language=CSS
+resources/css/**/*.css linguist-language=CSS
+public/css/**/*.css linguist-language=CSS
+
+# HTML/Blade
+*.blade.php linguist-language=HTML
+resources/views/**/*.blade.php linguist-language=HTML
+
+# JSON
+*.json linguist-language=JSON
+composer.json linguist-language=JSON
+package.json linguist-language=JSON
+package-lock.json linguist-language=JSON
+
+# Markdown
+*.md linguist-language=Markdown
+README.md linguist-language=Markdown
+API_DOCUMENTATION.md linguist-language=Markdown
+PROJECT_PLAN.md linguist-language=Markdown
+PLN_PRODUCTION_RECOMMENDATIONS.md linguist-language=Markdown
+PLN_PUBLIC.md linguist-language=Markdown
+
+# YAML
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+
+# XML
+*.xml linguist-language=XML
+phpunit.xml linguist-language=XML
+
+# Shell/Batch
+*.sh linguist-language=Shell
+*.bat linguist-language=Batchfile
+implement_bulk_all.bat linguist-language=Batchfile
+
+# SQL
+*.sql linguist-language=SQL
+query linguist-language=SQL
+
+# Text
+*.txt linguist-language=Text
+robots.txt linguist-language=Text
+
+# Log
+*.log linguist-language=Text
+storage/logs/**/*.log linguist-language=Text
+
+# Images
+*.png linguist-language=Image
+*.jpg linguist-language=Image
+*.jpeg linguist-language=Image
+*.gif linguist-language=Image
+*.ico linguist-language=Image
+*.svg linguist-language=Image
+
+# PDF
+*.pdf linguist-language=PDF
+
+# Config files
+.env linguist-language=Text
+.env.example linguist-language=Text
+.gitignore linguist-language=Text
+.gitattributes linguist-language=Text
+
+# Vite config
+vite.config.js linguist-language=JavaScript
+
+# Artisan
+artisan linguist-language=PHP
