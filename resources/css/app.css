@@ -1,0 +1,29 @@
+/* PLN Kantor Management - Main Application CSS */
+/* File ini berisi CSS utama untuk aplikasi */
+
+/* Global styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+}
+
+/* Application specific styles */
+.app-container {
+    min-height: 100vh;
+}
+
+/* Utility classes */
+.text-pln {
+    color: #2C6A8F;
+}
+
+.bg-pln {
+    background-color: #2C6A8F;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 1rem;
+    }
+}

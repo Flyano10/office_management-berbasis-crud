@@ -1,0 +1,43 @@
+/* PLN Kantor Management - Maps CSS */
+/* File ini berisi CSS untuk peta interaktif */
+
+/* Maps specific styles */
+.map-container {
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.map-controls {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.map-legend {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.map-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #2C6A8F;
+    border: 2px solid white;
+}
+
+/* Map popup styling */
+.leaflet-popup-content {
+    font-family: 'Inter', sans-serif;
+}
+
+.leaflet-popup-content h3 {
+    color: #2C6A8F;
+    margin-bottom: 0.5rem;
+}

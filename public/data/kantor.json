@@ -1,0 +1,34 @@
+{
+  "kantor": [
+    {
+      "id": 1,
+      "nama_kantor": "Kantor Pusat PLN Icon Plus",
+      "alamat": "Jl. Sudirman No. 1, Jakarta Pusat",
+      "status": "aktif",
+      "jenis_kantor": "pusat",
+      "kota": "Jakarta",
+      "provinsi": "DKI Jakarta"
+    },
+    {
+      "id": 2,
+      "nama_kantor": "Kantor Cabang Bandung",
+      "alamat": "Jl. Asia Afrika No. 100, Bandung",
+      "status": "aktif",
+      "jenis_kantor": "cabang",
+      "kota": "Bandung",
+      "provinsi": "Jawa Barat"
+    },
+    {
+      "id": 3,
+      "nama_kantor": "Kantor Cabang Surabaya",
+      "alamat": "Jl. Tunjungan No. 50, Surabaya",
+      "status": "aktif",
+      "jenis_kantor": "cabang",
+      "kota": "Surabaya",
+      "provinsi": "Jawa Timur"
+    }
+  ],
+  "total": 3,
+  "aktif": 3,
+  "tidak_aktif": 0
+}
