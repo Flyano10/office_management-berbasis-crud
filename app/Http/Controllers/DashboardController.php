@@ -20,7 +20,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get basic statistics - optimasi dengan single query
+        // Ambil statistik dasar - optimasi dengan single query
         $stats = [
             'total_kantor' => Kantor::count(),
             'total_gedung' => Gedung::count(),
@@ -34,7 +34,7 @@ class DashboardController extends Controller
             'total_admin' => Admin::count(),
         ];
 
-        // Get status statistics - optimasi dengan single query
+        // Ambil statistik status - optimasi dengan single query
         $statusStats = [
             'kantor_milik' => Kantor::where('status_kepemilikan', 'milik')->count(),
             'kantor_sewa' => Kantor::where('status_kepemilikan', 'sewa')->count(),
@@ -44,14 +44,14 @@ class DashboardController extends Controller
             'kontrak_selesai' => Kontrak::where('status_perjanjian', 'selesai')->count(),
         ];
 
-        // Get recent activities
+        // Ambil aktivitas terbaru
         $recentActivities = AuditLog::leftJoin('admin', 'audit_logs.user_id', '=', 'admin.id')
             ->select('audit_logs.*', 'admin.nama_admin as user_name')
             ->orderBy('audit_logs.created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($activity) {
-                // Format model type to be more user-friendly
+                // Format tipe model jadi lebih user-friendly
                 $modelMap = [
                     'App\\Models\\Kantor' => 'Kantor',
                     'App\\Models\\Gedung' => 'Gedung',
@@ -69,22 +69,22 @@ class DashboardController extends Controller
                 return $activity;
             });
 
-        // Get today's activities
+        // Ambil aktivitas hari ini
         $todayActivities = AuditLog::whereDate('created_at', today())
             ->count();
 
-        // Get this week's activities
+        // Ambil aktivitas minggu ini
         $weekActivities = AuditLog::whereBetween('created_at', [
             now()->startOfWeek(),
             now()->endOfWeek()
         ])->count();
 
-        // Get this month's activities
+        // Ambil aktivitas bulan ini
         $monthActivities = AuditLog::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
-        // Get kantor by kota
+        // Ambil kantor berdasarkan kota
         $kantorByKota = Kantor::with('kota')
             ->select('kota_id', DB::raw('count(*) as total'))
             ->groupBy('kota_id')
@@ -96,7 +96,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get gedung by kantor
+        // Ambil gedung berdasarkan kantor
         $gedungByKantor = Gedung::with('kantor')
             ->select('kantor_id', DB::raw('count(*) as total'))
             ->groupBy('kantor_id')
@@ -108,7 +108,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get okupansi by bidang
+        // Ambil okupansi berdasarkan bidang
         $okupansiByBidang = Okupansi::with('bidang')
             ->select('bidang_id', DB::raw('count(*) as total'))
             ->groupBy('bidang_id')
@@ -120,7 +120,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get kontrak by status
+        // Ambil kontrak berdasarkan status
         $kontrakByStatus = Kontrak::select('status_perjanjian', DB::raw('count(*) as total'))
             ->groupBy('status_perjanjian')
             ->get()
@@ -131,7 +131,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get kontrak by month (last 6 months) - use actual data
+        // Ambil kontrak berdasarkan bulan (6 bulan terakhir) - gunakan data asli
         $kontrakByMonth = Kontrak::select(
                 DB::raw('MONTH(tanggal_mulai) as month'),
                 DB::raw('YEAR(tanggal_mulai) as year'),
@@ -153,7 +153,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get top kantor by gedung count
+        // Ambil kantor teratas berdasarkan jumlah gedung
         $topKantorByGedung = Kantor::withCount('gedung')
             ->orderBy('gedung_count', 'desc')
             ->limit(5)
@@ -165,7 +165,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get top bidang by okupansi count
+        // Ambil bidang teratas berdasarkan jumlah okupansi
         $topBidangByOkupansi = Bidang::withCount('okupansi')
             ->orderBy('okupansi_count', 'desc')
             ->limit(5)
@@ -177,7 +177,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get analytics data for charts
+        // Ambil data analytics untuk chart
         $analyticsData = [
             'kantor_by_status' => [
                 'aktif' => Kantor::where('status_kantor', 'aktif')->count(),
@@ -197,13 +197,13 @@ class DashboardController extends Controller
             'kantor_by_kota' => $kantorByKota
         ];
 
-        // Get kantor data for map - ensure we have coordinates
+        // Ambil data kantor untuk map - pastikan ada koordinat
         $kantor = Kantor::with('kota.provinsi')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get();
             
-        // If no kantor with coordinates, get all kantor for fallback
+        // Kalau gak ada kantor dengan koordinat, ambil semua kantor untuk fallback
         if ($kantor->isEmpty()) {
             $kantor = Kantor::with('kota.provinsi')->get();
         }

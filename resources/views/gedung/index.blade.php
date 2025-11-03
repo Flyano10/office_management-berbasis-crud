@@ -138,10 +138,12 @@
                                         </span>
                                     </td>
                                     <td>
+                                        @php($actor = Auth::guard('admin')->user())
                                         <div class="action-buttons">
                                             <a href="{{ route('gedung.show', $g->id) }}" class="btn btn-modern btn-info btn-sm" title="Lihat Detail">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            @if(($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf']) && (int)$actor->kantor_id === (int)$g->kantor_id))
                                             <a href="{{ route('gedung.edit', $g->id) }}" class="btn btn-modern btn-warning btn-sm" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -153,6 +155,7 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -189,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -197,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -232,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -243,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} gedung yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "gedung") }}';
@@ -253,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -268,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -278,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "gedung") }}';
@@ -288,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -308,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -318,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "gedung") }}';
@@ -328,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -349,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Search function
+// Fungsi pencarian
 function searchGedung() {
     const searchInput = document.querySelector('.main-content .search-input');
     if (!searchInput) return;
@@ -367,7 +370,7 @@ function searchGedung() {
     });
 }
 
-// Add search input event listener
+// Tambah event listener untuk input pencarian
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('.main-content .search-input');
     if (searchInput) {
@@ -381,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-    /* Header Actions */
+    /* Aksi Header */
     .header-actions {
         display: flex;
         align-items: center;
@@ -427,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
         transform: scale(1.05);
     }
 
-    /* Gedung Card */
+    /* Card Gedung */
     .gedung-card {
         background: white;
         border-radius: 1.5rem;
@@ -460,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
         padding: 1.5rem;
     }
 
-    /* Filter Card */
+    /* Card Filter */
     .filter-card {
         background: white;
         border-radius: 1.5rem;
@@ -506,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
 
-    /* Modern Buttons */
+    /* Button Modern */
     .btn-modern {
         border-radius: 0.75rem;
         padding: 0.75rem 1.5rem;
@@ -603,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
-    /* Bulk Actions */
+    /* Aksi Bulk */
     .bulk-actions-card {
         background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
         border: 1px solid #10b981;
@@ -637,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
         flex-wrap: wrap;
     }
 
-    /* Modern Table */
+    /* Tabel Modern */
     .modern-table {
         margin: 0;
         border-radius: 1rem;

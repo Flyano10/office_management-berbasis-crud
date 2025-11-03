@@ -261,7 +261,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
 
 <style>
-    /* Statistics Cards */
+    /* Card Statistik */
     .stat-card {
         background: white;
         border-radius: 1.5rem;
@@ -326,7 +326,7 @@
         font-weight: 500;
     }
 
-    /* Okupansi Card */
+    /* Card Okupansi */
     .okupansi-card {
         background: white;
         border-radius: 1.5rem;
@@ -426,7 +426,7 @@
         font-weight: 500;
     }
 
-    /* Chart Cards */
+    /* Card Chart */
     .chart-card {
         background: white;
         border-radius: 1.5rem;
@@ -465,7 +465,7 @@
         height: 300px;
     }
 
-    /* Activity Cards */
+    /* Card Aktivitas */
     .activity-card {
         background: white;
         border-radius: 1.5rem;
@@ -566,7 +566,7 @@
         color: #94a3b8;
     }
 
-    /* Header Actions */
+    /* Aksi Header */
     .header-actions {
         display: flex;
         gap: 0.5rem;
@@ -603,7 +603,7 @@
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
-    /* Responsive Design */
+    /* Desain Responsive */
     @media (max-width: 768px) {
         .stat-card {
             flex-direction: column;
@@ -678,13 +678,13 @@
 </div>
 
 <script>
-// Chart data
+// Data Chart
 const chartDataEl = document.getElementById('chartData');
 const kantorStatusData = JSON.parse(chartDataEl.dataset.kantorStatus);
 const kontrakStatusData = JSON.parse(chartDataEl.dataset.kontrakStatus);
 const okupansiBidangData = JSON.parse(chartDataEl.dataset.okupansiBidang);
 
-// Kantor Status Chart
+// Chart Status Kantor
 const kantorCtx = document.getElementById('kantorStatusChart').getContext('2d');
 new Chart(kantorCtx, {
     type: 'doughnut',
@@ -706,7 +706,7 @@ new Chart(kantorCtx, {
     }
 });
 
-// Kontrak Status Chart
+// Chart Status Kontrak
 const kontrakCtx = document.getElementById('kontrakStatusChart').getContext('2d');
 new Chart(kontrakCtx, {
     type: 'pie',
@@ -728,7 +728,7 @@ new Chart(kontrakCtx, {
     }
 });
 
-// Okupansi by Bidang Chart
+// Chart Okupansi berdasarkan Bidang
 const okupansiCtx = document.getElementById('okupansiBidangChart').getContext('2d');
 new Chart(okupansiCtx, {
     type: 'bar',
@@ -757,13 +757,13 @@ new Chart(okupansiCtx, {
     }
 });
 
-// Functions
+// Fungsi-fungsi
 function refreshCharts() {
     location.reload();
 }
 
 function exportData() {
-    // Implement export functionality
+    // Implementasi fungsi export
     alert('Export functionality akan diimplementasi');
 }
 </script>

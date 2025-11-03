@@ -16,7 +16,7 @@ class KantorApiController extends ApiController
      */
     public function index(Request $request): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.index', 100)) {
             return $this->rateLimitExceededResponse();
         }
@@ -24,7 +24,7 @@ class KantorApiController extends ApiController
         try {
             $query = Kantor::with(['jenisKantor', 'kota']);
 
-            // Apply filters
+            // Terapkan filter
             if ($request->has('search')) {
                 $search = $request->get('search');
                 $query->where(function($q) use ($search) {
@@ -67,7 +67,7 @@ class KantorApiController extends ApiController
      */
     public function store(Request $request): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.store', 20)) {
             return $this->rateLimitExceededResponse();
         }
@@ -112,7 +112,7 @@ class KantorApiController extends ApiController
      */
     public function show(Request $request, $id): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.show', 100)) {
             return $this->rateLimitExceededResponse();
         }
@@ -134,7 +134,7 @@ class KantorApiController extends ApiController
      */
     public function update(Request $request, $id): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.update', 20)) {
             return $this->rateLimitExceededResponse();
         }
@@ -180,7 +180,7 @@ class KantorApiController extends ApiController
      */
     public function destroy(Request $request, $id): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.destroy', 10)) {
             return $this->rateLimitExceededResponse();
         }
@@ -208,7 +208,7 @@ class KantorApiController extends ApiController
      */
     public function statistics(Request $request): JsonResponse
     {
-        // Rate limiting check
+        // Cek rate limiting
         if (!$this->checkRateLimit($request, 'kantor.statistics', 30)) {
             return $this->rateLimitExceededResponse();
         }

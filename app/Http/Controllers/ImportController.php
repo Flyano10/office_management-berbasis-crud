@@ -62,10 +62,10 @@ class ImportController extends Controller
             $model = $request->model;
             $file = $request->file('file');
             
-            // Read CSV file
+            // Baca file CSV
             $data = $this->readCsvFile($file);
             
-            // Validate data
+            // Validasi data
             $validation = $this->validateImportData($data, $model);
             
             if (!$validation['valid']) {
@@ -81,7 +81,7 @@ class ImportController extends Controller
                 return response()->json([
                     'success' => true,
                     'preview' => true,
-                    'data' => array_slice($data, 0, 5), // Show first 5 rows
+                    'data' => array_slice($data, 0, 5), // Tampilkan 5 baris pertama
                     'total_rows' => count($data)
                 ]);
             }
@@ -125,7 +125,7 @@ class ImportController extends Controller
         $handle = fopen($file->getPathname(), 'r');
         
         if ($handle !== false) {
-            $headers = fgetcsv($handle); // Skip header row
+            $headers = fgetcsv($handle); // Skip baris header
             
             while (($row = fgetcsv($handle)) !== false) {
                 if (count($row) === count($headers)) {
@@ -148,7 +148,7 @@ class ImportController extends Controller
         $valid = true;
 
         foreach ($data as $index => $row) {
-            $rowErrors = $this->validateRow($row, $model, $index + 2); // +2 because we skip header and start from 1
+            $rowErrors = $this->validateRow($row, $model, $index + 2); // +2 karena skip header dan mulai dari 1
             if (!empty($rowErrors)) {
                 $errors["Row " . ($index + 2)] = $rowErrors;
                 $valid = false;

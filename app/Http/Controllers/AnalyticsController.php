@@ -21,7 +21,7 @@ class AnalyticsController extends Controller
      */
     public function index()
     {
-        // Basic statistics
+        // Statistik dasar
         $stats = [
             'total_kantor' => Kantor::count(),
             'total_gedung' => Gedung::count(),
@@ -33,34 +33,34 @@ class AnalyticsController extends Controller
             'total_sub_bidang' => SubBidang::count(),
         ];
 
-        // Okupansi statistics
+        // Statistik okupansi
         $okupansiStats = $this->getOkupansiStats();
         
-        // Kantor by status
+        // Kantor berdasarkan status
         $kantorByStatus = Kantor::select('status_kantor', DB::raw('count(*) as total'))
             ->groupBy('status_kantor')
             ->get()
             ->pluck('total', 'status_kantor');
 
-        // Gedung by status
+        // Gedung berdasarkan status
         $gedungByStatus = Gedung::select('status_gedung', DB::raw('count(*) as total'))
             ->groupBy('status_gedung')
             ->get()
             ->pluck('total', 'status_gedung');
 
-        // Kontrak by status
+        // Kontrak berdasarkan status
         $kontrakByStatus = Kontrak::select('status_perjanjian', DB::raw('count(*) as total'))
             ->groupBy('status_perjanjian')
             ->get()
             ->pluck('total', 'status_perjanjian');
 
-        // Ruang by status
+        // Ruang berdasarkan status
         $ruangByStatus = Ruang::select('status_ruang', DB::raw('count(*) as total'))
             ->groupBy('status_ruang')
             ->get()
             ->pluck('total', 'status_ruang');
 
-        // Okupansi by bidang
+        // Okupansi berdasarkan bidang
         $okupansiByBidang = Okupansi::with('bidang')
             ->select('bidang_id', DB::raw('sum(total_pegawai) as total_pegawai'))
             ->groupBy('bidang_id')
@@ -72,7 +72,7 @@ class AnalyticsController extends Controller
                 ];
             });
 
-        // Recent activities
+        // Aktivitas terbaru
         $recentKontrak = Kontrak::with('kantor')
             ->orderBy('created_at', 'desc')
             ->limit(5)

@@ -24,37 +24,37 @@ class Kantor extends Model
         'status_kepemilikan'
     ];
 
-    // Relasi ke Kota
+    // Relasi dengan model Kota
     public function kota()
     {
         return $this->belongsTo(Kota::class);
     }
 
-    // Relasi ke Jenis Kantor
+    // Relasi dengan model Jenis Kantor
     public function jenisKantor()
     {
         return $this->belongsTo(JenisKantor::class);
     }
 
-    // Relasi ke Parent Kantor (Self-referencing)
+    // Relasi dengan kantor induk (parent)
     public function parentKantor()
     {
         return $this->belongsTo(Kantor::class, 'parent_kantor_id');
     }
 
-    // Relasi ke Child Kantor (Self-referencing)
+    // Relasi dengan kantor cabang (child)
     public function childKantor()
     {
         return $this->hasMany(Kantor::class, 'parent_kantor_id');
     }
 
-    // Relasi ke Kontrak
+    // Relasi dengan model Kontrak
     public function kontrak()
     {
         return $this->hasMany(Kontrak::class);
     }
 
-    // Relasi ke Gedung
+    // Relasi dengan model Gedung
     public function gedung()
     {
         return $this->hasMany(Gedung::class);

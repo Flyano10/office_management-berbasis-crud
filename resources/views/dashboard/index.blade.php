@@ -8,6 +8,32 @@
 @section('content')
 <!-- Dashboard Content -->
 <div class="container-fluid">
+    @php($actor = Auth::guard('admin')->user())
+    @php($kantorName = $actor?->kantor?->nama_kantor ?? '-')
+    @php($bidangName = $actor?->bidang?->nama_bidang ?? '-')
+
+    <!-- Greeting Banner -->
+    <div class="greeting-banner mb-4">
+        <div class="greeting-icon">
+            <i class="fas fa-hand-peace"></i>
+        </div>
+        <div class="greeting-content">
+            <h4 class="mb-1">Selamat Datang, {{ $actor?->nama_admin ?? 'Pengguna' }}!</h4>
+            @if($actor)
+                @if($actor->role === 'super_admin')
+                    <div class="greeting-sub">Super Admin — Full System Control</div>
+                @elseif($actor->role === 'admin')
+                    <div class="greeting-sub">Admin — Sistem Manajemen</div>
+                @elseif($actor->role === 'admin_regional')
+                    <div class="greeting-sub">Regional Admin — Kantor: <strong>{{ $kantorName }}</strong></div>
+                @elseif($actor->role === 'manager_bidang')
+                    <div class="greeting-sub">Manager Bidang: <strong>{{ $bidangName }}</strong> · Kantor: <strong>{{ $kantorName }}</strong></div>
+                @elseif($actor->role === 'staf')
+                    <div class="greeting-sub">Staf — Bidang: <strong>{{ $bidangName }}</strong> · Kantor: <strong>{{ $kantorName }}</strong></div>
+                @endif
+            @endif
+        </div>
+    </div>
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -231,10 +257,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Line Chart
+    // Inisialisasi Line Chart
     initLineChart();
     
-    // Initialize Map
+    // Inisialisasi Map
     initMap();
 });
 
@@ -245,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const labels = kontrakData.map(item => item.month_name);
             const kontrakCount = kontrakData.map(item => item.total);
-            const nilaiData = kontrakData.map(item => (item.total_nilai || 0) / 1000000); // Convert to millions
+            const nilaiData = kontrakData.map(item => (item.total_nilai || 0) / 1000000); // Konversi ke jutaan
     
     new Chart(ctx, {
         type: 'line',
@@ -331,7 +357,7 @@ function initMap() {
     const loadingElement = document.getElementById('map-loading');
     const fallbackElement = document.getElementById('map-fallback');
     
-    // Check if Leaflet is available
+    // Cek apakah Leaflet tersedia
     if (typeof L === 'undefined') {
         showFallback();
         return;
@@ -345,7 +371,7 @@ function initMap() {
         return;
     }
     
-    // Find valid coordinates
+    // Cari koordinat yang valid
     const validKantor = kantorData.filter(kantor => 
         kantor.latitude && kantor.longitude && 
         !isNaN(parseFloat(kantor.latitude)) && 
@@ -357,19 +383,19 @@ function initMap() {
         return;
     }
     
-    // Calculate center point
+    // Hitung titik tengah
     const centerLat = validKantor.reduce((sum, kantor) => sum + parseFloat(kantor.latitude), 0) / validKantor.length;
     const centerLng = validKantor.reduce((sum, kantor) => sum + parseFloat(kantor.longitude), 0) / validKantor.length;
     
-    // Initialize map
+    // Inisialisasi map
     const map = L.map('map').setView([centerLat, centerLng], 10);
     
-    // Add tile layer
+    // Tambah tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
-    // Add markers
+    // Tambah markers
     validKantor.forEach(kantor => {
         const lat = parseFloat(kantor.latitude);
         const lng = parseFloat(kantor.longitude);
@@ -389,7 +415,7 @@ function initMap() {
         marker.bindPopup(popupContent);
     });
     
-    // Hide loading and show map
+    // Sembunyikan loading dan tampilkan map
     if (loadingElement) {
         loadingElement.style.display = 'none';
     }
@@ -410,50 +436,55 @@ function showFallback() {
 
 @push('styles')
 <style>
-    /* Statistics Cards */
-    .stat-card {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    /* Greeting Banner */
+    .greeting-banner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
-        transition: all 0.3s ease;
+        border-radius: 1.25rem;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .greeting-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        color: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .greeting-content h4 { color: #1e293b; font-weight: 700; }
+    .greeting-sub { color: #64748b; }
+
+    /* Card Statistik */
+    .stat-card {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
         display: flex;
         align-items: center;
         gap: 1rem;
         height: 100%;
     }
 
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    }
-
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 1rem;
+        width: 48px;
+        height: 48px;
+        border-radius: 0.75rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        color: white;
-    }
-
-    .stat-kantor .stat-icon {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
-    }
-
-    .stat-gedung .stat-icon {
-        background: linear-gradient(135deg, #10b981, #34d399);
-    }
-
-    .stat-kontrak .stat-icon {
-        background: linear-gradient(135deg, #06b6d4, #22d3ee);
-    }
-
-    .stat-okupansi .stat-icon {
-        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        font-size: 1.25rem;
+        background: #eff6ff;
+        color: #3b82f6;
     }
 
     .stat-content {
@@ -475,19 +506,19 @@ function showFallback() {
         font-weight: 500;
     }
 
-    /* Chart Cards */
+    /* Card Chart */
     .chart-card {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         border: 1px solid #e2e8f0;
         overflow: hidden;
         height: 100%;
     }
 
     .chart-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
+        background: #f8fafc;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #e2e8f0;
     }
 
@@ -514,19 +545,19 @@ function showFallback() {
         height: 300px;
     }
 
-    /* Status Card */
+    /* Card Status */
     .status-card {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         border: 1px solid #e2e8f0;
         overflow: hidden;
         height: 100%;
     }
 
     .status-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
+        background: #f8fafc;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #e2e8f0;
     }
 
@@ -551,41 +582,16 @@ function showFallback() {
     .status-cards {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     .status-item {
-        background: #f8fafc;
-        border-radius: 1rem;
-        padding: 1.25rem;
+        background: #fff;
+        border-radius: 0.75rem;
+        padding: 1rem;
         text-align: center;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-    }
-
-    .status-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .status-item.kantor-milik {
-        border-color: #10b981;
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    }
-
-    .status-item.kantor-sewa {
-        border-color: #3b82f6;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    }
-
-    .status-item.gedung-milik {
-        border-color: #f59e0b;
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    }
-
-    .status-item.gedung-sewa {
-        border-color: #8b5cf6;
-        background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
 
     .status-icon {
@@ -593,21 +599,7 @@ function showFallback() {
         margin-bottom: 0.75rem;
     }
 
-    .status-item.kantor-milik .status-icon {
-        color: #10b981;
-    }
-
-    .status-item.kantor-sewa .status-icon {
-        color: #3b82f6;
-    }
-
-    .status-item.gedung-milik .status-icon {
-        color: #f59e0b;
-    }
-
-    .status-item.gedung-sewa .status-icon {
-        color: #8b5cf6;
-    }
+    .status-item .status-icon { color: #3b82f6; }
 
     .status-content h3 {
         font-size: 0.875rem;
@@ -629,19 +621,19 @@ function showFallback() {
         font-weight: 600;
     }
 
-    /* Map Card */
+    /* Card Map */
     .map-card {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         border: 1px solid #e2e8f0;
         overflow: hidden;
         height: 100%;
     }
 
     .map-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
+        background: #f8fafc;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #e2e8f0;
     }
 
@@ -693,19 +685,19 @@ function showFallback() {
         color: #6b7280;
     }
 
-    /* Activity Card */
+    /* Card Aktivitas */
     .activity-card {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         border: 1px solid #e2e8f0;
         overflow: hidden;
         height: 100%;
     }
 
     .activity-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
+        background: #f8fafc;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #e2e8f0;
     }
 
@@ -744,9 +736,7 @@ function showFallback() {
         transition: all 0.3s ease;
     }
 
-    .activity-item:hover {
-        background: #f8fafc;
-    }
+    .activity-item:hover { background: #f8fafc; }
 
     .activity-icon {
         flex-shrink: 0;

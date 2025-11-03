@@ -7,6 +7,8 @@ use App\Models\Kontrak;
 use App\Models\Kantor;
 use Illuminate\Support\Facades\Log;
 use App\Services\AuditLogService;
+use App\Exports\KontrakExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KontrakController extends Controller
 {
@@ -17,9 +19,19 @@ class KontrakController extends Controller
     {
         $query = Kontrak::with(['kantor']);
 
-        // Apply filters
+        // Scoping berdasarkan role (kantor)
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $query->where('kantor_id', $actor->kantor_id);
+        }
+
+        // Terapkan filter-filter yang dipilih
         if ($request->filled('status_perjanjian')) {
             $query->where('status_perjanjian', $request->status_perjanjian);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         if ($request->filled('tanggal_mulai_dari')) {
@@ -31,7 +43,7 @@ class KontrakController extends Controller
         }
 
         $kontrak = $query->orderBy('created_at', 'desc')->get();
-            
+
         return view('kontrak.index', compact('kontrak'));
     }
 
@@ -40,7 +52,12 @@ class KontrakController extends Controller
      */
     public function create()
     {
-        $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+        } else {
+            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        }
         
         return view('kontrak.create', compact('kantor'));
     }
@@ -67,7 +84,10 @@ class KontrakController extends Controller
                 'peruntukan_kantor' => 'nullable|string|max:255',
                 'alamat' => 'required|string',
                 'kantor_id' => 'required|exists:kantor,id',
-                'status_perjanjian' => 'required|in:baru,amandemen,selesai',
+                'status_perjanjian' => 'required|in:Baru,Amandemen',
+                'status' => 'required|in:Aktif,Tidak Aktif,Batal',
+                'parent_kantor' => 'nullable|in:Pusat,SBU,Perwakilan,Gudang',
+                'parent_kantor_nama' => 'nullable|string|max:255',
                 'berita_acara' => 'nullable|file|mimes:pdf|max:10240',
                 'keterangan' => 'nullable|string'
             ]);
@@ -85,6 +105,15 @@ class KontrakController extends Controller
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/berita_acara'), $filename);
                 $data['berita_acara'] = $filename;
+            }
+
+            // Enforcement kantor untuk non-super_admin
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+                if ((int)$data['kantor_id'] !== (int)$actor->kantor_id) {
+                    return back()->withErrors(['kantor_id' => 'Anda tidak dapat memilih kantor di luar kantor Anda.'])->withInput();
+                }
+                $data['kantor_id'] = $actor->kantor_id;
             }
 
             $kontrak = Kontrak::create($data);
@@ -108,6 +137,18 @@ class KontrakController extends Controller
     {
         $kontrak = Kontrak::with(['kantor.kota.provinsi'])
             ->findOrFail($id);
+
+        // Scoping akses lihat
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $kontrak->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('kontrak.index')
+                ->with('error', 'Anda tidak memiliki akses untuk melihat kontrak ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk melihat kontrak ini!'
+                ]);
+        }
             
         // Log audit for view
         AuditLogService::logView($kontrak, $request, "Melihat detail kontrak: {$kontrak->nama_perjanjian}");
@@ -121,7 +162,21 @@ class KontrakController extends Controller
     public function edit(string $id)
     {
         $kontrak = Kontrak::findOrFail($id);
-        $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($kontrak->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('kontrak.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengedit kontrak ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk mengedit kontrak ini!'
+                    ]);
+            }
+            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+        } else {
+            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        }
         
         return view('kontrak.edit', compact('kontrak', 'kantor'));
     }
@@ -143,7 +198,10 @@ class KontrakController extends Controller
                 'tanggal_mulai' => 'required|date',
                 'tanggal_selesai' => 'required|date|after:tanggal_mulai',
                 'nilai_kontrak' => 'required|numeric|min:0',
-                'status_perjanjian' => 'required|in:baru,berjalan,selesai',
+                'status_perjanjian' => 'required|in:Baru,Amandemen',
+                'status' => 'required|in:Aktif,Tidak Aktif,Batal',
+                'parent_kantor' => 'nullable|in:Pusat,SBU,Perwakilan,Gudang',
+                'parent_kantor_nama' => 'nullable|string|max:255',
                 'no_perjanjian_pihak_1' => 'nullable|string|max:255',
                 'no_perjanjian_pihak_2' => 'nullable|string|max:255',
                 'asset_owner' => 'nullable|string|max:255',
@@ -163,6 +221,21 @@ class KontrakController extends Controller
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/berita_acara'), $filename);
                 $data['berita_acara'] = $filename;
+            }
+
+            // Enforcement kantor untuk non-super_admin
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+                if ($kontrak->kantor_id !== $actor->kantor_id) {
+                    return redirect()->route('kontrak.index')
+                        ->with('error', 'Anda tidak memiliki akses untuk memperbarui kontrak ini!')
+                        ->with('toast', [
+                            'type' => 'error',
+                            'title' => 'Akses Ditolak',
+                            'message' => 'Anda tidak memiliki akses untuk memperbarui kontrak ini!'
+                        ]);
+                }
+                $data['kantor_id'] = $actor->kantor_id;
             }
 
             $kontrak->update($data);
@@ -197,6 +270,16 @@ class KontrakController extends Controller
     public function destroy(Request $request, string $id)
     {
         $kontrak = Kontrak::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $kontrak->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('kontrak.index')
+                ->with('error', 'Anda tidak memiliki akses untuk menghapus kontrak ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk menghapus kontrak ini!'
+                ]);
+        }
         
         // Log audit before deletion
         AuditLogService::logDelete($kontrak, $request, "Menghapus kontrak: {$kontrak->nama_perjanjian}");
@@ -207,4 +290,21 @@ class KontrakController extends Controller
             ->with('success', 'Kontrak berhasil dihapus!');
     }
 
+    /**
+     * Export kontrak to Excel
+     */
+    public function exportExcel()
+    {
+        try {
+            $filename = 'PLN_Kontrak_Export_' . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\KontrakExport(),
+                $filename
+            );
+        } catch (\Exception $e) {
+            return redirect()->route('kontrak.index')
+                ->with('error', 'Gagal export kontrak: ' . $e->getMessage());
+        }
+    }
 }

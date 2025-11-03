@@ -3,6 +3,67 @@
 @section('title', 'Data Kontrak - PLN Icon Plus Kantor Management')
 @section('page-title', 'Data Kontrak')
 
+<style>
+.table-responsive {
+    scrollbar-width: thin;
+    scrollbar-color: #6c757d #f8f9fa;
+    position: relative;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #6c757d;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #495057;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.table td {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Pastikan sticky columns tidak bergerak */
+.table th:first-child,
+.table td:first-child {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 100 !important;
+    border-right: 1px solid #dee2e6 !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1) !important;
+    min-width: 50px !important;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    left: 50px !important;
+    background: white !important;
+    z-index: 100 !important;
+    border-right: 1px solid #dee2e6 !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1) !important;
+    min-width: 50px !important;
+}
+
+</style>
+
 @section('page-actions')
     <a href="{{ route('kontrak.create') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i> Tambah Kontrak
@@ -36,10 +97,18 @@
                                         <div class="col-md-3">
                                             <label class="form-label">Status Kontrak</label>
                                             <select class="form-select" name="status_perjanjian" id="status-filter">
+                                                <option value="">Semua Status Perjanjian</option>
+                                                <option value="Baru" {{ request('status_perjanjian') == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                                <option value="Amandemen" {{ request('status_perjanjian') == 'Amandemen' ? 'selected' : '' }}>Amandemen</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-select" name="status" id="status-filter">
                                                 <option value="">Semua Status</option>
-                                                <option value="baru" {{ request('status_perjanjian') == 'baru' ? 'selected' : '' }}>Baru</option>
-                                                <option value="berjalan" {{ request('status_perjanjian') == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
-                                                <option value="selesai" {{ request('status_perjanjian') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                                <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                                <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                                <option value="Batal" {{ request('status') == 'Batal' ? 'selected' : '' }}>Batal</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -90,8 +159,8 @@
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
+                <div class="table-responsive" style="overflow-x: auto; max-width: 100%; border: 1px solid #dee2e6; border-radius: 0.375rem; position: relative;">
+                    <table class="table table-hover mb-0" style="min-width: 1200px; position: relative;">
                         <thead>
                             <tr>
                                 <th>
@@ -103,11 +172,14 @@
                                 <th>Kantor</th>
                                 <th>Asset Owner</th>
                                 <th>Periode</th>
+                                <th>Nilai Kontrak</th>
+                                <th>Status Perjanjian</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @php($actor = Auth::guard('admin')->user())
                             @forelse($kontrak as $k)
                             <tr>
                                 <td>
@@ -117,14 +189,14 @@
                                 <td>
                                     <span class="badge bg-primary">{{ $k->no_perjanjian_pihak_1 }}</span>
                                 </td>
-                                <td>
+                                <td style="max-width: 200px;">
                                     <strong>{{ $k->nama_perjanjian }}</strong>
                                 </td>
-                                <td>
+                                <td style="max-width: 150px;">
                                     <span class="badge bg-info">{{ $k->kantor->kode_kantor ?? 'N/A' }}</span><br>
                                     <small>{{ $k->kantor->nama_kantor ?? 'N/A' }}</small>
                                 </td>
-                                <td>
+                                <td style="max-width: 150px;">
                                     <strong>{{ $k->asset_owner }}</strong>
                                 </td>
                                 <td>
@@ -134,8 +206,16 @@
                                     </small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $k->status_perjanjian == 'baru' ? 'success' : ($k->status_perjanjian == 'selesai' ? 'info' : 'warning') }}">
-                                        {{ ucfirst($k->status_perjanjian) }}
+                                    <span class="badge bg-success">Rp {{ number_format($k->nilai_kontrak, 0, ',', '.') }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ $k->status_perjanjian == 'Baru' ? 'success' : 'warning' }}">
+                                        {{ $k->status_perjanjian }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ $k->status == 'Aktif' ? 'success' : ($k->status == 'Tidak Aktif' ? 'warning' : 'danger') }}">
+                                        {{ $k->status }}
                                     </span>
                                 </td>
                                 <td>
@@ -143,6 +223,8 @@
                                         <a href="{{ route('kontrak.show', $k->id) }}" class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @php($rowKantorId = $k->kantor_id ?? ($k->kantor->id ?? null))
+                                        @if(($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf']) && (int)$actor->kantor_id === (int)$rowKantorId))
                                         <a href="{{ route('kontrak.edit', $k->id) }}" class="btn btn-sm btn-outline-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -154,6 +236,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -167,6 +250,14 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Scroll Indicator -->
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-arrows-alt-h"></i> 
+                        Geser ke kanan/kiri untuk melihat kolom lainnya
+                    </small>
                 </div>
             </div>
         </div>
@@ -183,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -191,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -226,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -237,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} kontrak yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "kontrak") }}';
@@ -247,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -262,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -272,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "kontrak") }}';
@@ -282,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -302,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -312,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "kontrak") }}';
@@ -322,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';

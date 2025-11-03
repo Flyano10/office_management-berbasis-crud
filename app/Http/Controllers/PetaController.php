@@ -14,22 +14,22 @@ class PetaController extends Controller
      */
     public function index()
     {
-        // Get kantor data with coordinates
+        // Ambil data kantor dengan koordinat
         $kantorData = Kantor::with(['kota', 'jenisKantor'])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get();
 
-        // Get gedung data with coordinates (optional - bisa di-comment untuk sembunyikan gedung)
+        // Ambil data gedung dengan koordinat (opsional - bisa di-comment untuk sembunyikan gedung)
         $gedungData = Gedung::with(['kantor.kota'])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get();
 
-        // Prepare locations for table
+        // Siapkan lokasi untuk tabel
         $locations = collect();
         
-        // Add kantor to locations
+        // Tambah kantor ke lokasi
         foreach ($kantorData as $kantor) {
             $locations->push([
                 'nama' => $kantor->nama_kantor,
@@ -43,7 +43,7 @@ class PetaController extends Controller
             ]);
         }
 
-        // Add gedung to locations
+        // Tambah gedung ke lokasi
         foreach ($gedungData as $gedung) {
             $locations->push([
                 'nama' => $gedung->nama_gedung,
@@ -57,20 +57,10 @@ class PetaController extends Controller
             ]);
         }
 
-        // Get statistics
-        $totalKantor = Kantor::count();
-        $totalGedung = Gedung::count();
-        $totalKontrak = Kontrak::count();
-        $totalPegawai = \App\Models\Okupansi::sum('jml_pegawai_kontrak'); // Total pegawai dari okupansi
-
         return view('peta.index', compact(
             'kantorData',
             'gedungData', 
-            'locations',
-            'totalKantor',
-            'totalGedung',
-            'totalKontrak',
-            'totalPegawai'
+            'locations'
         ));
     }
 
@@ -128,5 +118,90 @@ class PetaController extends Controller
         }
         
         return response()->json($data);
+    }
+
+    /**
+     * Get expiring contracts per kantor for public map popup (JSON)
+     * Params:
+     * - kantor_id (required)
+     * - window: 6|3|1|all (default: all)
+     */
+    public function getExpiringContracts(Request $request)
+    {
+        $kantorId = (int) $request->get('kantor_id');
+        if (!$kantorId) {
+            return response()->json(['success' => false, 'message' => 'kantor_id required'], 422);
+        }
+
+        $window = $request->get('window', 'all');
+
+        $selectColumns = [
+            'id',
+            'nama_perjanjian',
+            'tanggal_mulai',
+            'tanggal_selesai',
+            'status_perjanjian',
+            'status',
+            'kantor_id'
+        ];
+
+        $result = [
+            'success' => true,
+            'window' => $window,
+            'data' => [],
+            'counts' => [
+                'm6' => 0,
+                'm3' => 0,
+                'm1' => 0
+            ]
+        ];
+
+        // If a specific window is requested
+        if (in_array((string) $window, ['6', '3', '1'], true)) {
+            $months = (int) $window;
+            $data = Kontrak::select($selectColumns)
+                ->expiringWithinMonths($months, $kantorId)
+                ->orderBy('tanggal_selesai', 'asc')
+                ->get()
+                ->map(function ($k) {
+                    return [
+                        'id' => $k->id,
+                        'nama_perjanjian' => $k->nama_perjanjian,
+                        'tanggal_mulai' => optional($k->tanggal_mulai)->format('Y-m-d'),
+                        'tanggal_selesai' => optional($k->tanggal_selesai)->format('Y-m-d'),
+                        'days_to_end' => $k->days_to_end,
+                        'status' => $k->status,
+                        'status_perjanjian' => $k->status_perjanjian,
+                    ];
+                });
+
+            $result['data'] = $data;
+            return response()->json($result);
+        }
+
+        // window=all → return grouped counts + top items
+        $groups = [6 => 'm6', 3 => 'm3', 1 => 'm1'];
+        foreach ($groups as $months => $key) {
+            $items = Kontrak::select($selectColumns)
+                ->expiringWithinMonths($months, $kantorId)
+                ->orderBy('tanggal_selesai', 'asc')
+                ->limit(10)
+                ->get();
+
+            $result['counts'][$key] = $items->count();
+            $result['data'][$key] = $items->map(function ($k) {
+                return [
+                    'id' => $k->id,
+                    'nama_perjanjian' => $k->nama_perjanjian,
+                    'tanggal_mulai' => optional($k->tanggal_mulai)->format('Y-m-d'),
+                    'tanggal_selesai' => optional($k->tanggal_selesai)->format('Y-m-d'),
+                    'days_to_end' => $k->days_to_end,
+                    'status' => $k->status,
+                    'status_perjanjian' => $k->status_perjanjian,
+                ];
+            });
+        }
+
+        return response()->json($result);
     }
 }

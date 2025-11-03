@@ -14,6 +14,8 @@ use App\Models\SubBidang;
 use App\Models\Okupansi;
 use App\Models\Kontrak;
 use App\Models\Realisasi;
+use App\Models\Inventaris;
+use App\Models\KategoriInventaris;
 use App\Models\Kota;
 use App\Models\JenisKantor;
 use App\Services\AuditLogService;
@@ -31,8 +33,8 @@ class BulkController extends Controller
                 'ids.*' => 'integer'
             ]);
 
-            // Validate model parameter
-            if (!in_array($model, ['kantor', 'gedung', 'ruang', 'okupansi', 'kontrak', 'realisasi', 'bidang', 'sub_bidang', 'lantai'])) {
+            // Validasi parameter model
+            if (!in_array($model, ['kantor', 'gedung', 'ruang', 'okupansi', 'kontrak', 'realisasi', 'bidang', 'sub_bidang', 'lantai', 'inventaris', 'kategori_inventaris'])) {
                 throw new \Exception("Invalid model: {$model}");
             }
             $ids = $request->ids;
@@ -68,11 +70,17 @@ class BulkController extends Controller
                 case 'realisasi':
                     $deletedCount = Realisasi::whereIn('id', $ids)->delete();
                     break;
+                case 'inventaris':
+                    $deletedCount = Inventaris::whereIn('id', $ids)->delete();
+                    break;
+                case 'kategori_inventaris':
+                    $deletedCount = KategoriInventaris::whereIn('id', $ids)->delete();
+                    break;
             }
 
             DB::commit();
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logBulkOperation('delete', $model, $deletedCount, $request, "Bulk delete {$deletedCount} {$model}");
 
             Log::info("Bulk delete {$model}", [
@@ -118,14 +126,14 @@ class BulkController extends Controller
                 'format' => 'required|string|in:excel,csv'
             ]);
 
-            // Validate model parameter
-            if (!in_array($model, ['kantor', 'gedung', 'ruang', 'okupansi', 'kontrak', 'realisasi', 'bidang', 'sub_bidang', 'lantai'])) {
+            // Validasi parameter model
+            if (!in_array($model, ['kantor', 'gedung', 'ruang', 'okupansi', 'kontrak', 'realisasi', 'bidang', 'sub_bidang', 'lantai', 'inventaris', 'kategori_inventaris'])) {
                 throw new \Exception("Invalid model: {$model}");
             }
             $ids = $request->ids;
             $format = $request->format;
 
-            // Get data based on model
+            // Ambil data berdasarkan model
             $data = $this->getBulkData($model, $ids);
 
             if ($format === 'excel') {
@@ -187,6 +195,12 @@ class BulkController extends Controller
                 return Realisasi::with(['kontrak.kantor'])
                     ->whereIn('id', $ids)
                     ->get();
+            case 'inventaris':
+                return Inventaris::with(['kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang', 'subBidang'])
+                    ->whereIn('id', $ids)
+                    ->get();
+            case 'kategori_inventaris':
+                return KategoriInventaris::whereIn('id', $ids)->get();
             default:
                 return collect();
         }
@@ -197,9 +211,28 @@ class BulkController extends Controller
      */
     private function exportToExcel($data, $model)
     {
-        // For now, return CSV format
-        // TODO: Implement Excel export using Laravel Excel package
-        return $this->exportToCsv($data, $model);
+        try {
+            $filename = "PLN_{$model}_export_" . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            // Gunakan class export khusus untuk kontrak
+            if ($model === 'kontrak') {
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\KontrakExport($data),
+                    $filename
+                );
+            }
+            
+            // Untuk model lain, gunakan CSV dulu
+            return $this->exportToCsv($data, $model);
+        } catch (\Exception $e) {
+            Log::error('Excel export error', [
+                'error' => $e->getMessage(),
+                'model' => $model
+            ]);
+            
+            // Fallback ke CSV kalau Excel gagal
+            return $this->exportToCsv($data, $model);
+        }
     }
 
     /**
@@ -217,11 +250,11 @@ class BulkController extends Controller
         $callback = function() use ($data, $model) {
             $file = fopen('php://output', 'w');
             
-            // Add headers based on model
+            // Tambah header berdasarkan model
             $headers = $this->getCsvHeaders($model);
             fputcsv($file, $headers);
             
-            // Add data
+            // Tambah data
             foreach ($data as $row) {
                 $csvRow = $this->formatCsvRow($row, $model);
                 fputcsv($file, $csvRow);
@@ -257,6 +290,10 @@ class BulkController extends Controller
                 return ['ID', 'Nama Sub Bidang', 'Bidang', 'Deskripsi'];
             case 'lantai':
                 return ['ID', 'Nama Lantai', 'Nomor Lantai', 'Gedung', 'Kantor'];
+            case 'inventaris':
+                return ['ID', 'Kode Inventaris', 'Nama Barang', 'Kategori', 'Jumlah', 'Kondisi', 'Lokasi Kantor', 'Lokasi Gedung', 'Lokasi Lantai', 'Lokasi Ruang', 'Bidang', 'Sub Bidang', 'Tanggal Input', 'Deskripsi'];
+            case 'kategori_inventaris':
+                return ['ID', 'Nama Kategori', 'Deskripsi', 'Dibuat', 'Diupdate'];
             default:
                 return [];
         }
@@ -349,6 +386,31 @@ class BulkController extends Controller
                     $row->nomor_lantai,
                     $row->gedung->nama_gedung ?? 'N/A',
                     $row->gedung->kantor->nama_kantor ?? 'N/A'
+                ];
+            case 'inventaris':
+                return [
+                    $row->id,
+                    $row->kode_inventaris,
+                    $row->nama_barang,
+                    $row->kategori->nama_kategori ?? 'N/A',
+                    $row->jumlah,
+                    $row->kondisi,
+                    $row->kantor->nama_kantor ?? 'N/A',
+                    $row->gedung->nama_gedung ?? 'N/A',
+                    $row->lantai->nama_lantai ?? 'N/A',
+                    $row->ruang->nama_ruang ?? 'N/A',
+                    $row->bidang->nama_bidang ?? 'N/A',
+                    $row->subBidang->nama_sub_bidang ?? 'N/A',
+                    $row->tanggal_input->format('d/m/Y'),
+                    $row->deskripsi ?? 'N/A'
+                ];
+            case 'kategori_inventaris':
+                return [
+                    $row->id,
+                    $row->nama_kategori,
+                    $row->deskripsi ?? 'N/A',
+                    $row->created_at->format('d/m/Y H:i'),
+                    $row->updated_at->format('d/m/Y H:i')
                 ];
             default:
                 return [];

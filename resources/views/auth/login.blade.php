@@ -8,8 +8,7 @@
     <title>Login Admin - PLN Icon Plus</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -33,8 +32,8 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--blue-lighter) 0%, var(--blue-light) 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fb;
+            font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -42,46 +41,55 @@
         }
 
         .login-container {
-            background: var(--white);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
             overflow: hidden;
-            max-width: 400px;
+            max-width: 300px;
             width: 100%;
         }
 
         .login-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #357ABD 100%);
-            color: var(--white);
-            padding: 30px;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 12px 12px 10px 12px;
             text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 140px; /* keep header height steady despite bigger logo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
-        .login-header h2 {
-            margin: 0;
-            font-weight: 600;
-        }
+        .login-header h2 { display: none; }
 
         .login-header p {
-            margin: 5px 0 0 0;
+            margin: 0;
             opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-size: 0.75rem;
         }
 
         .login-body {
-            padding: 30px;
+            padding: 16px;
         }
 
         .form-control {
             border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-            font-size: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 8px 10px;
+            font-size: 14px;
             transition: all 0.3s ease;
         }
 
         .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            border-color: #3b82f6;
+            box-shadow: none;
+            outline: none;
         }
 
         .form-label {
@@ -91,22 +99,17 @@
         }
 
         .btn-login {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #357ABD 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 30px;
+            background: #fff;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 8px 16px;
             font-weight: 600;
-            font-size: 16px;
-            color: var(--white);
+            font-size: 14px;
             width: 100%;
-            transition: all 0.3s ease;
+            transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
         }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
-            color: var(--white);
-        }
+        .btn-login:hover { background: #eff6ff; color: #1e40af; box-shadow: 0 2px 8px rgba(59,130,246,.15); }
 
         .form-check-input:checked {
             background-color: var(--primary-color);
@@ -133,8 +136,8 @@
         }
 
         .input-group-text {
-            background-color: var(--blue-lighter);
-            border: 2px solid #e9ecef;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
             border-right: none;
             border-radius: 10px 0 0 10px;
         }
@@ -153,9 +156,22 @@
         }
 
         .logo {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
+        .pln-logo {
+            height: 104px;
+            width: auto;
+            max-width: 140px;
+            object-fit: contain;
+            background: transparent;
+            border-radius: 8px;
+            padding: 0;
+        }
+
 
         .remember-me {
             display: flex;
@@ -174,6 +190,76 @@
             color: #357ABD;
             text-decoration: underline;
         }
+
+        /* Keep alert area height constant so form size doesn't change */
+        .alert-fixed { min-height: 56px; }
+        .alert-fixed:empty { display:block; min-height:56px; }
+
+        /* Desain Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                max-width: 95%;
+                margin: 20px;
+            }
+            
+            .login-header {
+                padding: 25px 20px;
+            }
+            
+            .login-body {
+                padding: 25px 20px;
+            }
+            
+            .pln-logo {
+                height: 50px;
+                max-width: 70px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 6px;
+                padding: 4px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .login-header p {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .login-header {
+                padding: 20px 15px;
+            }
+            
+            .login-body {
+                padding: 20px 15px;
+            }
+            
+            .pln-logo {
+                height: 45px;
+                max-width: 60px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 5px;
+                padding: 3px;
+            }
+            
+            .form-control {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+            
+            .btn-login {
+                padding: 12px 25px;
+                font-size: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -184,29 +270,37 @@
                     <!-- Header -->
                     <div class="login-header">
                         <div class="logo">
-                            <i class="fas fa-building"></i>
+                            <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN Logo" class="pln-logo">
                         </div>
                         <h2>PLN Icon Plus</h2>
-                        <p>Admin Panel Login</p>
+                        <p>Management Asset & Property</p>
                     </div>
 
                     <!-- Body -->
                     <div class="login-body">
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+                        <div class="alert-fixed">
+                            @if ($errors->any())
+                                <div class="alert alert-danger mb-2">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                        @if (session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
+                            @if (session('success'))
+                                <div class="alert alert-success mb-2">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger mb-2">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
+                        </div>
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
@@ -291,12 +385,12 @@
     
     <!-- Custom JS -->
     <script>
-        // Auto-hide alerts
+        // Auto-hide alert
         setTimeout(function() {
             $('.alert').fadeOut();
         }, 5000);
 
-        // Form validation
+        // Validasi form
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
             const username = document.getElementById('username');

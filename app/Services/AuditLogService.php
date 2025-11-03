@@ -24,7 +24,7 @@ class AuditLogService
         $user = Auth::guard('admin')->user();
         $request = $request ?? request();
 
-        // Get changed fields
+        // Ambil field yang berubah
         $changedFields = [];
         if (!empty($oldValues) && !empty($newValues)) {
             foreach ($newValues as $key => $value) {
@@ -195,32 +195,32 @@ class AuditLogService
     {
         $query = AuditLog::query();
 
-        // Filter by user
+        // Filter berdasarkan user
         if (isset($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
 
-        // Filter by action
+        // Filter berdasarkan action
         if (isset($filters['action'])) {
             $query->where('action', $filters['action']);
         }
 
-        // Filter by model
+        // Filter berdasarkan model
         if (isset($filters['model_type'])) {
             $query->where('model_type', $filters['model_type']);
         }
 
-        // Filter by date range
+        // Filter berdasarkan range tanggal
         if (isset($filters['start_date']) && isset($filters['end_date'])) {
             $query->whereBetween('created_at', [$filters['start_date'], $filters['end_date']]);
         }
 
-        // Filter by IP
+        // Filter berdasarkan IP
         if (isset($filters['ip_address'])) {
             $query->where('ip_address', $filters['ip_address']);
         }
 
-        // Search
+        // Pencarian
         if (isset($filters['search'])) {
             $search = $filters['search'];
             $query->where(function($q) use ($search) {

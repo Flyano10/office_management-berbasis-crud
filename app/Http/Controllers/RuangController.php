@@ -16,7 +16,18 @@ class RuangController extends Controller
     {
         $query = Ruang::with(['lantai.gedung.kantor', 'bidang', 'subBidang']);
 
-        // Apply filters
+        // Scoping berdasarkan role: kantor (admin_regional, manager_bidang, staf) dan bidang (manager_bidang, staf)
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $query->whereHas('lantai.gedung', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            });
+        }
+        if ($actor && in_array($actor->role, ['manager_bidang','staf'], true)) {
+            $query->where('bidang_id', $actor->bidang_id);
+        }
+
+        // Terapkan filter
         if ($request->filled('lantai')) {
             $query->where('lantai_id', $request->lantai);
         }
@@ -31,17 +42,36 @@ class RuangController extends Controller
 
         $ruang = $query->orderBy('created_at', 'desc')->get();
         
-        // Get filter options
-        $lantai = Lantai::with('gedung.kantor')->get();
-        $bidang = Bidang::all();
+        // Ambil opsi filter (batasi pilihan untuk non-super_admin)
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $lantai = Lantai::whereHas('gedung', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            })->with('gedung.kantor')->get();
+            $bidang = in_array($actor->role, ['manager_bidang','staf'], true)
+                ? Bidang::where('id', $actor->bidang_id)->get()
+                : Bidang::all();
+        } else {
+            $lantai = Lantai::with('gedung.kantor')->get();
+            $bidang = Bidang::all();
+        }
             
         return view('ruang.index', compact('ruang', 'lantai', 'bidang'));
     }
 
     public function create()
     {
-        $lantai = Lantai::with('gedung.kantor')->get();
-        $bidang = Bidang::orderBy('nama_bidang')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $lantai = Lantai::whereHas('gedung', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            })->with('gedung.kantor')->get();
+            $bidang = in_array($actor->role, ['manager_bidang','staf'], true)
+                ? Bidang::where('id', $actor->bidang_id)->orderBy('nama_bidang')->get()
+                : Bidang::orderBy('nama_bidang')->get();
+        } else {
+            $lantai = Lantai::with('gedung.kantor')->get();
+            $bidang = Bidang::orderBy('nama_bidang')->get();
+        }
         $subBidang = SubBidang::with('bidang')->orderBy('nama_sub_bidang')->get();
         
         return view('ruang.create', compact('lantai', 'bidang', 'subBidang'));
@@ -61,10 +91,25 @@ class RuangController extends Controller
                 'status_ruang' => 'required|in:tersedia,terisi,perbaikan',
             ]);
 
-            $ruang = Ruang::create($request->all());
+            $data = $request->all();
+            $actor = auth('admin')->user();
+            // Enforcement kantor untuk non-super_admin
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+                // Pastikan lantai berada pada kantor yang sesuai
+                $lantai = Lantai::with('gedung')->findOrFail($request->lantai_id);
+                if ($lantai->gedung->kantor_id !== $actor->kantor_id) {
+                    return back()->withErrors(['lantai_id' => 'Anda tidak dapat memilih lantai di luar kantor Anda.'])->withInput();
+                }
+            }
+            // Enforcement bidang untuk manager_bidang dan staf
+            if ($actor && in_array($actor->role, ['manager_bidang','staf'], true)) {
+                $data['bidang_id'] = $actor->bidang_id;
+            }
+
+            $ruang = Ruang::create($data);
             Log::info('Ruang created:', $ruang->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logCreate($ruang, $request, "Membuat ruang baru: {$ruang->nama_ruang}");
 
             return redirect()->route('ruang.index')
@@ -79,8 +124,29 @@ class RuangController extends Controller
     {
         $ruang = Ruang::with(['lantai.gedung.kantor', 'bidang', 'subBidang'])
             ->findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($ruang->lantai->gedung->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('ruang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melihat ruang ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk melihat ruang ini!'
+                    ]);
+            }
+            if (in_array($actor->role, ['manager_bidang','staf'], true) && $ruang->bidang_id !== $actor->bidang_id) {
+                return redirect()->route('ruang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melihat ruang pada bidang lain!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk melihat ruang pada bidang lain!'
+                    ]);
+            }
+        }
             
-        // Log audit for view
+        // Catat log audit untuk view
         AuditLogService::logView($ruang, $request, "Melihat detail ruang: {$ruang->nama_ruang}");
             
         return view('ruang.show', compact('ruang'));
@@ -89,8 +155,38 @@ class RuangController extends Controller
     public function edit(string $id)
     {
         $ruang = Ruang::findOrFail($id);
-        $lantai = Lantai::with('gedung.kantor')->get();
-        $bidang = Bidang::orderBy('nama_bidang')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($ruang->lantai->gedung->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('ruang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengedit ruang ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk mengedit ruang ini!'
+                    ]);
+            }
+            if (in_array($actor->role, ['manager_bidang','staf'], true) && $ruang->bidang_id !== $actor->bidang_id) {
+                return redirect()->route('ruang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengedit ruang pada bidang lain!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk mengedit ruang pada bidang lain!'
+                    ]);
+            }
+        }
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $lantai = Lantai::whereHas('gedung', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            })->with('gedung.kantor')->get();
+            $bidang = in_array($actor->role, ['manager_bidang','staf'], true)
+                ? Bidang::where('id', $actor->bidang_id)->orderBy('nama_bidang')->get()
+                : Bidang::orderBy('nama_bidang')->get();
+        } else {
+            $lantai = Lantai::with('gedung.kantor')->get();
+            $bidang = Bidang::orderBy('nama_bidang')->get();
+        }
         $subBidang = SubBidang::with('bidang')->orderBy('nama_sub_bidang')->get();
         
         return view('ruang.edit', compact('ruang', 'lantai', 'bidang', 'subBidang'));
@@ -103,7 +199,7 @@ class RuangController extends Controller
             
             $ruang = Ruang::findOrFail($id);
             
-            // Store old values for audit
+            // Simpan nilai lama untuk audit
             $oldValues = $ruang->toArray();
             
             $request->validate([
@@ -115,10 +211,24 @@ class RuangController extends Controller
                 'status_ruang' => 'required|in:tersedia,terisi,perbaikan',
             ]);
 
-            $ruang->update($request->all());
+            $data = $request->all();
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+                // Pastikan lantai berada pada kantor yang sesuai
+                $lantai = Lantai::with('gedung')->findOrFail($request->lantai_id);
+                if ($lantai->gedung->kantor_id !== $actor->kantor_id) {
+                    return back()->withErrors(['lantai_id' => 'Anda tidak dapat memilih lantai di luar kantor Anda.'])->withInput();
+                }
+            }
+            // Enforcement bidang untuk manager_bidang dan staf
+            if ($actor && in_array($actor->role, ['manager_bidang','staf'], true)) {
+                $data['bidang_id'] = $actor->bidang_id;
+            }
+
+            $ruang->update($data);
             Log::info('Ruang updated:', $ruang->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logUpdate($ruang, $oldValues, $request, "Mengubah ruang: {$ruang->nama_ruang}");
 
             return redirect()->route('ruang.index')
@@ -133,8 +243,29 @@ class RuangController extends Controller
     {
         try {
             $ruang = Ruang::findOrFail($id);
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+                if ($ruang->lantai->gedung->kantor_id !== $actor->kantor_id) {
+                    return redirect()->route('ruang.index')
+                        ->with('error', 'Anda tidak memiliki akses untuk menghapus ruang ini!')
+                        ->with('toast', [
+                            'type' => 'error',
+                            'title' => 'Akses Ditolak',
+                            'message' => 'Anda tidak memiliki akses untuk menghapus ruang ini!'
+                        ]);
+                }
+                if (in_array($actor->role, ['manager_bidang','staf'], true) && $ruang->bidang_id !== $actor->bidang_id) {
+                    return redirect()->route('ruang.index')
+                        ->with('error', 'Anda tidak memiliki akses untuk menghapus ruang pada bidang lain!')
+                        ->with('toast', [
+                            'type' => 'error',
+                            'title' => 'Akses Ditolak',
+                            'message' => 'Anda tidak memiliki akses untuk menghapus ruang pada bidang lain!'
+                        ]);
+                }
+            }
             
-            // Log audit before deletion
+            // Catat log audit before deletion
             AuditLogService::logDelete($ruang, $request, "Menghapus ruang: {$ruang->nama_ruang}");
             
             $ruang->delete();

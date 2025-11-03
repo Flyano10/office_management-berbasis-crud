@@ -12,37 +12,37 @@ class StrongPasswordRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // Check minimum length
+        // Cek panjang minimum
         if (strlen($value) < 8) {
             $fail('Password harus minimal 8 karakter.');
             return;
         }
 
-        // Check for uppercase letter
+        // Cek huruf besar
         if (!preg_match('/[A-Z]/', $value)) {
             $fail('Password harus mengandung minimal 1 huruf besar.');
             return;
         }
 
-        // Check for lowercase letter
+        // Cek huruf kecil
         if (!preg_match('/[a-z]/', $value)) {
             $fail('Password harus mengandung minimal 1 huruf kecil.');
             return;
         }
 
-        // Check for number
+        // Cek angka
         if (!preg_match('/[0-9]/', $value)) {
             $fail('Password harus mengandung minimal 1 angka.');
             return;
         }
 
-        // Check for special character
+        // Cek karakter khusus
         if (!preg_match('/[^A-Za-z0-9]/', $value)) {
             $fail('Password harus mengandung minimal 1 karakter khusus.');
             return;
         }
 
-        // Check for common weak passwords
+        // Cek password lemah yang umum
         $weakPasswords = [
             'password', '123456', 'admin', 'qwerty', 'abc123',
             'password123', 'admin123', '12345678', 'qwerty123'

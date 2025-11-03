@@ -5,12 +5,12 @@
 @section('page-subtitle', 'Riwayat aktivitas sistem dan perubahan data')
 
 @section('page-actions')
-    <div class="header-actions">
-        <a href="{{ route('audit-log.export', request()->query()) }}" class="btn btn-modern btn-success">
-            <i class="fas fa-download"></i> Export CSV
+    <div class="header-actions d-flex gap-2">
+        <a href="{{ route('audit-log.export', request()->query()) }}" class="btn btn-outline-primary">
+            <i class="fas fa-download me-2"></i>Export CSV
         </a>
-        <button type="button" class="btn btn-modern btn-danger" data-bs-toggle="modal" data-bs-target="#resetModal">
-            <i class="fas fa-trash-alt"></i> Reset Audit Log
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetModal">
+            <i class="fas fa-trash-alt me-2"></i>Reset Audit Log
         </button>
     </div>
 @endsection
@@ -30,15 +30,15 @@
                     </h6>
                 </div>
                 <div class="filter-body">
-                    <form method="GET" action="{{ route('audit-log.index') }}" class="row g-3">
-                        <div class="col-md-4">
+                    <form method="GET" action="{{ route('audit-log.index') }}" class="row g-2 align-items-end">
+                        <div class="col-md-5">
                             <label for="search" class="form-label">Cari</label>
-                            <input type="text" class="form-control" id="search" name="search" 
+                            <input type="text" class="form-control" id="search" name="search"
                                    value="{{ request('search') }}" placeholder="Cari aktivitas...">
                         </div>
                         <div class="col-md-3">
                             <label for="action" class="form-label">Aksi</label>
-                            <select class="modern-select" id="action" name="action">
+                            <select class="form-select" id="action" name="action">
                                 <option value="">Semua Aksi</option>
                                 @foreach($actions as $action)
                                     <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>
@@ -49,24 +49,22 @@
                         </div>
                         <div class="col-md-3">
                             <label for="user_id" class="form-label">User</label>
-                            <select class="modern-select" id="user_id" name="user_id">
+                            <select class="form-select" id="user_id" name="user_id">
                                 <option value="">Semua User</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user }}" {{ request('user_id') == $user ? 'selected' : '' }}>
-                                        {{ $user }}
+                                    <option value="{{ $user->id }}" {{ (string)request('user_id') === (string)$user->id ? 'selected' : '' }}>
+                                        {{ $user->nama_admin }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <div class="d-flex gap-2 mt-4">
-                                <button type="submit" class="btn btn-modern btn-filter">
-                                    <i class="fas fa-search"></i> Filter
-                                </button>
-                                <a href="{{ route('audit-log.index') }}" class="btn btn-modern btn-clear">
-                                    <i class="fas fa-times"></i> Reset
-                                </a>
-                            </div>
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                            <a href="{{ route('audit-log.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-rotate-left me-1"></i>Reset
+                            </a>
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -85,19 +83,12 @@
                     </h6>
                 </div>
                 <div class="audit-body">
-                    <!-- Debug Info -->
-                    <div class="alert alert-info mb-3">
-                        <strong>Debug Info:</strong> 
-                        Total Records: {{ $auditLogs->total() }} | 
-                        Current Page: {{ $auditLogs->currentPage() }} | 
-                        Per Page: {{ $auditLogs->perPage() }} |
-                        Count: {{ $auditLogs->count() }}
-                    </div>
+                    
                     
                     @if($auditLogs->count() > 0)
                         <div class="table-responsive">
                             <table class="modern-table">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
                                         <th>Tanggal & Waktu</th>
                                         <th>User</th>
@@ -136,7 +127,7 @@
                                                     ];
                                                     $color = $actionColors[$log->action] ?? 'secondary';
                                                 @endphp
-                                                <span class="modern-badge badge-{{ $color }}">{{ $log->formatted_action }}</span>
+                                                <span class="modern-badge">{{ $log->formatted_action }}</span>
                                             </td>
                                             <td>
                                                 <div class="audit-description">
@@ -183,7 +174,7 @@
 
 @push('styles')
 <style>
-    /* Audit Card */
+    /* Card Audit */
     .audit-card {
         background: white;
         border-radius: 1.5rem;
@@ -216,7 +207,7 @@
         padding: 1.5rem;
     }
 
-    /* Modern Table */
+    /* Tabel Modern */
     .modern-table {
         width: 100%;
         border-collapse: collapse;
@@ -255,7 +246,7 @@
         vertical-align: middle;
     }
 
-    /* Modern Badges */
+    /* Badge Modern */
     .modern-badge {
         padding: 0.375rem 0.75rem;
         border-radius: 0.5rem;
@@ -288,7 +279,7 @@
         background: linear-gradient(135deg, #3b82f6, #60a5fa);
     }
 
-    /* Audit Content */
+    /* Konten Audit */
     .audit-date {
         font-weight: 600;
         color: #1e293b;
@@ -337,7 +328,7 @@
         font-size: 0.8rem;
     }
 
-    /* Empty State */
+    /* State Kosong */
     .empty-state {
         padding: 3rem 1rem;
         text-align: center;
@@ -360,7 +351,7 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Pagination Styling */
+    /* Styling Pagination */
     .pagination-container {
         display: flex;
         justify-content: space-between;
@@ -380,7 +371,7 @@
         align-items: center;
     }
 
-    /* Custom pagination styling */
+    /* Styling pagination custom */
     .pagination-links nav {
         display: flex;
         align-items: center;
@@ -424,7 +415,7 @@
         cursor: not-allowed;
     }
 
-    /* Ensure consistent table row height */
+    /* Pastikan tinggi baris tabel konsisten */
     .modern-table tbody tr td {
         white-space: nowrap;
         overflow: hidden;
@@ -437,7 +428,7 @@
         text-overflow: initial;
     }
 
-    /* Responsive Design */
+    /* Desain Responsive */
     @media (max-width: 768px) {
         .audit-body {
             padding: 1rem;

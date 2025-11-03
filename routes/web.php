@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\KantorController;
 use App\Http\Controllers\GedungController;
 use App\Http\Controllers\KontrakController;
@@ -19,37 +20,54 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DashboardController;
-// Auth routes
+use App\Http\Controllers\InventarisController;
+use App\Http\Controllers\KategoriInventarisController;
+// Route auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Root route
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+// Route CSRF token refresh untuk mencegah error 419
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
 });
 
-// Protected routes
-Route::middleware(['auth:admin', 'query.logging'])->group(function () {
-    // Dashboard route
+
+// Route admin dengan prefix /admin
+Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
+    // Route dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Peta routes
+    // Route peta
     Route::get('/peta', [PetaController::class, 'index'])->name('peta.index');
     Route::get('/peta/locations', [PetaController::class, 'getLocations'])->name('peta.locations');
+    Route::get('/peta/kontrak-expiring', [PetaController::class, 'getExpiringContracts'])->name('peta.kontrak-expiring');
     
     // Analytics routes
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData'])->name('analytics.chart-data');
     
-    // Admin Management routes (Super Admin only)
-    Route::middleware(['role:super_admin', 'prevent.self.role.change'])->group(function () {
+    // Admin Management routes
+    // Note: Controller enforces finer RBAC (admin_regional limited to staf in-scope)
+    Route::middleware(['role:super_admin,admin_regional,manager_bidang,admin,staf', 'prevent.self.role.change'])->group(function () {
         Route::resource('admin', AdminController::class);
         Route::post('/admin/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.toggle-status');
     });
+
+    // Profile routes for staf (self only)
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('/profile', function () {
+            $id = Auth::guard('admin')->id();
+            return redirect()->route('admin.edit', $id);
+        })->name('profile.edit');
+        Route::put('/profile', function (\Illuminate\Http\Request $request) {
+            $id = Auth::guard('admin')->id();
+            return app(\App\Http\Controllers\AdminController::class)->update($request, $id);
+        })->name('profile.update');
+    });
     
-    // Audit Log routes (Super Admin only)
-    Route::middleware(['role:super_admin'])->group(function () {
+    // Audit Log routes (Super Admin and Admin Regional)
+    Route::middleware(['role:super_admin,admin_regional,admin'])->group(function () {
         Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
         Route::get('/audit-log/{id}', [AuditLogController::class, 'show'])->name('audit-log.show');
         Route::get('/audit-log/export', [AuditLogController::class, 'export'])->name('audit-log.export');
@@ -69,6 +87,8 @@ Route::middleware(['auth:admin', 'query.logging'])->group(function () {
     // Search routes
     Route::get('/search/global', [SearchController::class, 'globalSearch'])->name('search.global');
     Route::get('/search/suggestions', [SearchController::class, 'getSuggestions'])->name('search.suggestions');
+            
+
 
 
            // CRUD routes
@@ -82,6 +102,10 @@ Route::middleware(['auth:admin', 'query.logging'])->group(function () {
            Route::resource('okupansi', OkupansiController::class);
            Route::resource('bidang', BidangController::class);
            Route::resource('sub-bidang', SubBidangController::class);
+           
+            // Inventaris routes
+            Route::resource('inventaris', InventarisController::class);
+            Route::resource('kategori-inventaris', KategoriInventarisController::class);
 });
 
 // Existing routes

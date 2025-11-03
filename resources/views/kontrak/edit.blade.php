@@ -94,9 +94,18 @@
                             <div class="mb-3">
                                 <label for="status_perjanjian" class="form-label">Status Perjanjian</label>
                                 <select class="form-select" id="status_perjanjian" name="status_perjanjian" required>
-                                    <option value="baru" {{ $kontrak->status_perjanjian == 'baru' ? 'selected' : '' }}>Baru</option>
-                                    <option value="berjalan" {{ $kontrak->status_perjanjian == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
-                                    <option value="selesai" {{ $kontrak->status_perjanjian == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                    <option value="Baru" {{ $kontrak->status_perjanjian == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                    <option value="Amandemen" {{ $kontrak->status_perjanjian == 'Amandemen' ? 'selected' : '' }}>Amandemen</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="Aktif" {{ $kontrak->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="Tidak Aktif" {{ $kontrak->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                    <option value="Batal" {{ $kontrak->status == 'Batal' ? 'selected' : '' }}>Batal</option>
                                 </select>
                             </div>
                         </div>
@@ -129,9 +138,18 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="sbu" class="form-label">SBU</label>
-                                <input type="text" class="form-control" id="sbu" name="sbu" 
-                                       value="{{ old('sbu', $kontrak->sbu) }}">
+                                <label for="sbu" class="form-label" id="sbu_label">Parent Kantor</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="sbu_type" name="sbu_type" style="max-width: 120px;">
+                                        <option value="">Pilih</option>
+                                        <option value="Pusat" {{ old('sbu_type', $kontrak->sbu_type) == 'Pusat' ? 'selected' : '' }}>Pusat</option>
+                                        <option value="SBU" {{ old('sbu_type', $kontrak->sbu_type) == 'SBU' ? 'selected' : '' }}>SBU</option>
+                                        <option value="Perwakilan" {{ old('sbu_type', $kontrak->sbu_type) == 'Perwakilan' ? 'selected' : '' }}>Perwakilan</option>
+                                        <option value="Gudang" {{ old('sbu_type', $kontrak->sbu_type) == 'Gudang' ? 'selected' : '' }}>Gudang</option>
+                                    </select>
+                                    <input type="text" class="form-control" id="sbu" name="sbu" 
+                                           placeholder="Contoh: SBU Jakarta" value="{{ old('sbu', $kontrak->sbu) }}">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -189,4 +207,43 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sbuTypeSelect = document.getElementById('sbu_type');
+    const sbuInput = document.getElementById('sbu');
+
+    sbuTypeSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        
+        if (selectedValue && selectedValue !== '') {
+            // Update placeholder berdasarkan pilihan
+            switch(selectedValue) {
+                case 'Pusat':
+                    sbuInput.placeholder = 'Contoh: Pusat Jakarta Selatan';
+                    break;
+                case 'SBU':
+                    sbuInput.placeholder = 'Contoh: SBU Jakarta';
+                    break;
+                case 'Perwakilan':
+                    sbuInput.placeholder = 'Contoh: Perwakilan Jakarta';
+                    break;
+                case 'Gudang':
+                    sbuInput.placeholder = 'Contoh: Gudang Jakarta';
+                    break;
+            }
+            
+            // Jika input kosong, isi dengan pilihan yang dipilih
+            if (sbuInput.value === '') {
+                sbuInput.value = selectedValue + ' ';
+                sbuInput.focus();
+                // Pindahkan cursor ke akhir
+                sbuInput.setSelectionRange(sbuInput.value.length, sbuInput.value.length);
+            }
+        } else {
+            sbuInput.placeholder = 'Contoh: SBU Jakarta';
+        }
+    });
+});
+</script>
 @endsection

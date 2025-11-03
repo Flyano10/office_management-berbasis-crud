@@ -19,7 +19,14 @@ class KantorController extends Controller
     {
         $query = Kantor::with(['kota.provinsi', 'jenisKantor', 'parentKantor']);
 
-        // Apply filters
+        // Scoping berdasarkan role admin
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            // Batasi daftar ke kantor miliknya saja
+            $query->where('id', $actor->kantor_id);
+        }
+
+        // Terapkan filter-filter yang dipilih
         if ($request->filled('status_kantor')) {
             $query->where('status_kantor', $request->status_kantor);
         }
@@ -34,7 +41,7 @@ class KantorController extends Controller
 
         $kantor = $query->orderBy('created_at', 'desc')->get();
         
-        // Get filter options - optimasi query
+        // Ambil opsi filter - optimasi query database
         $jenisKantor = JenisKantor::select('id', 'nama_jenis')->get();
         $kota = Kota::select('id', 'nama_kota', 'provinsi_id')->with('provinsi:id,nama_provinsi')->get();
             
@@ -46,9 +53,20 @@ class KantorController extends Controller
      */
     public function create()
     {
+        // Hanya super_admin yang dapat membuat kantor baru
+        if (auth('admin')->user()->role !== 'super_admin') {
+            return redirect()->route('kantor.index')
+                ->with('error', 'Hanya Super Admin yang dapat membuat kantor!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Hanya Super Admin yang dapat membuat kantor!'
+                ]);
+        }
+
         $jenisKantor = JenisKantor::all();
         $kota = Kota::with('provinsi')->get();
-        $parentKantor = Kantor::where('status_kantor', 'aktif')->get();
+        $parentKantor = Kantor::select('id', 'nama_kantor')->get();
         
         return view('kantor.create', compact('jenisKantor', 'kota', 'parentKantor'));
     }
@@ -59,6 +77,16 @@ class KantorController extends Controller
     public function store(Request $request)
     {
         try {
+            // Hanya super_admin yang dapat membuat kantor baru
+            if (auth('admin')->user()->role !== 'super_admin') {
+                return redirect()->route('kantor.index')
+                    ->with('error', 'Hanya Super Admin yang dapat membuat kantor!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Hanya Super Admin yang dapat membuat kantor!'
+                    ]);
+            }
             $request->validate([
                 'kode_kantor' => 'required|unique:kantor,kode_kantor',
                 'nama_kantor' => 'required|string|max:255',
@@ -103,8 +131,20 @@ class KantorController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $kantor = Kantor::with(['kota.provinsi', 'jenisKantor', 'parentKantor', 'childKantor'])
+        $kantor = Kantor::with(['kota.provinsi', 'jenisKantor'])
             ->findOrFail($id);
+
+        // Scoping akses lihat
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $kantor->id !== $actor->kantor_id) {
+            return redirect()->route('kantor.index')
+                ->with('error', 'Anda tidak memiliki akses untuk melihat kantor ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk melihat kantor ini!'
+                ]);
+        }
             
         // Log audit for view
         AuditLogService::logView($kantor, $request, "Melihat detail kantor: {$kantor->nama_kantor}");
@@ -118,11 +158,21 @@ class KantorController extends Controller
     public function edit(string $id)
     {
         $kantor = Kantor::findOrFail($id);
+        // Scoping akses edit
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $kantor->id !== $actor->kantor_id) {
+            return redirect()->route('kantor.index')
+                ->with('error', 'Anda tidak memiliki akses untuk mengedit kantor ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk mengedit kantor ini!'
+                ]);
+        }
+
         $jenisKantor = JenisKantor::all();
         $kota = Kota::with('provinsi')->get();
-        $parentKantor = Kantor::where('status_kantor', 'aktif')
-            ->where('id', '!=', $id)
-            ->get();
+        $parentKantor = Kantor::select('id', 'nama_kantor')->get();
         
         return view('kantor.edit', compact('kantor', 'jenisKantor', 'kota', 'parentKantor'));
     }
@@ -134,6 +184,17 @@ class KantorController extends Controller
     {
         try {
             $kantor = Kantor::findOrFail($id);
+            // Scoping akses update
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $kantor->id !== $actor->kantor_id) {
+                return redirect()->route('kantor.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk memperbarui kantor ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk memperbarui kantor ini!'
+                    ]);
+            }
             
             // Store old values for audit
             $oldValues = $kantor->toArray();
@@ -179,6 +240,17 @@ class KantorController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
+        // Hanya super_admin yang dapat menghapus kantor
+        if (auth('admin')->user()->role !== 'super_admin') {
+            return redirect()->route('kantor.index')
+                ->with('error', 'Hanya Super Admin yang dapat menghapus kantor!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Hanya Super Admin yang dapat menghapus kantor!'
+                ]);
+        }
+
         $kantor = Kantor::findOrFail($id);
         
         // Log audit before deletion

@@ -149,10 +149,12 @@
                                         </div>
                                     </td>
                                     <td>
+                                        @php($actor = Auth::guard('admin')->user())
                                         <div class="action-buttons">
                                             <a href="{{ route('lantai.show', $l->id) }}" class="btn btn-modern btn-info" title="Lihat">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            @if(($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf']) && (int)($l->gedung->kantor_id ?? 0) === (int)$actor->kantor_id))
                                             <a href="{{ route('lantai.edit', $l->id) }}" class="btn btn-modern btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -163,6 +165,7 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -200,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -208,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -243,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -254,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} lantai yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "lantai") }}';
@@ -264,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -279,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -289,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "lantai") }}';
@@ -299,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -319,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -329,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "lantai") }}';
@@ -339,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -363,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-    /* Lantai Card */
+    /* Card Lantai */
     .lantai-card {
         background: white;
         border-radius: 1.5rem;
@@ -389,14 +392,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .lantai-title i {
-        color: #3b82f6; /* Blue theme for Lantai */
+        color: #3b82f6; /* Tema biru untuk Lantai */
     }
 
     .lantai-body {
         padding: 1.5rem;
     }
 
-    /* Filter Card */
+    /* Card Filter */
     .filter-card {
         background: white;
         border-radius: 1.5rem;
@@ -422,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .filter-title i {
-        color: #3b82f6; /* Blue theme for Lantai */
+        color: #3b82f6; /* Tema biru untuk Lantai */
     }
 
     .filter-body {
@@ -445,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Modern Buttons */
+    /* Button Modern */
     .btn-modern {
         padding: 0.5rem 1rem;
         border-radius: 0.75rem;
@@ -529,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
-    /* Bulk Actions Card */
+    /* Card Aksi Bulk */
     .bulk-actions-card {
         background: linear-gradient(135deg, #fef3c7, #fde68a);
         border: 1px solid #f59e0b;
@@ -557,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gap: 0.5rem;
     }
 
-    /* Modern Table */
+    /* Tabel Modern */
     .modern-table {
         width: 100%;
         border-collapse: collapse;
@@ -645,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
         font-size: 0.8rem;
     }
 
-    /* Empty State */
+    /* State Kosong */
     .empty-state {
         padding: 3rem 1rem;
         text-align: center;

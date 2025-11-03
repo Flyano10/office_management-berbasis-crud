@@ -26,7 +26,7 @@ class ApiController extends Controller
             return false;
         }
         
-        RateLimiter::hit($key, 60); // 60 seconds decay
+        RateLimiter::hit($key, 60); // 60 detik decay
         return true;
     }
     

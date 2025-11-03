@@ -29,7 +29,7 @@ class ApiRateLimit
             ], 429);
         }
         
-        RateLimiter::hit($key, 60); // 60 seconds decay
+        RateLimiter::hit($key, 60); // 60 detik decay
         
         return $next($request);
     }

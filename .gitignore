@@ -16,6 +16,8 @@
 .env
 .env.backup
 .env.production
+.env.*
+!.env.example
 
 # IDE
 .vscode/
@@ -119,3 +121,38 @@ temp/
 Homestead.json
 Homestead.yaml
 auth.json
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache
+
+# Application specific sensitive files
+/storage/app/private/
+/config/production/
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Local configuration files
+config.local.php
+database.local.php
+
+# Generated documentation
+/docs/api/
+/phpdoc/
+
+# Composer
+composer.phar

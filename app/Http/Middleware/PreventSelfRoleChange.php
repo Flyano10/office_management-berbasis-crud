@@ -20,9 +20,9 @@ class PreventSelfRoleChange
         $currentUser = Auth::guard('admin')->user();
         $targetAdminId = $request->route('admin') ?? $request->route('id');
 
-        // Check if user is trying to edit themselves
+        // Cek apakah user mencoba edit dirinya sendiri
         if ($currentUser && $targetAdminId && $currentUser->id == $targetAdminId) {
-            // Check if trying to change role to super_admin
+            // Cek apakah mencoba ubah role ke super_admin
             if ($request->has('role') && $request->role === 'super_admin' && $currentUser->role !== 'super_admin') {
                 Log::warning('Admin attempted to elevate their own role', [
                     'user_id' => $currentUser->id,

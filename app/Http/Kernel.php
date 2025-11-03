@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'prevent.self.role.change' => \App\Http\Middleware\PreventSelfRoleChange::class,
         'query.logging' => \App\Http\Middleware\QueryLoggingMiddleware::class,
+        'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
     ];
 }

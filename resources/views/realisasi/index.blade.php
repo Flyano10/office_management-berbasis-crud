@@ -124,6 +124,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php($actor = Auth::guard('admin')->user())
                             @forelse($realisasi as $index => $r)
                             <tr>
                                 <td>
@@ -145,6 +146,8 @@
                                         <a href="{{ route('realisasi.show', $r->id) }}" class="btn btn-sm btn-outline-info" title="Lihat">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @php($rowKantorId = $r->kontrak->kantor->id ?? $r->kontrak->kantor_id ?? $r->kantor_id ?? null)
+                                        @if(($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf']) && (int)$actor->kantor_id === (int)$rowKantorId))
                                         <a href="{{ route('realisasi.edit', $r->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -155,6 +158,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -189,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -197,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -232,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -243,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} realisasi yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "realisasi") }}';
@@ -253,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -268,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -278,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "realisasi") }}';
@@ -288,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -308,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -318,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "realisasi") }}';
@@ -328,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';

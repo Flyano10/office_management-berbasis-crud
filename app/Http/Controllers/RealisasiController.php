@@ -17,7 +17,15 @@ class RealisasiController extends Controller
     {
         $query = Realisasi::with(['kontrak.kantor']);
 
-        // Apply filters
+        // Scoping berdasarkan role (kantor) melalui relasi kontrak
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $query->whereHas('kontrak', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            });
+        }
+
+        // Terapkan filter
         if ($request->filled('kontrak')) {
             $query->where('kontrak_id', $request->kontrak);
         }
@@ -32,8 +40,14 @@ class RealisasiController extends Controller
 
         $realisasi = $query->orderBy('created_at', 'desc')->get();
         
-        // Get filter options
-        $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')->get();
+        // Ambil opsi filter (batasi untuk non-super_admin)
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')
+                ->where('kantor_id', $actor->kantor_id)
+                ->get();
+        } else {
+            $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')->get();
+        }
             
         return view('realisasi.index', compact('realisasi', 'kontrak'));
     }
@@ -78,7 +92,7 @@ class RealisasiController extends Controller
             $data['tanggal_mulai'] = $kontrak->tanggal_mulai;
             $data['tanggal_selesai'] = $kontrak->tanggal_selesai;
             
-            // Handle file upload
+            // Handle upload file
             if ($request->hasFile('upload_berita_acara')) {
                 $file = $request->file('upload_berita_acara');
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -89,7 +103,7 @@ class RealisasiController extends Controller
             $realisasi = Realisasi::create($data);
             Log::info('Realisasi created:', $realisasi->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logCreate($realisasi, $request, "Membuat realisasi baru: {$realisasi->kompensasi} - Rp " . number_format($realisasi->rp_kompensasi, 0, ',', '.'));
 
             return redirect()->route('realisasi.index')
@@ -107,8 +121,22 @@ class RealisasiController extends Controller
     {
         $realisasi = Realisasi::with(['kontrak.kantor'])
             ->findOrFail($id);
-            
-        // Log audit for view
+        
+        // Scoping akses lihat berdasarkan kantor kontrak
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($realisasi->kontrak->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('realisasi.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melihat realisasi ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk melihat realisasi ini!'
+                    ]);
+            }
+        }
+        
+        // Catat log audit untuk view
         AuditLogService::logView($realisasi, $request, "Melihat detail realisasi: {$realisasi->kompensasi} - Rp " . number_format($realisasi->rp_kompensasi, 0, ',', '.'));
             
         return view('realisasi.show', compact('realisasi'));
@@ -120,7 +148,23 @@ class RealisasiController extends Controller
     public function edit(string $id)
     {
         $realisasi = Realisasi::findOrFail($id);
-        $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($realisasi->kontrak->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('realisasi.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengedit realisasi ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk mengedit realisasi ini!'
+                    ]);
+            }
+            $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')
+                ->where('kantor_id', $actor->kantor_id)
+                ->get();
+        } else {
+            $kontrak = Kontrak::where('status_perjanjian', '!=', 'selesai')->get();
+        }
         
         return view('realisasi.edit', compact('realisasi', 'kontrak'));
     }
@@ -132,7 +176,7 @@ class RealisasiController extends Controller
     {
         $realisasi = Realisasi::findOrFail($id);
         
-        // Store old values for audit
+        // Simpan nilai lama untuk audit
         $oldValues = $realisasi->toArray();
         
         $request->validate([
@@ -171,6 +215,18 @@ class RealisasiController extends Controller
     public function destroy(Request $request, string $id)
     {
         $realisasi = Realisasi::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($realisasi->kontrak->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('realisasi.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk menghapus realisasi ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk menghapus realisasi ini!'
+                    ]);
+            }
+        }
         
         // Log audit before deletion
         AuditLogService::logDelete($realisasi, $request, "Menghapus realisasi: {$realisasi->kompensasi} - Rp " . number_format($realisasi->rp_kompensasi, 0, ',', '.'));

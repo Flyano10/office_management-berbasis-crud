@@ -16,7 +16,13 @@ class GedungController extends Controller
     {
         $query = Gedung::with(['kantor.kota.provinsi']);
 
-        // Apply filters
+        // Scoping berdasarkan role admin (kantor)
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $query->where('kantor_id', $actor->kantor_id);
+        }
+
+        // Terapkan filter
         if ($request->filled('status_gedung')) {
             $query->where('status_gedung', $request->status_gedung);
         }
@@ -28,8 +34,13 @@ class GedungController extends Controller
 
         $gedung = $query->orderBy('created_at', 'desc')->get();
         
-        // Get filter options
-        $kantor = Kantor::where('status_kantor', 'Aktif')->get();
+        // Ambil opsi filter
+        // Batasi opsi kantor untuk non-super_admin
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $kantor = Kantor::where('status_kantor', 'Aktif')->where('id', $actor->kantor_id)->get();
+        } else {
+            $kantor = Kantor::where('status_kantor', 'Aktif')->get();
+        }
             
         return view('gedung.index', compact('gedung', 'kantor'));
     }
@@ -39,7 +50,12 @@ class GedungController extends Controller
      */
     public function create()
     {
-        $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+        } else {
+            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        }
         
         return view('gedung.create', compact('kantor'));
     }
@@ -59,9 +75,16 @@ class GedungController extends Controller
             'status_kepemilikan' => 'required|in:milik,sewa'
         ]);
 
-        $gedung = Gedung::create($request->all());
+        $data = $request->all();
+        // Enforcement: non-super_admin harus pada kantor sendiri
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $data['kantor_id'] = $actor->kantor_id;
+        }
 
-        // Log audit
+        $gedung = Gedung::create($data);
+
+        // Catat log audit
         AuditLogService::logCreate($gedung, $request, "Membuat gedung baru: {$gedung->nama_gedung}");
 
         return redirect()->route('gedung.index')
@@ -75,8 +98,19 @@ class GedungController extends Controller
     {
         $gedung = Gedung::with(['kantor.kota.provinsi', 'lantai.ruang'])
             ->findOrFail($id);
+        // Scoping akses lihat
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $gedung->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('gedung.index')
+                ->with('error', 'Anda tidak memiliki akses untuk melihat gedung ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk melihat gedung ini!'
+                ]);
+        }
             
-        // Log audit for view
+        // Catat log audit for view
         AuditLogService::logView($gedung, $request, "Melihat detail gedung: {$gedung->nama_gedung}");
             
         return view('gedung.show', compact('gedung'));
@@ -88,7 +122,21 @@ class GedungController extends Controller
     public function edit(string $id)
     {
         $gedung = Gedung::findOrFail($id);
-        $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'staf'], true) && $gedung->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('gedung.index')
+                ->with('error', 'Anda tidak memiliki akses untuk mengedit gedung ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk mengedit gedung ini!'
+                ]);
+        }
+        if ($actor && in_array($actor->role, ['admin_regional', 'staf'], true)) {
+            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+        } else {
+            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+        }
         
         return view('gedung.edit', compact('gedung', 'kantor'));
     }
@@ -99,6 +147,16 @@ class GedungController extends Controller
     public function update(Request $request, string $id)
     {
         $gedung = Gedung::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $gedung->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('gedung.index')
+                ->with('error', 'Anda tidak memiliki akses untuk memperbarui gedung ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk memperbarui gedung ini!'
+                ]);
+        }
         
         $request->validate([
             'nama_gedung' => 'required|string|max:255',
@@ -110,7 +168,12 @@ class GedungController extends Controller
             'status_kepemilikan' => 'required|in:milik,sewa'
         ]);
 
-        $gedung->update($request->all());
+        $data = $request->all();
+        if ($actor && in_array($actor->role, ['admin_regional', 'staf'], true)) {
+            $data['kantor_id'] = $actor->kantor_id;
+        }
+
+        $gedung->update($data);
 
         return redirect()->route('gedung.index')
             ->with('success', 'Gedung berhasil diperbarui!');
@@ -122,6 +185,16 @@ class GedungController extends Controller
     public function destroy(string $id)
     {
         $gedung = Gedung::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true) && $gedung->kantor_id !== $actor->kantor_id) {
+            return redirect()->route('gedung.index')
+                ->with('error', 'Anda tidak memiliki akses untuk menghapus gedung ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk menghapus gedung ini!'
+                ]);
+        }
         $gedung->delete();
 
         return redirect()->route('gedung.index')

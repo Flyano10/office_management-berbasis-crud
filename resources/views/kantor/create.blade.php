@@ -95,7 +95,7 @@
                                 <select class="form-select" id="parent_kantor_id" name="parent_kantor_id">
                                     <option value="">Pilih Parent Kantor</option>
                                     @foreach($parentKantor as $pk)
-                                        <option value="{{ $pk->id }}">{{ $pk->kode_kantor }} - {{ $pk->nama_kantor }}</option>
+                                        <option value="{{ $pk->id }}">{{ $pk->nama_kantor }}</option>
                                     @endforeach
                                 </select>
                             </div>

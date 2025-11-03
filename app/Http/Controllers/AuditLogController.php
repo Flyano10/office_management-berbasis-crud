@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AuditLog;
 use App\Services\AuditLogService;
 use Illuminate\Support\Facades\Log;
+use App\Models\Admin;
 
 class AuditLogController extends Controller
 {
@@ -16,10 +17,29 @@ class AuditLogController extends Controller
     {
         $query = AuditLog::query();
 
-        // Search functionality
+        // Role-based access: deny staf, scope admin_regional & manager_bidang
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Anda tidak memiliki akses ke Audit Log!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Audit Log tidak tersedia untuk Staf.'
+                ]);
+        }
+        if ($actor && in_array($actor->role, ['admin_regional','manager_bidang'], true)) {
+            $adminIds = Admin::query()
+                ->when($actor->kantor_id, function($q) use ($actor) { $q->where('kantor_id', $actor->kantor_id); })
+                ->when($actor->role === 'manager_bidang', function($q) use ($actor) { $q->where('bidang_id', $actor->bidang_id); })
+                ->pluck('id');
+            $query->whereIn('user_id', $adminIds);
+        }
+
+        // Fungsi pencarian
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function($q) use ($search) { 
                 $q->where('user_name', 'like', "%{$search}%")
                   ->orWhere('model_name', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
@@ -27,22 +47,28 @@ class AuditLogController extends Controller
             });
         }
 
-        // Filter by user
+        // Filter berdasarkan user
         if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
+            $userId = $request->user_id;
+            // Jika yang terkirim adalah nama (legacy url), konversi ke ID
+            if (!is_numeric($userId)) {
+                $found = Admin::where('nama_admin', $userId)->value('id');
+                if ($found) { $userId = $found; }
+            }
+            $query->where('user_id', $userId);
         }
 
-        // Filter by action
+        // Filter berdasarkan action
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
-        // Filter by model type
+        // Filter berdasarkan tipe model
         if ($request->filled('model_type')) {
             $query->where('model_type', $request->model_type);
         }
 
-        // Filter by date range
+        // Filter berdasarkan range tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [
                 $request->start_date . ' 00:00:00',
@@ -50,12 +76,12 @@ class AuditLogController extends Controller
             ]);
         }
 
-        // Filter by IP
+        // Filter berdasarkan IP
         if ($request->filled('ip_address')) {
             $query->where('ip_address', $request->ip_address);
         }
 
-        // Sort functionality
+        // Fungsi sorting
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         
@@ -65,10 +91,13 @@ class AuditLogController extends Controller
 
         $auditLogs = $query->paginate(20)->appends(request()->query());
 
-        // Get filter options
-        $actions = AuditLog::distinct()->pluck('action')->sort();
-        $modelTypes = AuditLog::distinct()->pluck('model_type')->filter()->sort();
-        $users = AuditLog::distinct()->pluck('user_name')->filter()->sort();
+        // Ambil opsi filter (menggunakan scope saat ini) dan hapus ordering supaya DISTINCT valid
+        $actions = (clone $query)->reorder()->distinct()->pluck('action')->sort();
+        $modelTypes = (clone $query)->reorder()->distinct()->pluck('model_type')->filter()->sort();
+
+        // Kumpulkan user_id dari query yang sudah di-scope, kemudian map ke Admin
+        $userIds = (clone $query)->reorder()->whereNotNull('user_id')->distinct()->pluck('user_id');
+        $users = Admin::whereIn('id', $userIds)->orderBy('nama_admin')->get(['id','nama_admin']);
 
         return view('audit-log.index', compact('auditLogs', 'actions', 'modelTypes', 'users'));
     }
@@ -79,6 +108,32 @@ class AuditLogController extends Controller
     public function show(string $id)
     {
         $auditLog = AuditLog::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Anda tidak memiliki akses ke Audit Log!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Audit Log tidak tersedia untuk Staf.'
+                ]);
+        }
+        if ($actor && in_array($actor->role, ['admin_regional','manager_bidang'], true)) {
+            $allowedAdminIds = Admin::query()
+                ->when($actor->kantor_id, function($q) use ($actor) { $q->where('kantor_id', $actor->kantor_id); })
+                ->when($actor->role === 'manager_bidang', function($q) use ($actor) { $q->where('bidang_id', $actor->bidang_id); })
+                ->pluck('id')
+                ->toArray();
+            if (!in_array($auditLog->user_id, $allowedAdminIds, true)) {
+                return redirect()->route('audit-log.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melihat log ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk melihat log ini!'
+                    ]);
+            }
+        }
         return view('audit-log.show', compact('auditLog'));
     }
 
@@ -90,7 +145,26 @@ class AuditLogController extends Controller
         try {
             $query = AuditLog::query();
 
-            // Apply same filters as index
+            // Role-based access
+            $actor = auth('admin')->user();
+            if ($actor && $actor->role === 'staf') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Anda tidak memiliki akses ke Audit Log!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Audit Log tidak tersedia untuk Staf.'
+                    ]);
+            }
+            if ($actor && in_array($actor->role, ['admin_regional','manager_bidang'], true)) {
+                $adminIds = Admin::query()
+                    ->when($actor->kantor_id, function($q) use ($actor) { $q->where('kantor_id', $actor->kantor_id); })
+                    ->when($actor->role === 'manager_bidang', function($q) use ($actor) { $q->where('bidang_id', $actor->bidang_id); })
+                    ->pluck('id');
+                $query->whereIn('user_id', $adminIds);
+            }
+
+            // Terapkan filter yang sama seperti index
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
@@ -199,6 +273,19 @@ class AuditLogController extends Controller
     {
         $query = AuditLog::query();
 
+        // Role-based access
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+        if ($actor && in_array($actor->role, ['admin_regional','manager_bidang'], true)) {
+            $adminIds = Admin::query()
+                ->when($actor->kantor_id, function($q) use ($actor) { $q->where('kantor_id', $actor->kantor_id); })
+                ->when($actor->role === 'manager_bidang', function($q) use ($actor) { $q->where('bidang_id', $actor->bidang_id); })
+                ->pluck('id');
+            $query->whereIn('user_id', $adminIds);
+        }
+
         // Apply date filter if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [
@@ -239,6 +326,25 @@ class AuditLogController extends Controller
     public function reset()
     {
         try {
+            $actor = auth('admin')->user();
+            if ($actor && $actor->role === 'staf') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Anda tidak memiliki akses ke Audit Log!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Audit Log hanya untuk super admin dan admin regional.'
+                    ]);
+            }
+            if ($actor && $actor->role === 'admin_regional') {
+                return redirect()->route('audit-log.index')
+                    ->with('error', 'Reset audit log hanya untuk super admin!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Hanya super admin yang dapat mereset audit log.'
+                    ]);
+            }
             $count = AuditLog::count();
             
             // Log the reset action before deleting

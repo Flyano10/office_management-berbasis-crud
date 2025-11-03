@@ -14,7 +14,23 @@ class BidangController extends Controller
     {
         $query = Bidang::with(['subBidang']);
 
-        // Apply filters
+        // Akses: staf dilarang masuk modul Bidang
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Anda tidak memiliki akses ke modul Bidang!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Staf tidak memiliki akses ke modul Bidang.'
+                ]);
+        }
+        // manager_bidang: hanya bidangnya sendiri
+        if ($actor && $actor->role === 'manager_bidang' && $actor->bidang_id) {
+            $query->where('id', $actor->bidang_id);
+        }
+
+        // Terapkan filter
         if ($request->filled('nama_bidang')) {
             $query->where('nama_bidang', 'like', '%' . $request->nama_bidang . '%');
         }
@@ -25,6 +41,17 @@ class BidangController extends Controller
 
     public function create()
     {
+        // Larang staf mengakses modul bidang sama sekali
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('bidang.index')
+                ->with('error', 'Anda tidak memiliki akses untuk membuat bidang!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Staf tidak dapat membuat bidang.'
+                ]);
+        }
         return view('bidang.create');
     }
 
@@ -32,6 +59,17 @@ class BidangController extends Controller
     {
         try {
             Log::info('Bidang Store Request:', $request->all());
+            // Larang staf mengakses modul bidang
+            $actor = auth('admin')->user();
+            if ($actor && $actor->role === 'staf') {
+                return redirect()->route('bidang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk membuat bidang!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Staf tidak dapat membuat bidang.'
+                    ]);
+            }
             
             $request->validate([
                 'nama_bidang' => 'required|string|max:255',
@@ -41,7 +79,7 @@ class BidangController extends Controller
             $bidang = Bidang::create($request->all());
             Log::info('Bidang created:', $bidang->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logCreate($bidang, $request, "Membuat bidang baru: {$bidang->nama_bidang}");
 
             return redirect()->route('bidang.index')
@@ -56,8 +94,28 @@ class BidangController extends Controller
     {
         $bidang = Bidang::with(['subBidang'])
             ->findOrFail($id);
+        // Akses: staf dilarang; manager_bidang hanya bidangnya sendiri
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Anda tidak memiliki akses ke modul Bidang!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Staf tidak memiliki akses ke modul Bidang.'
+                ]);
+        }
+        if ($actor && $actor->role === 'manager_bidang' && $actor->bidang_id && $actor->bidang_id !== $bidang->id) {
+            return redirect()->route('bidang.index')
+                ->with('error', 'Anda tidak memiliki akses untuk melihat bidang ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk melihat bidang ini!'
+                ]);
+        }
             
-        // Log audit for view
+        // Catat log audit untuk view
         AuditLogService::logView($bidang, $request, "Melihat detail bidang: {$bidang->nama_bidang}");
             
         return view('bidang.show', compact('bidang'));
@@ -66,6 +124,26 @@ class BidangController extends Controller
     public function edit(string $id)
     {
         $bidang = Bidang::findOrFail($id);
+        // Akses: staf dilarang; manager_bidang hanya bidangnya sendiri
+        $actor = auth('admin')->user();
+        if ($actor && $actor->role === 'staf') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Anda tidak memiliki akses ke modul Bidang!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Staf tidak memiliki akses ke modul Bidang.'
+                ]);
+        }
+        if ($actor && $actor->role === 'manager_bidang' && $actor->bidang_id && $actor->bidang_id !== $bidang->id) {
+            return redirect()->route('bidang.index')
+                ->with('error', 'Anda tidak memiliki akses untuk mengedit bidang ini!')
+                ->with('toast', [
+                    'type' => 'error',
+                    'title' => 'Akses Ditolak',
+                    'message' => 'Anda tidak memiliki akses untuk mengedit bidang ini!'
+                ]);
+        }
         
         return view('bidang.edit', compact('bidang'));
     }
@@ -76,8 +154,28 @@ class BidangController extends Controller
             Log::info('Bidang Update Request:', $request->all());
             
             $bidang = Bidang::findOrFail($id);
+            // Akses: staf dilarang; manager_bidang hanya boleh update bidangnya sendiri
+            $actor = auth('admin')->user();
+            if ($actor && $actor->role === 'staf') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Anda tidak memiliki akses ke modul Bidang!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Staf tidak memiliki akses ke modul Bidang.'
+                    ]);
+            }
+            if ($actor && $actor->role === 'manager_bidang' && $actor->bidang_id && $actor->bidang_id !== $bidang->id) {
+                return redirect()->route('bidang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk memperbarui bidang ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk memperbarui bidang ini!'
+                    ]);
+            }
             
-            // Store old values for audit
+            // Simpan nilai lama untuk audit
             $oldValues = $bidang->toArray();
             
             $request->validate([
@@ -88,7 +186,7 @@ class BidangController extends Controller
             $bidang->update($request->all());
             Log::info('Bidang updated:', $bidang->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logUpdate($bidang, $oldValues, $request, "Mengubah bidang: {$bidang->nama_bidang}");
 
             return redirect()->route('bidang.index')
@@ -103,6 +201,26 @@ class BidangController extends Controller
     {
         try {
             $bidang = Bidang::findOrFail($id);
+            // Akses: staf dilarang; manager_bidang hanya bidangnya sendiri
+            $actor = auth('admin')->user();
+            if ($actor && $actor->role === 'staf') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Anda tidak memiliki akses ke modul Bidang!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Staf tidak memiliki akses ke modul Bidang.'
+                    ]);
+            }
+            if ($actor && $actor->role === 'manager_bidang' && $actor->bidang_id && $actor->bidang_id !== $bidang->id) {
+                return redirect()->route('bidang.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk menghapus bidang ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk menghapus bidang ini!'
+                    ]);
+            }
             
             // Cek apakah ada sub bidang yang terkait
             $subBidangCount = SubBidang::where('bidang_id', $id)->count();
@@ -110,7 +228,7 @@ class BidangController extends Controller
                 return back()->withErrors(['error' => 'Tidak dapat menghapus bidang yang memiliki sub bidang. Hapus sub bidang terlebih dahulu.']);
             }
 
-            // Log audit before deletion
+            // Catat log audit before deletion
             AuditLogService::logDelete($bidang, $request, "Menghapus bidang: {$bidang->nama_bidang}");
             
             $bidang->delete();

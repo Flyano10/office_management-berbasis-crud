@@ -24,18 +24,18 @@ class PasswordHistoryRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!$this->adminId) {
-            return; // Skip validation if no admin ID provided
+            return; // Skip validasi kalau gak ada admin ID
         }
 
         $admin = Admin::find($this->adminId);
         if (!$admin) {
-            return; // Skip validation if admin not found
+            return; // Skip validasi kalau admin gak ditemukan
         }
 
-        // Get password history from metadata
+        // Ambil riwayat password dari metadata
         $passwordHistory = $admin->password_history ?? [];
         
-        // Check against last N passwords
+        // Cek terhadap N password terakhir
         $recentPasswords = array_slice($passwordHistory, -$this->historyCount);
         
         foreach ($recentPasswords as $oldPassword) {

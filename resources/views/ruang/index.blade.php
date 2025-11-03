@@ -118,32 +118,62 @@
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                <style>
+                    .table-responsive::-webkit-scrollbar {
+                        height: 8px;
+                    }
+                    .table-responsive::-webkit-scrollbar-track {
+                        background: #f8f9fa;
+                        border-radius: 4px;
+                    }
+                    .table-responsive::-webkit-scrollbar-thumb {
+                        background: #6c757d;
+                        border-radius: 4px;
+                    }
+                    .table-responsive::-webkit-scrollbar-thumb:hover {
+                        background: #495057;
+                    }
+                    
+                    /* Support dark mode untuk sticky columns */
+                    @media (prefers-color-scheme: dark) {
+                        .table-responsive tbody tr td[style*="position: sticky"] {
+                            background-color: #212529 !important;
+                            color: white;
+                        }
+                    }
+                    
+                    /* Pastikan sticky columns bekerja dengan baik */
+                    .table-responsive tbody tr:hover td[style*="position: sticky"] {
+                        background-color: #f8f9fa !important;
+                    }
+                </style>
+                <div class="table-responsive" style="overflow-x: auto; scrollbar-width: thin; scrollbar-color: #6c757d #f8f9fa;">
+                    <table class="table table-striped table-hover" style="min-width: 1200px;">
                         <thead class="table-dark">
                             <tr>
-                                <th>
+                                <th style="position: sticky; left: 0; background-color: #212529; z-index: 10; min-width: 50px;">
                                     <input type="checkbox" id="select-all" class="form-check-input">
                                 </th>
-                                <th>#</th>
-                                <th>Nama Ruang</th>
-                                <th>Lantai</th>
-                                <th>Gedung</th>
-                                <th>Kantor</th>
-                                <th>Bidang</th>
-                                <th>Kapasitas</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
+                                <th style="position: sticky; left: 50px; background-color: #212529; z-index: 10; min-width: 50px;">#</th>
+                                <th style="min-width: 200px;">Nama Ruang</th>
+                                <th style="min-width: 120px;">Lantai</th>
+                                <th style="min-width: 150px;">Gedung</th>
+                                <th style="min-width: 200px;">Kantor</th>
+                                <th style="min-width: 120px;">Bidang</th>
+                                <th style="min-width: 120px;">Kapasitas</th>
+                                <th style="min-width: 100px;">Status</th>
+                                <th style="min-width: 150px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @php($actor = Auth::guard('admin')->user())
                             @forelse($ruang as $index => $r)
                             <tr>
-                                <td>
+                                <td style="position: sticky; left: 0; background-color: white; z-index: 5; border-right: 1px solid #dee2e6; white-space: nowrap;">
                                     <input type="checkbox" class="form-check-input item-checkbox" value="{{ $r->id }}">
                                 </td>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
+                                <td style="position: sticky; left: 50px; background-color: white; z-index: 5; border-right: 1px solid #dee2e6; white-space: nowrap;">{{ $index + 1 }}</td>
+                                <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
                                     <strong>{{ $r->nama_ruang }}</strong>
                                 </td>
                                 <td>
@@ -152,7 +182,7 @@
                                 <td>
                                     <span class="badge bg-primary">{{ $r->lantai->gedung->nama_gedung ?? 'N/A' }}</span>
                                 </td>
-                                <td>
+                                <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
                                     <small>{{ $r->lantai->gedung->kantor->nama_kantor ?? 'N/A' }}</small>
                                 </td>
                                 <td>
@@ -171,6 +201,9 @@
                                         <a href="{{ route('ruang.show', $r->id) }}" class="btn btn-sm btn-outline-info" title="Lihat">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @php($rowKantorId = $r->lantai->gedung->kantor->id ?? $r->lantai->gedung->kantor_id ?? null)
+                                        @php($rowBidangId = $r->bidang_id ?? null)
+                                        @if(($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf']) && (int)$actor->kantor_id === (int)$rowKantorId && (int)$actor->bidang_id === (int)$rowBidangId))
                                         <a href="{{ route('ruang.edit', $r->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -181,6 +214,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -190,9 +224,12 @@
                                     <div class="py-4">
                                         <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">Belum ada data ruang</p>
+                                        @php($canCreate = ($actor && $actor->role === 'super_admin') || ($actor && in_array($actor->role, ['admin_regional','staf'])))
+                                        @if($canCreate)
                                         <a href="{{ route('ruang.create') }}" class="btn btn-primary">
                                             <i class="fas fa-plus"></i> Tambah Ruang Pertama
                                         </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -215,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -223,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -258,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -269,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} ruang yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "ruang") }}';
@@ -279,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -294,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -304,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "ruang") }}';
@@ -314,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -334,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -344,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "ruang") }}';
@@ -354,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';

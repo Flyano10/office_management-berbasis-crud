@@ -1,43 +1,189 @@
-/* PLN Kantor Management - Maps CSS */
-/* File ini berisi CSS untuk peta interaktif */
-
-/* Maps specific styles */
-.map-container {
-    height: 500px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+/* PLN Theme Colors */
+:root {
+    --pln-primary: #2C6A8F;
+    --pln-secondary: #4A90E2;
+    --pln-success: #27AE60;
+    --pln-info: #3498DB;
+    --pln-warning: #F39C12;
+    --pln-danger: #E74C3C;
+    --pln-light: #F8F9FA;
+    --pln-dark: #2C3E50;
+    --pln-gray-100: #F8F9FA;
+    --pln-gray-200: #E9ECEF;
+    --pln-gray-300: #DEE2E6;
+    --pln-gray-400: #CED4DA;
+    --pln-gray-500: #ADB5BD;
+    --pln-gray-600: #6C757D;
+    --pln-gray-700: #495057;
+    --pln-gray-800: #343A40;
+    --pln-gray-900: #212529;
 }
 
-.map-controls {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 1rem;
+/* Navigation */
+.simple-nav {
+    background: var(--pln-light);
+    border-bottom: 1px solid var(--pln-gray-200);
+    padding: 0.75rem 1rem;
 }
 
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--pln-gray-600);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.nav-link.active {
+    color: var(--pln-primary);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--pln-primary);
+}
+
+/* Map Legend */
 .map-legend {
-    background: white;
+    background: #fff;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 5rem;
+    right: 1rem;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.map-marker {
-    width: 20px;
-    height: 20px;
+.legend-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #4b5563;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background-color: #2C6A8F;
+}
+
+.legend-dot.pusat {
+    background: #ef4444;
+}
+
+.legend-dot.perwakilan {
+    background: #f59e0b;
+}
+
+.legend-dot.sbu {
+    background: #3b82f6;
+}
+
+.legend-dot.gudang {
+    background: #10b981;
+}
+
+/* Custom Markers */
+.custom-marker-wrapper {
+    position: relative;
+}
+
+.custom-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
     border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    position: relative;
 }
 
-/* Map popup styling */
-.leaflet-popup-content {
-    font-family: 'Inter', sans-serif;
+.custom-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: pulse 2s ease-out infinite;
 }
 
-.leaflet-popup-content h3 {
-    color: #2C6A8F;
-    margin-bottom: 0.5rem;
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.4;
+    }
+    70% {
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+/* Map Container */
+.map-container {
+    height: calc(100vh - 8rem);
+    width: 100%;
+    position: relative;
+}
+
+/* PLN Logo */
+.pln-logo {
+    height: 2rem;
+    margin-right: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .map-legend {
+        top: auto;
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+    }
+    
+    .legend-items {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
 }

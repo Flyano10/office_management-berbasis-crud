@@ -17,7 +17,15 @@ class LantaiController extends Controller
     {
         $query = Lantai::with(['gedung.kantor']);
 
-        // Apply filters
+        // Scoping berdasarkan role (kantor)
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $query->whereHas('gedung', function($q) use ($actor) {
+                $q->where('kantor_id', $actor->kantor_id);
+            });
+        }
+
+        // Terapkan filter
         if ($request->filled('gedung')) {
             $query->where('gedung_id', $request->gedung);
         }
@@ -29,8 +37,12 @@ class LantaiController extends Controller
 
         $lantai = $query->orderBy('created_at', 'desc')->get();
         
-        // Get filter options
-        $gedung = Gedung::where('status_gedung', 'Aktif')->get();
+        // Ambil opsi filter (batasi untuk non-super_admin)
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $gedung = Gedung::where('status_gedung', 'Aktif')->where('kantor_id', $actor->kantor_id)->get();
+        } else {
+            $gedung = Gedung::where('status_gedung', 'Aktif')->get();
+        }
             
         return view('lantai.index', compact('lantai', 'gedung'));
     }
@@ -40,7 +52,12 @@ class LantaiController extends Controller
      */
     public function create()
     {
-        $gedung = Gedung::where('status_gedung', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $gedung = Gedung::where('status_gedung', 'aktif')->where('kantor_id', $actor->kantor_id)->get();
+        } else {
+            $gedung = Gedung::where('status_gedung', 'aktif')->get();
+        }
         
         return view('lantai.create', compact('gedung'));
     }
@@ -59,10 +76,20 @@ class LantaiController extends Controller
                 'gedung_id' => 'required|exists:gedung,id'
             ]);
 
-            $lantai = Lantai::create($request->all());
+            $data = $request->all();
+            $actor = auth('admin')->user();
+            if ($actor && in_array($actor->role, ['admin_regional', 'staf'], true)) {
+                // Pastikan gedung berada pada kantor actor
+                $gedung = Gedung::findOrFail($request->gedung_id);
+                if ($gedung->kantor_id !== $actor->kantor_id) {
+                    return back()->withErrors(['gedung_id' => 'Anda tidak dapat memilih gedung di luar kantor Anda.'])->withInput();
+                }
+            }
+
+            $lantai = Lantai::create($data);
             Log::info('Lantai created:', $lantai->toArray());
 
-            // Log audit
+            // Catat log audit
             AuditLogService::logCreate($lantai, $request, "Membuat lantai baru: {$lantai->nama_lantai}");
 
             return redirect()->route('lantai.index')
@@ -80,8 +107,20 @@ class LantaiController extends Controller
     {
         $lantai = Lantai::with(['gedung.kantor'])
             ->findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($lantai->gedung->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('lantai.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk melihat lantai ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk melihat lantai ini!'
+                    ]);
+            }
+        }
             
-        // Log audit for view
+        // Catat log audit untuk view
         AuditLogService::logView($lantai, $request, "Melihat detail lantai: {$lantai->nama_lantai}");
             
         return view('lantai.show', compact('lantai'));
@@ -93,7 +132,21 @@ class LantaiController extends Controller
     public function edit(string $id)
     {
         $lantai = Lantai::findOrFail($id);
-        $gedung = Gedung::where('status_gedung', 'aktif')->get();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($lantai->gedung->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('lantai.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengedit lantai ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk mengedit lantai ini!'
+                    ]);
+            }
+            $gedung = Gedung::where('status_gedung', 'aktif')->where('kantor_id', $actor->kantor_id)->get();
+        } else {
+            $gedung = Gedung::where('status_gedung', 'aktif')->get();
+        }
         
         return view('lantai.edit', compact('lantai', 'gedung'));
     }
@@ -105,7 +158,7 @@ class LantaiController extends Controller
     {
         $lantai = Lantai::findOrFail($id);
         
-        // Store old values for audit
+        // Simpan nilai lama untuk audit
         $oldValues = $lantai->toArray();
         
         $request->validate([
@@ -114,7 +167,16 @@ class LantaiController extends Controller
             'gedung_id' => 'required|exists:gedung,id'
         ]);
 
-        $lantai->update($request->all());
+        $data = $request->all();
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            $gedung = Gedung::findOrFail($request->gedung_id);
+            if ($gedung->kantor_id !== $actor->kantor_id) {
+                return back()->withErrors(['gedung_id' => 'Anda tidak dapat memilih gedung di luar kantor Anda.'])->withInput();
+            }
+        }
+
+        $lantai->update($data);
 
         // Log audit
         AuditLogService::logUpdate($lantai, $oldValues, $request, "Mengubah lantai: {$lantai->nama_lantai}");
@@ -129,8 +191,20 @@ class LantaiController extends Controller
     public function destroy(Request $request, string $id)
     {
         $lantai = Lantai::findOrFail($id);
+        $actor = auth('admin')->user();
+        if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
+            if ($lantai->gedung->kantor_id !== $actor->kantor_id) {
+                return redirect()->route('lantai.index')
+                    ->with('error', 'Anda tidak memiliki akses untuk menghapus lantai ini!')
+                    ->with('toast', [
+                        'type' => 'error',
+                        'title' => 'Akses Ditolak',
+                        'message' => 'Anda tidak memiliki akses untuk menghapus lantai ini!'
+                    ]);
+            }
+        }
         
-        // Log audit before deletion
+        // Catat log audit sebelum hapus
         AuditLogService::logDelete($lantai, $request, "Menghapus lantai: {$lantai->nama_lantai}");
         
         $lantai->delete();

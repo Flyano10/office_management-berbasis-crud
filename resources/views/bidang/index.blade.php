@@ -4,13 +4,16 @@
 @section('page-title', 'Data Bidang')
 
 @section('page-actions')
+    @php($actor = Auth::guard('admin')->user())
     <div class="btn-group" role="group">
+        @if(($actor && $actor->role !== 'staf'))
         <a href="{{ route('bidang.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Tambah Bidang
         </a>
         <button type="button" class="btn btn-outline-danger" onclick="bulkDelete()" id="bulkDeleteBtn" disabled>
             <i class="fas fa-trash"></i> Bulk Delete
         </button>
+        @endif
         <button type="button" class="btn btn-outline-success" onclick="bulkExport('csv')" id="bulkExportCsvBtn" disabled>
             <i class="fas fa-file-csv"></i> Export CSV
         </button>
@@ -133,13 +136,17 @@
                                     <span class="badge bg-info">{{ $b->subBidang->count() }} Sub Bidang</span>
                                 </td>
                                 <td>
+                                    @php($actor = Auth::guard('admin')->user())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('bidang.show', $b->id) }}" class="btn btn-sm btn-outline-info" title="Lihat">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @if(($actor && $actor->role === 'super_admin') || ($actor && $actor->role === 'staf' && (int)$actor->bidang_id === (int)$b->id))
                                         <a href="{{ route('bidang.edit', $b->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @endif
+                                        @if($actor && $actor->role === 'super_admin')
                                         <form action="{{ route('bidang.destroy', $b->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus bidang ini?')">
                                             @csrf
                                             @method('DELETE')
@@ -147,6 +154,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -156,9 +164,11 @@
                                     <div class="py-4">
                                         <i class="fas fa-sitemap fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">Belum ada data bidang</p>
+                                        @if(($actor && $actor->role !== 'staf'))
                                         <a href="{{ route('bidang.create') }}" class="btn btn-primary">
                                             <i class="fas fa-plus"></i> Tambah Bidang Pertama
                                         </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -181,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkExportCsvBtn = document.getElementById('bulk-export-csv-btn');
     const bulkExportExcelBtn = document.getElementById('bulk-export-excel-btn');
 
-    // Select All functionality
+    // Fungsi Select All
     selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -189,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBulkActionsPanel();
     });
 
-    // Individual checkbox change
+    // Perubahan checkbox individual
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateBulkActionsPanel();
@@ -224,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Bulk Delete
+    // Hapus Bulk
     bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -235,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} bidang yang dipilih?`)) {
-            // Create form for bulk delete
+            // Buat form untuk bulk delete
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("bulk.delete", "bidang") }}';
@@ -245,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -260,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bulk Export CSV
+    // Export Bulk CSV
     bulkExportCsvBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -270,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export CSV
+        // Buat form untuk bulk export CSV
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "bidang") }}';
@@ -280,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';
@@ -300,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.submit();
     });
 
-    // Bulk Export Excel
+    // Export Bulk Excel
     bulkExportExcelBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
@@ -310,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Create form for bulk export Excel
+        // Buat form untuk bulk export Excel
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("bulk.export", "bidang") }}';
@@ -320,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         
-        // Create multiple hidden inputs for each ID
+        // Buat multiple hidden input untuk setiap ID
         ids.forEach(id => {
             const idsInput = document.createElement('input');
             idsInput.type = 'hidden';

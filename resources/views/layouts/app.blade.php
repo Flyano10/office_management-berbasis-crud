@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'PLN Icon Plus Kantor Management')</title>
     
     <!-- Favicon -->
@@ -12,8 +13,31 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo/pln-logo.png') }}">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="background-color" content="#1e3a8a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PLN Kantor">
+    <meta name="msapplication-TileColor" content="#1e40af">
+    <meta name="msapplication-navbutton-color" content="#1e40af">
+    
+    <!-- PWA App Icons -->
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('images/pwa-icon-72.png') }}">
+    <link rel="apple-touch-icon" sizes="96x96" href="{{ asset('images/pwa-icon-96.png') }}">
+    <link rel="apple-touch-icon" sizes="128x128" href="{{ asset('images/pwa-icon-128.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('images/pwa-icon-144.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('images/pwa-icon-152.png') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('images/pwa-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="384x384" href="{{ asset('images/pwa-icon-384.png') }}">
+    <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('images/pwa-icon-512.png') }}">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Public Sans font -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -24,7 +48,7 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            /* Color Palette - Dominan Putih dengan Aksen Biru Muda */
+            /* Palette Warna - Dominan Putih dengan Aksen Biru Muda */
             --primary-color: #3b82f6;
             --primary-light: #60a5fa;
             --primary-lighter: #93c5fd;
@@ -35,13 +59,13 @@
             --danger-color: #ef4444;
             --info-color: #06b6d4;
             
-            /* Background Colors */
+            /* Warna Background */
             --bg-primary: #ffffff;
             --bg-secondary: #f8fafc;
             --bg-tertiary: #f1f5f9;
             --bg-accent: #eff6ff;
             
-            /* Text Colors */
+            /* Warna Text */
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
@@ -71,14 +95,14 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
             color: var(--text-primary);
             line-height: 1.6;
             font-size: 14px;
         }
 
-        /* Modern Header Styles */
+        /* Style Header Modern */
         .modern-header {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-radius: 1.5rem;
@@ -269,7 +293,7 @@
             color: var(--primary-color);
         }
 
-        /* Sidebar Organization */
+        /* Organisasi Sidebar */
         .sidebar .nav-item hr {
             border-color: rgba(0, 0, 0, 0.1);
             margin: 0.5rem 1rem;
@@ -284,7 +308,7 @@
             transform: translateX(4px);
         }
 
-        /* Page Header Styling */
+        /* Styling Page Header */
         .page-header {
             margin-bottom: 0;
         }
@@ -302,7 +326,7 @@
             margin-bottom: 0;
         }
 
-        /* Header Actions */
+        /* Aksi Header */
         .btn-toolbar {
             gap: 1rem;
         }
@@ -315,7 +339,7 @@
             border-radius: 0.5rem;
         }
 
-        /* Sidebar Brand Styling */
+        /* Styling Sidebar Brand */
         .sidebar-brand {
             display: flex;
             flex-direction: column;
@@ -349,7 +373,7 @@
             margin: 0;
         }
 
-        /* Collapse Menu Styling */
+        /* Styling Menu Collapse */
         .sidebar .collapse {
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
@@ -384,7 +408,7 @@
             transform: rotate(180deg);
         }
 
-        /* Compact spacing */
+        /* Spacing compact */
         .sidebar .nav-item {
             margin-bottom: 0.125rem;
         }
@@ -412,7 +436,7 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
 
-        /* PLN Logo Styling */
+        /* Styling Logo PLN */
         .pln-logo {
             display: flex;
             align-items: center;
@@ -430,10 +454,10 @@
             max-width: 85px;
             object-fit: contain;
             transition: transform 0.3s ease;
-            /* Clean styling for transparent logo */
+            /* Styling bersih untuk logo transparan */
             filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
             background: transparent;
-            /* Remove complex filters since logo is now transparent */
+            /* Hapus filter kompleks karena logo sekarang transparan */
         }
 
         .pln-logo-img:hover {
@@ -485,10 +509,10 @@
             max-width: 120px;
             object-fit: contain;
             transition: transform 0.3s ease;
-            /* Clean styling for transparent logo */
+            /* Styling bersih untuk logo transparan */
             filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
             background: transparent;
-            /* Remove complex filters since logo is now transparent */
+            /* Hapus filter kompleks karena logo sekarang transparan */
         }
 
         .loading-text h3 {
@@ -843,6 +867,31 @@
             border-color: var(--text-muted);
         }
 
+        /* Neutral icon buttons with subtle hover */
+        .btn-icon {
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            background-color: #fff;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--primary-lightest);
+            color: var(--primary-color);
+            border-color: var(--primary-lightest);
+        }
+
+        .btn-light.btn-icon {
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            background-color: var(--bg-primary);
+        }
+
+        .btn-light.btn-icon:hover {
+            background-color: var(--primary-lightest);
+            color: var(--primary-color);
+            border-color: var(--primary-lightest);
+        }
+
         .stats-label {
             color: var(--text-secondary);
             font-weight: 600;
@@ -906,7 +955,7 @@
                             <i class="fas fa-building sidebar-logo-icon" style="display: none;"></i>
                             <h4 class="sidebar-brand-text">PLN Icon Plus</h4>
                         </div>
-                        <small class="sidebar-welcome">Selamat datang, {{ Auth::guard('admin')->user()->nama_admin }}</small>
+                        <small class="sidebar-welcome">Selamat datang, {{ Auth::guard('admin')->user()->nama_admin ?? 'Admin' }}</small>
                     </div>
                     
                     <ul class="nav flex-column">
@@ -933,12 +982,14 @@
                                             Peta
                                         </a>
                                     </li>
+                                    @if((Auth::guard('admin')->user()->role ?? '') !== 'staf')
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('kantor.*') ? 'active' : '' }}" href="{{ route('kantor.index') }}">
                                             <i class="fas fa-building"></i>
                                             Kantor
                                         </a>
                                     </li>
+                                    @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('gedung.*') ? 'active' : '' }}" href="{{ route('gedung.index') }}">
                                             <i class="fas fa-home"></i>
@@ -976,18 +1027,22 @@
                             </a>
                             <div class="collapse" id="businessManagement">
                                 <ul class="nav flex-column ms-3">
+                                    @if((Auth::guard('admin')->user()->role ?? '') !== 'staf')
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('bidang.*') ? 'active' : '' }}" href="{{ route('bidang.index') }}">
                                             <i class="fas fa-sitemap"></i>
                                             Bidang
                                         </a>
                                     </li>
+                                    @endif
+                                    @if((Auth::guard('admin')->user()->role ?? '') !== 'staf')
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('sub-bidang.*') ? 'active' : '' }}" href="{{ route('sub-bidang.index') }}">
                                             <i class="fas fa-sitemap"></i>
                                             Sub Bidang
                                         </a>
                                     </li>
+                                    @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('kontrak.*') ? 'active' : '' }}" href="{{ route('kontrak.index') }}">
                                             <i class="fas fa-file-contract"></i>
@@ -998,6 +1053,31 @@
                                         <a class="nav-link {{ request()->routeIs('realisasi.*') ? 'active' : '' }}" href="{{ route('realisasi.index') }}">
                                             <i class="fas fa-chart-line"></i>
                                             Realisasi
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
+                        <!-- Inventaris Management -->
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#inventarisManagement" role="button" aria-expanded="false" aria-controls="inventarisManagement">
+                                <i class="fas fa-box"></i>
+                                Inventaris
+                                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                            </a>
+                            <div class="collapse" id="inventarisManagement">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('inventaris.*') ? 'active' : '' }}" href="{{ route('inventaris.index') }}">
+                                            <i class="fas fa-box"></i>
+                                            Data Inventaris
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('kategori-inventaris.*') ? 'active' : '' }}" href="{{ route('kategori-inventaris.index') }}">
+                                            <i class="fas fa-tags"></i>
+                                            Kategori Inventaris
                                         </a>
                                     </li>
                                 </ul>
@@ -1019,7 +1099,7 @@
                         </li>
                         
                         <!-- Admin Section -->
-                        @if(Auth::guard('admin')->user()->role === 'super_admin')
+                        @if(in_array(Auth::guard('admin')->user()->role ?? '', ['super_admin','admin_regional','manager_bidang','admin','staf']))
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#adminSection" role="button" aria-expanded="false" aria-controls="adminSection">
                                 <i class="fas fa-cog"></i>
@@ -1188,6 +1268,9 @@
     
     <!-- Toast Notifications -->
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
+    
+    <!-- PWA JavaScript -->
+    <script src="{{ asset('js/pwa.js') }}"></script>
     
     @stack('scripts')
     

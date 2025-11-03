@@ -33,7 +33,7 @@ class SearchController extends Controller
 
             $results = collect();
 
-            // Search based on type
+            // Pencarian berdasarkan tipe
             if ($type === 'all' || $type === 'kantor') {
                 $kantorResults = $this->searchKantor($query);
                 $results = $results->merge($kantorResults);
@@ -64,7 +64,7 @@ class SearchController extends Controller
                 $results = $results->merge($bidangResults);
             }
 
-            // Sort by relevance (exact matches first)
+            // Urutkan berdasarkan relevansi (exact match dulu)
             $results = $results->sortByDesc(function($item) use ($query) {
                 $score = 0;
                 $searchFields = $item['search_fields'] ?? [];
@@ -73,7 +73,7 @@ class SearchController extends Controller
                     if (stripos($field, $query) !== false) {
                         $score += 1;
                         if (stripos($field, $query) === 0) {
-                            $score += 2; // Exact start match gets higher score
+                            $score += 2; // Exact start match dapat score lebih tinggi
                         }
                     }
                 }
@@ -85,7 +85,7 @@ class SearchController extends Controller
                 'success' => true,
                 'query' => $query,
                 'total' => $results->count(),
-                'results' => $results->values()->take(20) // Limit to 20 results
+                'results' => $results->values()->take(20) // Batasi ke 20 hasil
             ]);
 
         } catch (\Exception $e) {
@@ -289,7 +289,7 @@ class SearchController extends Controller
 
             $suggestions = collect();
 
-            // Get suggestions from different models
+            // Ambil saran dari model yang berbeda
             $kantorSuggestions = Kantor::where('nama_kantor', 'like', "%{$query}%")
                 ->limit(5)
                 ->get()

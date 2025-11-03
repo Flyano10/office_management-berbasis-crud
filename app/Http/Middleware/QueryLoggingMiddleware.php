@@ -17,17 +17,21 @@ class QueryLoggingMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Enable query logging
-        DB::enableQueryLog();
+        // Hanya aktifkan query logging di development
+        if (app()->environment('local', 'development')) {
+            DB::enableQueryLog();
+        }
         
         $response = $next($request);
         
-        // Get all executed queries
-        $queries = DB::getQueryLog();
-        
-        // Log slow queries (> 100ms)
-        foreach ($queries as $query) {
-            if ($query['time'] > 100) {
+        // Hanya log query di development
+        if (app()->environment('local', 'development')) {
+            // Ambil semua query yang dieksekusi
+            $queries = DB::getQueryLog();
+            
+            // Log query lambat (> 200ms) - threshold dinaikkan
+            foreach ($queries as $query) {
+                if ($query['time'] > 200) {
                 Log::warning('Slow Query Detected', [
                     'query' => $query['query'],
                     'bindings' => $query['bindings'],
@@ -36,19 +40,20 @@ class QueryLoggingMiddleware
                     'method' => $request->method(),
                 ]);
             }
-        }
-        
-        // Log total query count and time
-        $totalTime = array_sum(array_column($queries, 'time'));
-        $queryCount = count($queries);
-        
-        if ($queryCount > 10) {
+            }
+            
+            // Log total jumlah query dan waktu
+            $totalTime = array_sum(array_column($queries, 'time'));
+            $queryCount = count($queries);
+            
+            if ($queryCount > 10) {
             Log::info('High Query Count', [
                 'query_count' => $queryCount,
                 'total_time' => $totalTime . 'ms',
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
             ]);
+            }
         }
         
         return $response;

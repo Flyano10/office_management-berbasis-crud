@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressSection = document.getElementById('progressSection');
     const resultsSection = document.getElementById('resultsSection');
 
-    // Enable/disable buttons based on form state
+    // Enable/disable button berdasarkan state form
     function updateButtonStates() {
         const hasModel = modelSelect.value !== '';
         const hasFile = fileInput.files.length > 0;

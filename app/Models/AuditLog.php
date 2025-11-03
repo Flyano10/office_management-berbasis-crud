@@ -147,10 +147,22 @@ class AuditLog extends Model
             $newValue = $this->new_values[$field] ?? null;
             
             if ($oldValue !== $newValue) {
-                $summary[] = "{$field}: '{$oldValue}' → '{$newValue}'";
+                $oldFormatted = $this->formatAuditValue($oldValue);
+                $newFormatted = $this->formatAuditValue($newValue);
+                $summary[] = "{$field}: '{$oldFormatted}' → '{$newFormatted}'";
             }
         }
 
         return implode(', ', $summary);
+    }
+
+    private function formatAuditValue($value)
+    {
+        if (is_null($value)) return '-';
+        if (is_bool($value)) return $value ? 'true' : 'false';
+        if (is_array($value) || is_object($value)) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+        return (string) $value;
     }
 }

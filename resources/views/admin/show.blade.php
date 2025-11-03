@@ -5,15 +5,18 @@
 @section('content')
 <div class="container-fluid">
     <!-- Header -->
+    @php($actor = Auth::guard('admin')->user())
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Detail Admin</h2>
             <p class="text-muted mb-0">Informasi lengkap admin: {{ $admin->nama_admin }}</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.edit', $admin->id) }}" class="btn btn-warning">
+            @if(($actor && in_array($actor->role, ['super_admin','admin'])) || ($actor && (int)$actor->id === (int)$admin->id))
+            <a href="{{ route('admin.edit', $admin->id) }}" class="btn btn-outline-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
+            @endif
             <a href="{{ route('admin.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Kembali
             </a>
@@ -56,13 +59,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label text-muted">Role</label>
-                                <p class="mb-0">
-                                    @if($admin->role === 'super_admin')
-                                        <span class="badge bg-danger">Super Admin</span>
-                                    @else
-                                        <span class="badge bg-info">Admin</span>
-                                    @endif
-                                </p>
+                                <p class="mb-0"><span class="badge bg-light text-dark text-uppercase">{{ str_replace('_',' ', $admin->role) }}</span></p>
                             </div>
                         </div>
                     </div>
@@ -70,13 +67,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label text-muted">Status</label>
-                                <p class="mb-0">
-                                    @if($admin->is_active)
-                                        <span class="badge bg-success">Aktif</span>
-                                    @else
-                                        <span class="badge bg-secondary">Tidak Aktif</span>
-                                    @endif
-                                </p>
+                                <p class="mb-0"><span class="badge bg-light text-dark">{{ $admin->is_active ? 'Aktif' : 'Tidak Aktif' }}</span></p>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -147,14 +138,22 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.edit', $admin->id) }}" class="btn btn-warning">
+                        @if(($actor && in_array($actor->role, ['super_admin','admin'])) || ($actor && (int)$actor->id === (int)$admin->id))
+                        <a href="{{ route('admin.edit', $admin->id) }}" class="btn btn-light btn-icon">
                             <i class="fas fa-edit me-2"></i>Edit Admin
                         </a>
-                        @if($admin->role !== 'super_admin')
+                        @endif
+                        @php(
+                            $inScopeRegional = ($actor && $actor->role === 'admin_regional' && in_array($admin->role, ['manager_bidang','staf']) && (int)$admin->kantor_id === (int)($actor->kantor_id ?? 0))
+                        )
+                        @php(
+                            $inScopeMB = ($actor && $actor->role === 'manager_bidang' && $admin->role === 'staf' && (int)$admin->kantor_id === (int)($actor->kantor_id ?? 0) && (int)$admin->bidang_id === (int)($actor->bidang_id ?? 0))
+                        )
+                        @if($admin->role !== 'super_admin' && (($actor && $actor->role === 'super_admin') || ($actor && $actor->role === 'admin_regional' && $inScopeRegional) || ($actor && $actor->role === 'manager_bidang' && $inScopeMB)))
                             <form action="{{ route('admin.toggle-status', $admin->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" 
-                                        class="btn {{ $admin->is_active ? 'btn-secondary' : 'btn-success' }} w-100"
+                                        class="btn btn-light btn-icon w-100"
                                         data-action="{{ $admin->is_active ? 'menonaktifkan' : 'mengaktifkan' }}"
                                         onclick="return confirmToggle(this)">
                                     <i class="fas {{ $admin->is_active ? 'fa-ban' : 'fa-check' }} me-2"></i>
@@ -165,7 +164,7 @@
                                   onsubmit="return confirm('Yakin ingin menghapus admin ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger w-100">
+                                <button type="submit" class="btn btn-light btn-icon w-100">
                                     <i class="fas fa-trash me-2"></i>Hapus Admin
                                 </button>
                             </form>
@@ -182,29 +181,10 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if($admin->role === 'super_admin')
-                        <div class="alert alert-danger">
-                            <i class="fas fa-crown me-2"></i>
-                            <strong>Super Admin</strong>
-                            <ul class="list-unstyled small mt-2 mb-0">
-                                <li>• Akses penuh ke semua fitur</li>
-                                <li>• Dapat mengelola admin lain</li>
-                                <li>• Tidak dapat dihapus</li>
-                                <li>• Tidak dapat dinonaktifkan</li>
-                            </ul>
-                        </div>
-                    @else
-                        <div class="alert alert-info">
-                            <i class="fas fa-user me-2"></i>
-                            <strong>Admin</strong>
-                            <ul class="list-unstyled small mt-2 mb-0">
-                                <li>• Akses ke semua fitur</li>
-                                <li>• Dapat mengelola data</li>
-                                <li>• Tidak dapat mengelola admin lain</li>
-                                <li>• Dapat dihapus atau dinonaktifkan</li>
-                            </ul>
-                        </div>
-                    @endif
+                    <div class="alert alert-light border">
+                        <strong class="text-uppercase">{{ str_replace('_',' ', $admin->role) }}</strong>
+                        <p class="small text-muted mb-0">Informasi singkat mengenai hak akses role.</p>
+                    </div>
                 </div>
             </div>
 
@@ -218,9 +198,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label text-muted">Password</label>
-                        <p class="mb-0">
-                            <span class="badge bg-warning">Terenskripsi</span>
-                        </p>
+                        <p class="mb-0"><span class="badge bg-light text-dark">Terenskripsi</span></p>
                         <small class="text-muted">Password dienkripsi menggunakan Hash</small>
                     </div>
                     <div class="mb-3">
