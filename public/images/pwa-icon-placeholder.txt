@@ -1,0 +1,20 @@
+# PWA ICONS PLACEHOLDER
+
+For PWA to work perfectly, you need these icon files in /public/images/:
+
+Required PWA Icons:
+- pwa-icon-72.png (72x72)
+- pwa-icon-96.png (96x96)  
+- pwa-icon-128.png (128x128)
+- pwa-icon-144.png (144x144)
+- pwa-icon-152.png (152x152)
+- pwa-icon-192.png (192x192)
+- pwa-icon-384.png (384x384)
+- pwa-icon-512.png (512x512)
+
+You can:
+1. Create these from existing PLN logo
+2. Use online PWA icon generator
+3. Or temporarily use placeholder icons
+
+The PWA will work without icons, but icons make it look more professional when installed.

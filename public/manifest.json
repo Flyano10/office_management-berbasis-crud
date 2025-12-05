@@ -1,0 +1,130 @@
+{
+  "name": "PLN Icon Plus - Kantor Management",
+  "short_name": "PLN Kantor",
+  "description": "Sistem Manajemen Kantor PLN Icon Plus - Kelola kantor, gedung, lantai, ruang, kontrak, dan inventaris",
+  "start_url": "/admin/dashboard",
+  "display": "standalone",
+  "background_color": "#1e3a8a",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id-ID",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "images/pwa-icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Lihat dashboard utama",
+      "url": "/admin/dashboard",
+      "icons": [
+        {
+          "src": "images/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Kantor",
+      "short_name": "Kantor",
+      "description": "Kelola data kantor",
+      "url": "/admin/kantor",
+      "icons": [
+        {
+          "src": "images/shortcut-kantor.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Inventaris",
+      "short_name": "Inventaris",
+      "description": "Kelola inventaris",
+      "url": "/admin/inventaris",
+      "icons": [
+        {
+          "src": "images/shortcut-inventory.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Analytics",
+      "description": "Lihat analytics",
+      "url": "/admin/analytics",
+      "icons": [
+        {
+          "src": "images/shortcut-analytics.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard PLN Kantor Management"
+    },
+    {
+      "src": "images/screenshot-mobile.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard PLN Kantor"
+    }
+  ],
+  "prefer_related_applications": false
+}
