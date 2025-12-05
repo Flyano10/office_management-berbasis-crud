@@ -20,7 +20,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('gedung.store') }}" method="POST">
+                <form action="{{ route('gedung.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="row">
@@ -86,6 +86,12 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="layout_gedung" class="form-label">Layout Gedung (opsional)</label>
+                        <input type="file" class="form-control" id="layout_gedung" name="layout_gedung" accept=".pdf,.jpg,.jpeg,.png,.svg">
+                        <div class="form-text">Unggah layout gedung dalam format PDF atau gambar (maks. 20 MB).</div>
                     </div>
 
                     <div class="d-flex justify-content-end">

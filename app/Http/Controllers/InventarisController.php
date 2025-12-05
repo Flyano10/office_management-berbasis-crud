@@ -19,7 +19,16 @@ class InventarisController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Inventaris::with(['kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang', 'subBidang']);
+        // Optimasi: Select specific columns untuk eager loading
+        $query = Inventaris::with([
+            'kategori:id,nama_kategori',
+            'kantor:id,nama_kantor',
+            'gedung:id,nama_gedung',
+            'lantai:id,nama_lantai,nomor_lantai',
+            'ruang:id,nama_ruang',
+            'bidang:id,nama_bidang',
+            'subBidang:id,nama_sub_bidang'
+        ]);
 
         // Scoping akses berdasarkan role
         $actor = auth('admin')->user();
@@ -62,9 +71,14 @@ class InventarisController extends Controller
 
         $inventaris = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        // Ambil opsi filter
-        $kategori = KategoriInventaris::orderBy('nama_kategori')->get();
-        $bidang = Bidang::all();
+        // Optimasi: Cache filter options (10 menit)
+        $kategori = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.kategori', 600, function () {
+            return KategoriInventaris::select('id', 'nama_kategori')->orderBy('nama_kategori')->get();
+        });
+        
+        $bidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.bidang', 600, function () {
+            return Bidang::select('id', 'nama_bidang')->get();
+        });
 
         return view('admin.inventaris.index', compact('inventaris', 'kategori', 'bidang'));
     }

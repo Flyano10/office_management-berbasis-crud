@@ -82,6 +82,10 @@ class KantorApiController extends ApiController
             'status_kepemilikan' => 'required|in:milik,sewa',
             'luas_tanah' => 'nullable|numeric|min:0',
             'luas_bangunan' => 'nullable|numeric|min:0',
+            'daya_listrik_va' => 'nullable|integer|min:0',
+            'kapasitas_genset_kva' => 'nullable|integer|min:0',
+            'jumlah_sumur' => 'nullable|integer|min:0',
+            'jumlah_septictank' => 'nullable|integer|min:0',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180'
         ]);
@@ -149,6 +153,10 @@ class KantorApiController extends ApiController
             'status_kepemilikan' => 'sometimes|required|in:milik,sewa',
             'luas_tanah' => 'nullable|numeric|min:0',
             'luas_bangunan' => 'nullable|numeric|min:0',
+            'daya_listrik_va' => 'nullable|integer|min:0',
+            'kapasitas_genset_kva' => 'nullable|integer|min:0',
+            'jumlah_sumur' => 'nullable|integer|min:0',
+            'jumlah_septictank' => 'nullable|integer|min:0',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180'
         ]);

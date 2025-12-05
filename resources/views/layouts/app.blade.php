@@ -472,85 +472,6 @@
             }
         }
 
-        /* Loading Screen Styles */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loading-screen.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loading-container {
-            text-align: center;
-            max-width: 400px;
-            padding: 2rem;
-        }
-
-        .loading-logo {
-            margin-bottom: 2rem;
-            animation: logoFloat 2s ease-in-out infinite;
-        }
-
-        .loading-logo-img {
-            height: 110px;
-            width: auto;
-            max-width: 120px;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-            /* Styling bersih untuk logo transparan */
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
-            background: transparent;
-            /* Hapus filter kompleks karena logo sekarang transparan */
-        }
-
-        .loading-text h3 {
-            color: var(--primary-color);
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            animation: textFade 1.5s ease-in-out infinite;
-        }
-
-        .loading-text p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .loading-spinner {
-            margin-bottom: 1.5rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--primary-lightest);
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        .loading-progress {
-            width: 100%;
-            height: 4px;
-            background: var(--primary-lightest);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
@@ -922,24 +843,6 @@
     @stack('styles')
 </head>
     <body>
-        <!-- Loading Screen -->
-        <div id="loadingScreen" class="loading-screen">
-            <div class="loading-container">
-                <div class="loading-logo">
-                    <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN Logo" class="loading-logo-img">
-                </div>
-                <div class="loading-text">
-                    <h3>PLN Icon Plus</h3>
-                    <p>Kantor Management System</p>
-                </div>
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                </div>
-                <div class="loading-progress">
-                    <div class="progress-bar"></div>
-                </div>
-            </div>
-        </div>
 
         <div class="container-fluid">
             <div class="row">
@@ -1122,8 +1025,37 @@
                                     </li>
                                 </ul>
                             </div>
-                        </li>
                         @endif
+                        
+                        <!-- Settings Section -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('mfa.*') || request()->routeIs('profile.*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#settingsSection" role="button" aria-expanded="false" aria-controls="settingsSection">
+                                <i class="fas fa-cog"></i>
+                                Pengaturan
+                                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                            </a>
+                            <div class="collapse" id="settingsSection">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('mfa.*') ? 'active' : '' }}" href="{{ route('mfa.setup') }}">
+                                            <i class="fas fa-shield-alt"></i>
+                                            MFA / 2FA
+                                            @if(Auth::guard('admin')->check() && Auth::guard('admin')->user()->mfa_enabled)
+                                                <span class="badge bg-success ms-2" style="font-size: 0.65rem;">Aktif</span>
+                                            @else
+                                                <span class="badge bg-warning ms-2" style="font-size: 0.65rem;">Nonaktif</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
+                                            <i class="fas fa-user"></i>
+                                            Profil Saya
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
                         
                         <!-- Logout -->
                         <li class="nav-item mt-3">
@@ -1276,20 +1208,6 @@
     
     <!-- Loading Screen Script -->
     <script>
-        // Loading Screen Control
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadingScreen = document.getElementById('loadingScreen');
-            
-            // Simulate loading time (1-1.5 seconds)
-            setTimeout(function() {
-                loadingScreen.classList.add('fade-out');
-                
-                // Remove loading screen after fade animation
-                setTimeout(function() {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            }, 1200);
-        });
     </script>
 
     <!-- Global Search Script -->

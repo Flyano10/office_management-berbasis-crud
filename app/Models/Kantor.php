@@ -21,7 +21,14 @@ class Kantor extends Model
         'jenis_kantor_id',
         'parent_kantor_id',
         'status_kantor',
-        'status_kepemilikan'
+        'status_kepemilikan',
+        'jenis_kepemilikan',
+        'luas_tanah',
+        'luas_bangunan',
+        'daya_listrik_va',
+        'kapasitas_genset_kva',
+        'jumlah_sumur',
+        'jumlah_septictank',
     ];
 
     // Relasi dengan model Kota

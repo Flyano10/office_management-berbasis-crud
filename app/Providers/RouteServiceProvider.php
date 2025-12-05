@@ -28,6 +28,15 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('public-api', function (Request $request) {
+            return Limit::perMinute(40)->by($request->ip())->response(function () {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terlalu banyak permintaan ke API publik. Silakan coba beberapa saat lagi.',
+                ], 429);
+            });
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

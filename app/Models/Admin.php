@@ -27,7 +27,10 @@ class Admin extends Authenticatable
         'password_history',
         'password_changed_at',
         'failed_login_attempts',
-        'locked_until'
+        'locked_until',
+        'mfa_secret',
+        'mfa_enabled',
+        'mfa_backup_codes'
     ];
 
     protected $hidden = [
@@ -42,6 +45,8 @@ class Admin extends Authenticatable
         'password_history' => 'array',
         'password_changed_at' => 'datetime',
         'locked_until' => 'datetime',
+        'mfa_enabled' => 'boolean',
+        'mfa_backup_codes' => 'array',
     ];
 
     // Relasi ke Provinsi (region)

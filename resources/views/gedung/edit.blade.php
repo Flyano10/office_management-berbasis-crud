@@ -20,7 +20,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('gedung.update', $gedung->id) }}" method="POST">
+                <form action="{{ route('gedung.update', $gedung->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     
@@ -88,6 +88,19 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="layout_gedung" class="form-label">Layout Gedung</label>
+                        <input type="file" class="form-control" id="layout_gedung" name="layout_gedung" accept=".pdf,.jpg,.jpeg,.png,.svg">
+                        <div class="form-text">Unggah layout baru untuk mengganti file sebelumnya (maks. 20 MB).</div>
+                        @if($gedung->layout_url)
+                            <div class="mt-2">
+                                <a href="{{ $gedung->layout_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-file-image"></i> Lihat Layout Saat Ini
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="d-flex justify-content-end">

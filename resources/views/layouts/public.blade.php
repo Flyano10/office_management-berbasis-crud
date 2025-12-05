@@ -53,10 +53,10 @@
     
     <style>
         :root {
-            --pln-primary: #4A90A4;
-            --pln-secondary: #5BA0B4;
+            --pln-primary: #1D5C7F;
+            --pln-secondary: #1D5C7F;
             --pln-accent: #FFD700;
-            --pln-dark: #3A7A8E;
+            --pln-dark: #1D5C7F;
             --pln-light: #E8F4F8;
             --pln-gray: #6B7280;
             --pln-light-gray: #F8FAFC;
@@ -68,24 +68,24 @@
         }
         
         .navbar {
-            background: #ffffff;
-            backdrop-filter: none;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(44, 106, 143, 0.15);
-            padding: 0.4rem 0;
+            background: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 0 !important;
             position: sticky;
             top: 0;
             z-index: 1030;
             transition: all 0.3s ease;
-            min-height: 55px;
+            height: 60px;
+            display: flex;
+            align-items: center;
         }
-        
+
         .navbar.scrolled {
-            padding: 0.3rem 0;
-            background: #ffffff;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            border-bottom: 1px solid rgba(44, 106, 143, 0.2);
-            min-height: 50px;
+            padding: 0.25rem 0;
+            box-shadow: 0 4px 18px rgba(29, 92, 127, 0.12);
+            border-bottom: 1px solid rgba(29, 92, 127, 0.2);
+            min-height: 56px;
         }
         
         .navbar .container {
@@ -131,43 +131,43 @@
         }
         
         .navbar-logo {
-            height: 85px;
+            height: 72px;
             width: auto;
             filter: none;
             transition: all 0.3s ease;
             flex-shrink: 0;
             position: relative;
             z-index: 10;
-            margin: -15px 0;
+            margin: -12px 0;
         }
-        
+
         .navbar-logo:hover {
             transform: scale(1.05);
             filter: drop-shadow(0 2px 4px rgba(44, 106, 143, 0.3));
         }
         
         .navbar-nav .nav-link {
-            color: #64748b !important;
+            color: #5b6b7f !important;
             font-weight: 500;
-            font-size: 0.85rem;
-            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
+            padding: 0.45rem 1.2rem;
             margin: 0 0.25rem;
-            border-radius: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 999px;
+            transition: all 0.25s ease;
             position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
         }
-        
+
         .navbar-nav .nav-link:hover {
-            background-color: rgba(74, 144, 164, 0.1);
-            color: #4A90A4 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 144, 164, 0.15);
+            background-color: rgba(29, 92, 127, 0.08);
+            color: #1D5C7F !important;
         }
-        
+
         .navbar-nav .nav-link.active {
-            background-color: #4A90A4;
-            color: white !important;
-            box-shadow: 0 4px 12px rgba(74, 144, 164, 0.3);
+            background-color: #0f4c81;
+            color: #ffffff !important;
         }
         
         .navbar-nav .nav-link i {
@@ -492,16 +492,17 @@
         
         /* Warna Teks Hero Section - Biru PLN untuk Kontras Tinggi */
         .hero-content-overlay h1 {
-            color: #3A7A8E !important;
+            color: #1D5C7F !important;
             font-family: 'Inter', 'Poppins', sans-serif !important;
             font-weight: 800 !important;
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6) !important;
         }
         
         .hero-content-overlay h2 {
-            color: #4A90A4 !important;
+            color: #1D5C7F !important;
             font-family: 'Inter', 'Poppins', sans-serif !important;
             font-weight: 600 !important;
+            opacity: 0.9;
             text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5) !important;
         }
         
@@ -514,32 +515,32 @@
         
         /* Paksa style button untuk hero section */
         .hero-actions .btn-pln {
-            background: #2C6A8F !important;
+            background: #1D5C7F !important;
             border: none !important;
             color: white !important;
-            box-shadow: 0 4px 15px rgba(44, 106, 143, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(29, 92, 127, 0.3) !important;
         }
         
         .hero-actions .btn-pln:hover {
-            background: #1E4A5F !important;
+            background: #15435F !important;
             border: none !important;
             color: white !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(44, 106, 143, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(29, 92, 127, 0.4) !important;
         }
         
         .hero-actions .btn-outline-pln {
             background: white !important;
-            border: 2px solid #2C6A8F !important;
-            color: #2C6A8F !important;
+            border: 2px solid #1D5C7F !important;
+            color: #1D5C7F !important;
         }
         
         .hero-actions .btn-outline-pln:hover {
-            background: #2C6A8F !important;
-            border: 2px solid #2C6A8F !important;
+            background: #1D5C7F !important;
+            border: 2px solid #1D5C7F !important;
             color: white !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(44, 106, 143, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(29, 92, 127, 0.4) !important;
         }
         
         .hero-section-full * {
@@ -646,30 +647,23 @@
         
         /* Hero Section - Background dengan Kontras Seimbang */
         .hero-section-abstract {
-            height: 100vh;
-            width: 100vw;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 !important;
-            padding: 0 !important;
-            background: 
-                linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.65) 100%),
-                url('/images/logo/property.png') !important;
-            background-size: cover !important;
-            background-position: center right !important;
-            background-repeat: no-repeat !important;
-            background-attachment: fixed !important;
-            min-height: 100vh;
+            padding: 6rem 2rem 4.5rem;
+            background:
+                linear-gradient(120deg, rgba(17, 94, 133, 0.16) 0%, rgba(226, 240, 247, 0.78) 40%, rgba(243, 249, 253, 0.9) 100%),
+                url('/images/logo/property.png') center/cover no-repeat fixed !important;
         }
-        
+
         .hero-section-abstract::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(255, 255, 255, 0.3) 100%);
+            background: linear-gradient(135deg, rgba(29, 92, 127, 0.18) 0%, rgba(255, 255, 255, 0.4) 55%, rgba(255, 255, 255, 0.25) 100%);
             z-index: 1;
         }
         
@@ -695,22 +689,22 @@
         /* Logo PLN di pojok kanan atas */
         .pln-logo {
             position: absolute;
-            top: 30px;
-            right: 40px;
-            z-index: 10;
+            top: 2.5rem;
+            right: 3rem;
+            z-index: 40;
         }
         
         .pln-logo-img {
-            width: 160px;
+            width: 140px;
             height: auto;
             object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
-            transition: all 0.3s ease;
+            filter: drop-shadow(0 12px 24px rgba(29, 92, 127, 0.15));
+            transition: transform 0.3s ease, filter 0.3s ease;
         }
         
         .pln-logo:hover .pln-logo-img {
-            transform: scale(1.05);
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+            transform: translateY(-4px);
+            filter: drop-shadow(0 16px 32px rgba(29, 92, 127, 0.22));
         }
         
         
@@ -970,13 +964,13 @@
         }
         
         .hero-badge .badge-text {
-            background: linear-gradient(135deg, #2D5A87 0%, #4A9B9B 100%);
+            background: linear-gradient(135deg, #1D5C7F 0%, #2A7C9E 100%);
             color: white;
             padding: 8px 16px;
-            border-radius: 25px;
+            border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+            box-shadow: 0 4px 15px rgba(29, 92, 127, 0.2);
         }
         
         /* Desain responsive untuk background aset */
@@ -1080,24 +1074,66 @@
         .hero-content-overlay {
             position: relative;
             z-index: 2;
-            text-align: left;
-            color: #1e293b;
-            max-width: 600px;
-            padding: 4rem 2rem 4rem 3rem;
+            display: grid;
+            grid-template-columns: minmax(0, 480px) minmax(240px, 300px);
+            gap: 2.6rem;
+            align-items: center;
+            color: #1F2A37;
+            padding: 3rem 3.2rem;
             margin: 0;
-            margin-left: 5%;
-            animation: fadeInUp 1.2s ease-out;
+            background: rgba(255, 255, 255, 0.58);
+            border-radius: 20px;
+            backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 20px 48px rgba(22, 64, 97, 0.13);
+            animation: fadeInUp 0.9s ease-out;
         }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+
+        .hero-copy {
+            position: relative;
+        }
+
+        .hero-copy::before {
+            content: 'SIAP';
+            position: absolute;
+            top: -2rem;
+            left: -0.25rem;
+            font-size: 6.4rem;
+            font-weight: 800;
+            color: rgba(29, 92, 127, 0.07);
+            letter-spacing: 0.16em;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .hero-visual::after {
+            display: none;
+        }
+
+        .hero-badge {
+            margin-bottom: 1.25rem;
+        }
+
+        .badge-siap {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(29, 92, 127, 0.12);
+            color: #1D5C7F;
+            font-weight: 600;
+            font-size: 0.78rem;
+            border-radius: 999px;
+            padding: 0.32rem 1rem;
+            border: 1px solid rgba(29, 92, 127, 0.2);
         }
         
         @keyframes pulse {
@@ -1180,78 +1216,71 @@
         }
         
         .hero-title {
-            font-size: 4rem;
+            font-size: 3.1rem;
             font-weight: 800;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.02em;
-            color: #3A7A8E !important;
-            line-height: 1.2;
-            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #15445D !important;
+            line-height: 1.08;
+            position: relative;
+            padding-bottom: 0.85rem;
         }
-        
-        .hero-accent {
-            color: #FFD700;
-            display: block;
-            font-size: 0.8em;
-            margin-top: -0.2em;
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 82px;
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #1D5C7F 0%, rgba(29, 92, 127, 0.12) 100%);
         }
-        
+
         .hero-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
             font-weight: 600;
-            color: #4A90A4 !important;
-            line-height: 1.4;
-            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+            color: #2C6A8F !important;
+            line-height: 1.3;
         }
-        
+
         .hero-description {
-            font-size: 1.1rem;
-            margin-bottom: 2.5rem;
+            font-size: 0.98rem;
+            margin-bottom: 1.6rem;
             line-height: 1.7;
-            max-width: 600px;
-            margin-left: 0;
-            color: #1e293b !important;
-            text-shadow: 0 1px 6px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.4);
+            max-width: 500px;
+            color: #1F2A37 !important;
         }
         
         .hero-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.9rem;
             justify-content: flex-start;
             flex-wrap: wrap;
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
+            margin-top: 0.6rem;
+            margin-bottom: 0.6rem;
             padding: 0;
-            animation: fadeInUp 1.2s ease-out 0.9s both;
         }
-        
+
         .hero-actions .btn {
-            padding: 0.8rem 1.8rem;
+            padding: 0.78rem 1.6rem;
             font-weight: 600;
-            font-size: 1rem;
-            border-radius: 12px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            min-width: 160px;
-            height: 45px;
-            display: flex;
+            font-size: 0.94rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            min-width: 152px;
+            height: auto;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
+            gap: 0.5rem;
         }
-        
-        .btn-pln {
-            background: linear-gradient(135deg, #2C6A8F 0%, #1E3A8A 100%);
-            border: none;
-            color: white;
-            box-shadow: 0 8px 24px rgba(44, 106, 143, 0.3);
-            position: relative;
-            overflow: hidden;
-            font-weight: 700;
-            padding: 0.9rem 2rem;
+
+        .hero-actions .btn-pln {
+            background: #1D5C7F;
+            border: 2px solid #1D5C7F;
+            color: #ffffff;
+            box-shadow: 0 14px 32px rgba(29, 92, 127, 0.13);
             font-size: 1.05rem;
         }
         
@@ -1271,301 +1300,438 @@
         }
         
         .btn-pln:hover {
-            background: linear-gradient(135deg, #1E3A8A 0%, #2C6A8F 100%);
-            border: none;
-            transform: scale(1.05) translateY(-4px);
-            box-shadow: 0 12px 32px rgba(44, 106, 143, 0.5);
-            color: white;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #15435F;
+            border-color: #174a66;
+            transform: translateY(-2px);
+            box-shadow: 0 18px 40px rgba(23, 74, 102, 0.24);
         }
         
         .btn-outline-pln {
-            background: white;
-            border: 2px solid #2C6A8F;
-            color: #2C6A8F;
-            box-shadow: 0 4px 16px rgba(44, 106, 143, 0.15);
-            backdrop-filter: blur(15px);
-            padding: 0.9rem 2rem;
-            font-size: 1.05rem;
-            font-weight: 700;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 2px solid #1D5C7F !important;
+            color: #1D5C7F !important;
+            box-shadow: 0 10px 24px rgba(29, 92, 127, 0.15);
         }
         
         .btn-outline-pln:hover {
-            background-color: #2C6A8F;
-            color: white;
-            border: 2px solid #2C6A8F;
-            transform: scale(1.05) translateY(-4px);
-            box-shadow: 0 12px 32px rgba(44, 106, 143, 0.4);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        
-        
-        /* Desain responsive - bersih dan profesional */
-        @media (max-width: 768px) {
-            .hero-content-overlay {
-                padding: 2rem 1rem;
-                max-width: 100%;
-                margin-left: 0;
-                text-align: center;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem;
-                line-height: 1.2;
-                color: #3A7A8E !important;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.1rem;
-                margin-bottom: 1rem;
-                color: #4A90A4 !important;
-            }
-            
-            .hero-description {
-                font-size: 0.95rem;
-                margin-bottom: 1.5rem;
-                max-width: 100%;
-                color: #475569 !important;
-            }
-            
-            .hero-image-full {
-                width: 100vw;
-                height: 100vh;
-                object-fit: cover;
-                object-position: center;
-                position: absolute;
-                top: 0;
-                left: 0;
-                filter: none;
-            }
-            
-            .hero-actions {
-                flex-direction: column;
-                align-items: center;
-                gap: 0.6rem;
-            }
-            
-            .hero-actions .btn {
-                width: 100%;
-                max-width: 160px;
-                min-width: auto;
-                padding: 0.3rem 0.6rem;
-                font-size: 0.7rem;
-                height: 30px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .hero-content-overlay {
-                padding: 0.8rem 0.4rem;
-            }
-            
-            .hero-title {
-                font-size: 1.2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 0.75rem;
-            }
-            
-            .hero-description {
-                font-size: 0.75rem;
-                line-height: 1.4;
-            }
-            
-            .hero-badge .badge {
-                font-size: 0.8rem;
-                padding: 0.4rem 1rem;
-            }
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(44, 106, 143, 0.03) 0%, rgba(30, 58, 138, 0.05) 50%, rgba(44, 106, 143, 0.02) 100%);
-            z-index: 1;
-        }
-        
-        .hero-section .container {
-            position: relative;
-            z-index: 2;
-        }
-        
-        .min-vh-75 {
-            min-height: 75vh;
-        }
-        
-        .hero-badge {
-            display: inline-block;
-        }
-        
-        .hero-badge .badge {
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(44, 106, 143, 0.2);
-        }
-        
-        .badge-logo {
-            height: 16px;
-            width: auto;
-            filter: brightness(0) invert(1);
-        }
-        
-        .hero-title {
+            background: #1D5C7F !important;
             color: #ffffff !important;
-            font-weight: 800;
-            font-size: 3.5rem;
-            line-height: 1.2;
-            letter-spacing: -1px;
-            margin-bottom: 1rem;
-            margin-top: 0.5rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        }
+        
+        .hero-highlight-card {
             position: relative;
-            animation: fadeInDown 1.2s ease-out;
+            width: 100%;
+            padding: 1.6rem 1.4rem;
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 20px;
+            border: 1px solid rgba(29, 92, 127, 0.15);
+            box-shadow: 0 12px 32px rgba(29, 92, 127, 0.12);
+            text-align: left;
         }
-        
-        .hero-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 80px;
-            height: 3px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-            border-radius: 2px;
+
+        .hero-highlight-card.secondary {
+            background: rgba(255, 255, 255, 0.82);
         }
-        
-        .hero-accent {
-            color: var(--pln-secondary);
-            font-weight: 900;
-            font-size: 3.5rem;
-            display: block;
-            margin-top: -0.5rem;
+
+        .hero-highlight-card h3 {
+            font-size: 1.25rem;
+            color: #1D5C7F;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
         }
-        
-        .hero-subtitle {
-            color: #ffffff !important;
-            font-weight: 600;
-            font-size: 1.5rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-            margin-top: 0.5rem;
-            letter-spacing: -0.2px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-            animation: fadeInUp 1.2s ease-out 0.3s both;
-        }
-        
-        .hero-description {
-            color: #ffffff !important;
-            font-size: 1rem;
-            line-height: 1.6;
-            font-weight: 500;
-            max-width: 500px;
-            margin: 0 auto 1rem auto;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-            animation: fadeInUp 1.2s ease-out 0.6s both;
-        }
-        
-        .hero-stats {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(44, 106, 143, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--pln-primary);
-            line-height: 1;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #64748b;
-            font-weight: 600;
-            margin-top: 0.25rem;
-        }
-        
-        .hero-actions {
-            margin-top: 2rem;
-        }
-        
-        
-        /* Section informasi perusahaan */
-        .company-info-section {
-            background: #ffffff;
-            padding: 1.5rem 0;
-            position: relative;
-        }
-        
-        /* Old stats-section - removed */
-        
-        .stats-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--pln-primary);
-            margin-bottom: 0.6rem;
-            letter-spacing: -0.5px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            height: 100%;
-            transition: all 0.4s ease;
-            border: 1px solid rgba(44, 106, 143, 0.2);
-            box-shadow: 0 2px 10px rgba(44, 106, 143, 0.1);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #2C6A8F 0%, #1E4A5F 100%);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(44, 106, 143, 0.15);
-            border-color: rgba(44, 106, 143, 0.3);
-        }
-        
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #2C6A8F 0%, #1E4A5F 100%);
-            border-radius: 12px;
+
+        .hero-highlight-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            margin: 0 auto 1rem;
-            transition: all 0.4s ease;
-            box-shadow: 0 4px 15px rgba(44, 106, 143, 0.3);
+            color: #1D5C7F;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .hero-highlight-stack {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .hero-more-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1D5C7F;
+            text-decoration: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .hero-more-link:hover {
+            color: #15445D;
+            transform: translateX(2px);
+        }
+        
+        /* Section informasi perusahaan */
+        .company-info-section {
+            background: transparent;
+            padding: 4rem 0 4.5rem;
+            position: relative;
+        }
+        
+        .company-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #1D5C7F;
+            background: transparent;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            margin-bottom: 1.25rem;
+        }
+        
+        .company-info-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #123C53;
+            margin-bottom: 1rem;
+        }
+        
+        .company-subheading {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1D5C7F;
+            margin: 1.5rem 0 0.75rem;
+            letter-spacing: 0.02em;
+        }
+        
+        .company-subheading:first-of-type {
+            margin-top: 0.5rem;
+        }
+        
+        .company-info-description {
+            color: #2C3E50;
+            font-size: 1rem;
+            line-height: 1.75;
+            margin-bottom: 0.85rem;
+        }
+        
+        .company-timeline-carousel {
+            position: relative;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 1.5rem 0;
+            box-shadow: none;
+            overflow: visible;
+        }
+        
+        .company-timeline-carousel::before,
+        .company-timeline-carousel::after,
+        .company-timeline-carousel.at-start::before,
+        .company-timeline-carousel.at-end::after {
+            display: none;
+        }
+
+        .timeline-track-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timeline-track {
+            position: relative;
+            display: flex;
+            gap: 1.75rem;
+            padding: 0.75rem 0;
+            scroll-behavior: auto;
+            transform: translateX(0);
+            transition: transform 0.45s ease;
+        }
+
+        .timeline-track::before {
+            display: none;
+        }
+
+        .timeline-slide {
+            min-width: 240px;
+            max-width: 260px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .timeline-slide::before {
+            display: none;
+        }
+
+        .slide-year {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #1D5C7F;
+            letter-spacing: 0.05em;
+        }
+
+        .timeline-slide p {
+            margin: 0;
+            color: #2C3E50;
+            line-height: 1.65;
+            font-size: 0.95rem;
+        }
+
+        .timeline-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            color: #1D5C7F;
+            z-index: 4;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .timeline-nav:hover {
+            transform: translateY(-50%) translateY(-4px);
+            background: rgba(29, 92, 127, 0.12);
+            color: #1D5C7F;
+            box-shadow: none;
+        }
+
+        .timeline-nav.prev {
+            left: 1.1rem;
+        }
+
+        .timeline-nav.next {
+            right: 1.1rem;
+        }
+
+        .timeline-nav.disabled,
+        .timeline-nav:disabled {
+            opacity: 0.35;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+
+        .company-feature-card {
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            padding: 2rem 1.9rem;
+            box-shadow: none;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: visible;
+            height: 100%;
+        }
+
+        .company-feature-card.mission {
+            background: transparent;
+            box-shadow: none;
+            padding: 2.2rem 2.1rem;
+        }
+
+        .company-feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #123C53;
+            margin-bottom: 1rem;
+        }
+
+        .company-vision-mission {
+            margin-top: 1.8rem;
+        }
+
+        .company-feature-card p {
+            color: #475569;
+            margin-bottom: 1rem;
+        }
+
+        .company-feature-card ul {
+            padding-left: 1.1rem;
+            margin: 0;
+            color: #475569;
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .company-feature-card li {
+            line-height: 1.6;
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(29, 92, 127, 0.2) 0%, rgba(29, 92, 127, 0.05) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1D5C7F;
+            font-size: 1.25rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .company-values {
+            margin-top: 3.5rem;
+        }
+
+        .values-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #123C53;
+            margin-bottom: 1.6rem;
+        }
+
+        .company-values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .company-value-card {
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            padding: 1.6rem 1.5rem;
+            box-shadow: none;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .value-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .value-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #123C53;
+            letter-spacing: 0.04em;
+        }
+
+        .company-value-card p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .company-value-card ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            color: #64748B;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        @media (max-width: 992px) {
+            .company-info-section {
+                padding: 3rem 0;
+            }
+
+            .company-timeline-carousel {
+                padding: 2.1rem 3rem;
+            }
+
+            .timeline-slide {
+                min-width: 220px;
+                max-width: 240px;
+                padding: 1.5rem 1.3rem;
+            }
+
+            .timeline-nav {
+                width: 40px;
+                height: 40px;
+            }
+
+            .company-timeline-carousel {
+                margin-top: 1.5rem;
+            }
+
+            .company-feature-card {
+                padding: 1.7rem 1.6rem;
+            }
+
+            .company-feature-card.mission {
+                padding: 1.85rem 1.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .company-values-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .company-timeline-carousel {
+                padding: 1.8rem 2.3rem;
+            }
+
+            .timeline-track {
+                gap: 1.25rem;
+            }
+
+            .timeline-slide {
+                min-width: 70%;
+                max-width: 70%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .company-pill {
+                font-size: 0.7rem;
+                letter-spacing: 0.14em;
+            }
+
+            .company-info-title {
+                font-size: 1.8rem;
+            }
+
+            .company-timeline-carousel {
+                padding: 1.45rem 1.4rem 2.6rem;
+            }
+
+            .company-timeline-carousel::before,
+            .company-timeline-carousel::after {
+                width: 48px;
+            }
+
+            .timeline-track {
+                gap: 0.85rem;
+            }
+
+            .timeline-slide {
+                min-width: 88%;
+                max-width: 88%;
+            }
+
+            .timeline-nav.disabled,
+            .timeline-nav:disabled {
+                transform: none;
+            }
         }
         
         .stat-icon:hover {
@@ -1576,7 +1742,7 @@
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #2C6A8F;
+            color: #1D5C7F;
             line-height: 1;
             margin-bottom: 0.5rem;
         }
@@ -1596,7 +1762,7 @@
         
         /* Section Tentang PLN - Modern & Clean Design */
         .company-info-section {
-            background: #ffffff;
+            background: transparent;
             padding: 5rem 0;
             position: relative;
         }
@@ -1613,7 +1779,7 @@
         .company-info-title {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #3A7A8E;
+            color: #1D5C7F;
             margin-bottom: 0.75rem;
             letter-spacing: -0.02em;
             text-align: center;
@@ -1628,38 +1794,25 @@
         }
         
         .company-info-card {
-            background: #ffffff;
-            border-radius: 12px;
+            background: transparent;
+            border-radius: 0;
             padding: 1.8rem 1.5rem;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: none;
+            box-shadow: none;
             height: 100%;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             text-align: center;
         }
         
         .company-info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(135deg, #4A90A4 0%, #5BA0B4 100%);
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-        
-        .company-info-card:hover::before {
-            transform: scaleX(1);
+            display: none;
         }
         
         .company-info-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(44, 106, 143, 0.18);
-            border-color: rgba(44, 106, 143, 0.3);
+            box-shadow: none;
         }
         
         .company-info-icon {
@@ -1673,19 +1826,19 @@
             color: white;
             font-size: 1.4rem;
             margin: 0 auto 1.2rem;
-            box-shadow: 0 4px 16px rgba(74, 144, 164, 0.15);
+            box-shadow: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .company-info-icon:hover {
             transform: scale(1.15) rotate(10deg);
-            box-shadow: 0 12px 40px rgba(44, 106, 143, 0.35);
+            box-shadow: none;
         }
         
         .company-info-label {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #3A7A8E;
+            color: #1D5C7F;
             margin-bottom: 0.8rem;
             letter-spacing: -0.02em;
         }
@@ -1694,15 +1847,14 @@
             font-size: 0.95rem;
             color: #64748b;
             line-height: 1.7;
-            margin: 0;
         }
-
+        
         /* Utility ukuran ikon SVG agar konsisten di seluruh publik */
         .icon-16 { width: 16px; height: 16px; }
         .icon-18 { width: 18px; height: 18px; }
         .icon-20 { width: 20px; height: 20px; }
         .icon     { vertical-align: -2px; display: inline-block; }
-
+        
         /* Section Dashboard Internal */
         .actions-section {
             background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
@@ -1711,12 +1863,10 @@
             border-top: 1px solid rgba(44, 106, 143, 0.1);
         }
         
-        
-        
         .actions-title {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #3A7A8E;
+            color: #1D5C7F;
             margin-bottom: 0.75rem;
             letter-spacing: -0.02em;
             text-align: center;
@@ -2023,7 +2173,7 @@
         }
         
         .nav-tabs .nav-link.active {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
         }
         
@@ -2156,7 +2306,7 @@
         
         .nav-tabs .nav-link:hover {
             background: #f8f9fa;
-            color: #2C6A8F;
+            color: #1D5C7F;
         }
 
         /* Styling button dengan warna PLN */
@@ -2267,7 +2417,7 @@
             padding: 0 5px;
         }
         
-        /* Modal fullscreen untuk laporan inventaris */
+        /* Modal untuk kontrak, inventaris, dan laporan inventaris */
         .laporan-modal {
             position: fixed;
             top: 0;
@@ -2288,25 +2438,35 @@
         .laporan-modal-content {
             background: white;
             border-radius: 12px;
-            width: 95%;
-            height: 95%;
-            max-width: 1400px;
-            max-height: 900px;
+            width: 90%;
+            height: 85%;
+            max-width: 1200px;
+            max-height: 800px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
         }
         
         .laporan-modal-header {
-            background: linear-gradient(135deg, #2D5A87 0%, #4A9B9B 100%);
+            background: #1D5C7F;
             color: white;
-            padding: 20px;
+            padding: 15px 20px;
             border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+        
+        .laporan-modal-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.1rem;
         }
         
         .laporan-modal-body {
             padding: 20px;
-            height: calc(100% - 80px);
+            flex: 1;
             overflow-y: auto;
+            background: #ffffff;
         }
         
         .laporan-modal-close {
@@ -2316,12 +2476,104 @@
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .laporan-modal-close:hover {
             color: #f8f9fa;
+            opacity: 0.8;
+        }
+        
+        /* Table styling untuk modal - dominan putih dengan font abu-abu/biru PLN */
+        .laporan-modal-body .table {
+            background: white;
+            margin-bottom: 0;
+        }
+        
+        .laporan-modal-body .table thead th {
+            background: #1D5C7F;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 12px 10px;
+            border: 1px solid #1D5C7F;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .laporan-modal-body .table tbody td {
+            background: white;
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+        
+        .laporan-modal-body .table tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .laporan-modal-body .table tbody tr.table-secondary td {
+            background: #f3f4f6;
+            color: #1D5C7F;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .laporan-modal-body .table tbody td strong {
+            color: #1D5C7F;
+            font-weight: 600;
+        }
+        
+        .laporan-modal-body .table tbody td small {
+            color: #6b7280;
+        }
+        
+        .laporan-modal-body .badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            font-weight: 500;
+        }
+        
+        .laporan-modal-body .badge.bg-primary {
+            background: #1D5C7F !important;
+        }
+        
+        .laporan-modal-body .badge.bg-info {
+            background: #1D5C7F !important;
+            opacity: 0.8;
+        }
+        
+        .laporan-modal-body .badge.bg-secondary {
+            background: #9ca3af !important;
+            color: white;
+        }
+        
+        .laporan-modal-body .badge.bg-success {
+            background: #10b981 !important;
+        }
+        
+        .laporan-modal-body .text-success {
+            color: #10b981 !important;
+        }
+        
+        .laporan-modal-body .btn-success {
+            background: #10b981;
+            border-color: #10b981;
+        }
+        
+        .laporan-modal-body .btn-success:hover {
+            background: #059669;
+            border-color: #059669;
         }
         
         /* Style filter yang ditingkatkan */
@@ -2675,7 +2927,7 @@
         .peta-search-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin-bottom: 0.375rem;
         }
         
@@ -2710,7 +2962,7 @@
         .peta-form-control:focus,
         .peta-form-select:focus {
             outline: none;
-            border-color: #2C6A8F;
+            border-color: #1D5C7F;
             box-shadow: 0 0 0 3px rgba(44, 106, 143, 0.1);
         }
         
@@ -2735,7 +2987,7 @@
         }
         
         .peta-btn-primary {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
         }
         
@@ -2747,12 +2999,12 @@
         
         .peta-btn-outline {
             background: white;
-            color: #2C6A8F;
+            color: #1D5C7F;
             border: 2px solid #2C6A8F;
         }
         
         .peta-btn-outline:hover {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             transform: translateY(-2px);
         }
@@ -2788,7 +3040,7 @@
         .peta-map-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin: 0;
         }
         
@@ -2848,7 +3100,7 @@
             align-items: center;
             gap: 0.375rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
             font-size: 0.8rem;
@@ -2856,14 +3108,14 @@
         }
         
         .peta-search-toggle:hover {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(44, 106, 143, 0.3);
         }
         
         .peta-search-toggle.active {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
         }
         
@@ -3085,8 +3337,6 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            border: 1px solid white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
             flex-shrink: 0;
         }
         
@@ -3173,7 +3423,7 @@
             padding: 0.5rem 1rem;
             border: 1px solid #2C6A8F;
             background: white;
-            color: #2C6A8F;
+            color: #1D5C7F;
             font-weight: 600;
             font-size: 0.8rem;
             border-radius: 6px;
@@ -3182,7 +3432,7 @@
         
         .directory-toggle-btn.active,
         .directory-toggle-btn:hover {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(44, 106, 143, 0.3);
@@ -3204,7 +3454,7 @@
         .directory-search-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin: 0 0 0.25rem 0;
         }
         
@@ -3232,12 +3482,12 @@
         
         .directory-form-control:focus,
         .directory-form-select:focus {
-            border-color: #2C6A8F;
+            border-color: #1D5C7F;
             box-shadow: 0 0 0 3px rgba(44, 106, 143, 0.1);
         }
         
         .directory-btn-primary {
-            background: #2C6A8F;
+            background: #1D5C7F;
             border: none;
             color: white;
             font-weight: 600;
@@ -3270,7 +3520,7 @@
         .directory-list-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin: 0 0 0.25rem 0;
         }
         
@@ -3300,7 +3550,7 @@
         }
         
         .directory-table-responsive::-webkit-scrollbar-thumb {
-            background: #2C6A8F;
+            background: #1D5C7F;
             border-radius: 3px;
         }
         
@@ -3411,7 +3661,7 @@
         .directory-btn-outline {
             background: transparent;
             border: 1px solid #2C6A8F;
-            color: #2C6A8F;
+            color: #1D5C7F;
             font-size: 0.7rem;
             padding: 0.4rem 0.8rem;
             border-radius: 4px;
@@ -3420,7 +3670,7 @@
         }
         
         .directory-btn-outline:hover {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(44, 106, 143, 0.2);
@@ -3480,7 +3730,7 @@
         .directory-map-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin: 0 0 0.25rem 0;
         }
         
@@ -3541,57 +3791,538 @@
             font-weight: 500;
         }
         
-        .peta-info-section {
-            margin-top: 1.25rem;
+        .peta-page {
+            background: linear-gradient(180deg, #f5f9ff 0%, #ffffff 60%);
+            padding: 1.5rem 0 2rem;
         }
-        
-        .peta-info-card {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(44, 106, 143, 0.1);
+
+        .peta-fullscreen {
+            min-height: calc(100vh - 80px);
+            height: calc(100vh - 80px);
             display: flex;
+        }
+
+        .peta-dashboard {
+            display: flex;
+            align-items: stretch;
+            gap: 1.75rem;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .peta-dashboard-panel {
+            width: 360px;
+            max-width: 380px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(230, 241, 255, 0.9) 100%);
+            border-radius: 30px;
+            border: 1px solid rgba(16, 82, 129, 0.12);
+            box-shadow: 0 24px 58px rgba(15, 76, 117, 0.16);
+            padding: 1.75rem 1.9rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1010;
+            transition: transform 0.3s ease;
+            max-height: 100%;
+        }
+
+        .peta-dashboard-panel.collapsed {
+            transform: translateX(calc(-100% + 68px));
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
             align-items: flex-start;
-            gap: 0.75rem;
-            transition: all 0.3s ease;
+            gap: 1rem;
         }
-        
-        .peta-info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(44, 106, 143, 0.1);
+
+        .panel-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(199, 222, 250, 0.85) 0%, rgba(221, 235, 255, 0.95) 100%);
+            color: #0f4c81;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
         }
-        
-        .peta-info-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #2C6A8F 0%, #1E4A5F 100%);
-            border-radius: 6px;
+
+        .panel-title {
+            margin: 0.6rem 0 0;
+            color: #09375a;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .panel-collapse {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            border: 1px solid rgba(16, 82, 129, 0.14);
+            background: rgba(255, 255, 255, 0.95);
+            color: #0f4c81;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 18px 36px rgba(15, 61, 87, 0.16);
+            transition: all 0.2s ease;
+        }
+
+        .panel-collapse:hover {
+            background: #0f4c81;
+            color: #ffffff;
+        }
+
+        .panel-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(15, 76, 117, 0.08) 0%, rgba(15, 76, 117, 0.2) 50%, rgba(15, 76, 117, 0.08) 100%);
+            margin: 1.35rem 0 1.25rem;
+        }
+
+        .panel-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.35rem;
+            overflow-y: auto;
+            padding-right: 0.35rem;
+            scrollbar-width: thin;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .panel-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .panel-body::-webkit-scrollbar-thumb {
+            background: rgba(17, 94, 133, 0.25);
+            border-radius: 999px;
+        }
+
+        .panel-section {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.95rem 1.05rem;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 82, 129, 0.12);
+            background: linear-gradient(135deg, rgba(248, 250, 255, 0.95) 0%, rgba(235, 243, 255, 0.9) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(140deg, rgba(214, 229, 250, 0.9) 0%, rgba(239, 246, 255, 0.95) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 0.9rem;
-            flex-shrink: 0;
+            color: #0f4c81;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 22px rgba(15, 76, 117, 0.16);
         }
-        
-        .peta-info-title {
-            font-size: 1rem;
+
+        .stat-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #5b6b7b;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #0f3d57;
+        }
+
+        .panel-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            border-radius: 22px;
+            border: 1px solid rgba(16, 82, 129, 0.14);
+            background: linear-gradient(140deg, rgba(230, 241, 255, 0.92) 0%, rgba(255, 255, 255, 0.95) 70%);
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: #0f4c81;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
             font-weight: 600;
-            color: #2C6A8F;
-            margin-bottom: 0.25rem;
         }
-        
-        .peta-info-text {
-            color: #6b7280;
-            margin: 0;
-            line-height: 1.4;
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #09375a;
+        }
+
+        .panel-actions {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .panel-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            border: 1px solid rgba(16, 82, 129, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+            color: #0f4c81;
+            transition: all 0.2s ease;
+        }
+
+        .panel-btn.primary {
+            background: linear-gradient(135deg, #0f4c81 0%, #1d6ba5 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 18px 36px rgba(16, 82, 129, 0.22);
+        }
+
+        .panel-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(15, 76, 117, 0.18);
+        }
+
+        .panel-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: #0f4c81;
             font-size: 0.9rem;
         }
-        
-        /* Peta Kantor PLN - Biru PLN & Putih */
-        
-        /* Header Section - Removed */
+
+        .legend-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        .legend-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: #4f647a;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(16, 82, 129, 0.1);
+        }
+
+        .panel-tips {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .peta-side-tip {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            padding: 0.85rem 1rem;
+            border-radius: 18px;
+            border: 1px dashed rgba(16, 82, 129, 0.24);
+            background: rgba(255, 255, 255, 0.82);
+            color: #4f647a;
+            font-size: 0.85rem;
+        }
+
+        .peta-side-tip i {
+            color: #0f4c81;
+            font-size: 1.1rem;
+        }
+
+        .peta-quick-section h4 {
+            margin: 0 0 0.6rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #0f4c81;
+        }
+
+        .peta-quick-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .peta-quick-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            border-radius: 18px;
+            border: 1px solid rgba(16, 82, 129, 0.12);
+            background: linear-gradient(135deg, rgba(248, 250, 255, 0.95) 0%, rgba(235, 243, 255, 0.9) 100%);
+            padding: 0.85rem 1rem;
+        }
+
+        .peta-quick-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            background: linear-gradient(140deg, rgba(214, 229, 250, 0.9) 0%, rgba(239, 246, 255, 0.96) 100%);
+            color: #0f4c81;
+            box-shadow: 0 8px 18px rgba(15, 76, 117, 0.14);
+        }
+
+        .peta-quick-item strong {
+            display: block;
+            color: #0f4c81;
+            margin-bottom: 0.2rem;
+        }
+
+        .peta-quick-item p {
+            margin: 0;
+            color: #5a6f85;
+            font-size: 0.83rem;
+        }
+
+        .peta-dashboard-map {
+            flex: 1;
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid rgba(29, 92, 127, 0.12);
+            box-shadow: 0 28px 64px rgba(15, 61, 87, 0.16);
+            height: 100%;
+            min-height: calc(100vh - 160px);
+        }
+
+        .peta-map {
+            width: 100%;
+            height: 100%;
+            min-height: 560px;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1100;
+        }
+
+        .map-control {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            border: 1px solid rgba(29, 92, 127, 0.16);
+            background: rgba(255, 255, 255, 0.92);
+            color: #1D5C7F;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 16px 34px rgba(15, 61, 87, 0.18);
+            transition: all 0.2s ease;
+        }
+
+        .map-control:hover {
+            background: #1D5C7F;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1200px) {
+            .peta-dashboard {
+                flex-direction: column;
+                gap: 1.4rem;
+                height: auto;
+            }
+
+            .peta-dashboard-panel {
+                width: 100%;
+                max-width: none;
+                transform: none !important;
+                max-height: none;
+            }
+
+            .map-controls {
+                right: 18px;
+                top: 18px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .panel-title {
+                font-size: 1.45rem;
+            }
+
+            .peta-map {
+                min-height: 520px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .peta-page {
+                padding: 1rem 0 1.5rem;
+            }
+
+            .panel-header {
+                gap: 0.75rem;
+            }
+
+            .map-controls {
+                flex-direction: row;
+                bottom: 20px;
+                top: auto;
+                right: 50%;
+                transform: translateX(50%);
+                background: rgba(255, 255, 255, 0.9);
+                padding: 0.45rem 0.65rem;
+                border-radius: 999px;
+                box-shadow: 0 16px 32px rgba(15, 61, 87, 0.18);
+            }
+
+            .map-control {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+            }
+        }
+
+        .peta-modal {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(29, 92, 127, 0.12);
+        }
+
+        .peta-modal-header {
+            background: linear-gradient(135deg, #1D5C7F 0%, #0f3d57 100%);
+            color: #ffffff;
+            border-bottom: none;
+        }
+
+        .peta-modal .form-label {
+            font-weight: 600;
+            color: #123C53;
+        }
+
+        .peta-modal .form-control,
+        .peta-modal .form-select {
+            border-radius: 12px;
+            border: 1px solid rgba(29, 92, 127, 0.18);
+            padding: 0.6rem 0.75rem;
+        }
+
+        .peta-modal .btn-primary {
+            background: #1D5C7F;
+            border-color: #1D5C7F;
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem;
+        }
+
+        .peta-modal .btn-outline-secondary {
+            border-radius: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .peta-intro-card {
+                grid-template-columns: 1fr;
+            }
+
+            .peta-intro-meta {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .peta-intro-card {
+                padding: 2.1rem 2.2rem;
+            }
+
+            .peta-map-container {
+                height: 540px;
+            }
+
+            .peta-legend {
+                top: 18px;
+                right: 18px;
+                min-width: 190px;
+            }
+
+            .peta-stats-card {
+                padding: 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .peta-heading {
+                font-size: 2rem;
+            }
+
+            .peta-map {
+                height: calc(100vh - 140px);
+            }
+
+            .peta-hero-overlay {
+                max-width: 360px;
+                padding: 1.4rem 1.6rem;
+            }
+
+            .peta-stats-overlay {
+                padding: 1.3rem 1.4rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .peta-map {
+                height: calc(100vh - 170px);
+                min-height: 420px;
+            }
+
+            .peta-hero-overlay {
+                position: static;
+                max-width: none;
+                margin: 16px;
+            }
+
+            .peta-stats-overlay {
+                position: static;
+                margin: 0 16px 16px;
+            }
+
+            .peta-legend {
+                position: static;
+                margin: 0 16px 16px;
+            }
+
+            .peta-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
         
         /* Custom Popup Styling */
         .custom-popup .leaflet-popup-content-wrapper {
@@ -3670,8 +4401,8 @@
         
         .search-btn-icon:hover {
             background: #f9fafb;
-            border-color: #2C6A8F;
-            color: #2C6A8F;
+            border-color: #1D5C7F;
+            color: #1D5C7F;
         }
         
         /* Legend */
@@ -3690,7 +4421,7 @@
         
         .legend-title {
             font-weight: 600;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin-bottom: 12px;
             font-size: 0.9rem;
         }
@@ -3730,7 +4461,7 @@
         .stats-header {
             padding: 16px 20px;
             border-bottom: 1px solid #e5e7eb;
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             border-radius: 8px 8px 0 0;
         }
@@ -3762,14 +4493,14 @@
         }
         
         .stat-card-horizontal:hover {
-            border-color: #2C6A8F;
+            border-color: #1D5C7F;
             box-shadow: 0 2px 8px rgba(44, 106, 143, 0.1);
         }
         
         .stat-icon-horizontal {
             width: 40px;
             height: 40px;
-            background: #2C6A8F;
+            background: #1D5C7F;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -3794,7 +4525,7 @@
             justify-content: center;
             font-size: 1.25rem;
             color: white;
-            background: #2C6A8F;
+            background: #1D5C7F;
         }
         
         .stat-info {
@@ -3806,7 +4537,7 @@
             font-weight: 700;
             line-height: 1;
             margin-bottom: 4px;
-            color: #2C6A8F;
+            color: #1D5C7F;
         }
         
         .stat-label {
@@ -3836,12 +4567,12 @@
         
         .info-item-horizontal i {
             flex-shrink: 0;
-            color: #2C6A8F;
+            color: #1D5C7F;
         }
         
         /* Modal Styling */
         .peta-modal .modal-header {
-            background: #2C6A8F;
+            background: #1D5C7F;
             color: white;
             border-bottom: none;
         }
@@ -3856,7 +4587,7 @@
         
         .peta-label {
             font-weight: 500;
-            color: #2C6A8F;
+            color: #1D5C7F;
             margin-bottom: 8px;
         }
         
@@ -3869,7 +4600,7 @@
         
         .peta-input:focus,
         .peta-select:focus {
-            border-color: #2C6A8F;
+            border-color: #1D5C7F;
             box-shadow: 0 0 0 3px rgba(44, 106, 143, 0.1);
         }
         
@@ -4164,46 +4895,6 @@
             box-shadow: 0 0 0 0.2rem rgba(74, 144, 164, 0.25);
         }
 
-        /* Page Loading Overlay */
-        .page-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .page-loading.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .page-loading .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4A90A4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Error States */
-        .error-state {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
-        }
-
-        .error-state i {
-            font-size: 3rem;
             margin-bottom: 1rem;
             color: #dc3545;
         }
@@ -4245,39 +4936,169 @@
             }
         }
     </style>
+
+    @stack('styles')
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom" style="background-color: #ffffff !important;">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('public.home') }}">
-                <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN Logo" class="navbar-logo me-2">
-                PLN Icon Plus
+            <a class="navbar-brand p-0" href="{{ route('public.home') }}">
+                <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN Icon Plus" class="d-inline-block align-middle" style="height: 70px; margin-top: -5px; margin-bottom: -5px;">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0 p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('public.home') ? 'active' : '' }}" href="{{ route('public.home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                        <a class="nav-link {{ request()->routeIs('public.home') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.home') }}">
+                            <i class="fas fa-home d-lg-none me-2"></i> Beranda
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('public.peta') ? 'active' : '' }}" href="{{ route('public.peta') }}">
-                            <i class="fas fa-map me-1"></i>Peta
+                        <a class="nav-link {{ request()->routeIs('public.peta') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.peta') }}">
+                            <i class="fas fa-map-marked-alt d-lg-none me-2"></i> Peta Kantor
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('public.directory') ? 'active' : '' }}" href="{{ route('public.directory') }}">
-                            <i class="fas fa-list me-1"></i>Directory
+                        <a class="nav-link {{ request()->routeIs('public.directory') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.directory') }}">
+                            <i class="fas fa-building d-lg-none me-2"></i> Directory
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('public.about') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.about') }}">
+                            <i class="fas fa-info-circle d-lg-none me-2"></i> Tentang
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        @guest
+                            <a href="{{ route('login') }}" class="btn btn-pln btn-sm px-3">
+                                <i class="fas fa-sign-in-alt me-1"></i> <span class="d-none d-sm-inline">Login</span>
+                            </a>
+                        @else
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle p-0 d-flex align-items-center" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-pln text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span class="ms-2 d-none d-lg-inline text-dark">{{ Auth::user()->name }}</span>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('admin.dashboard') }}">
+                                            <i class="fas fa-tachometer-alt me-2 text-muted" style="width: 20px;"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" 
+                                           href="{{ route('logout') }}"
+                                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            <i class="fas fa-sign-out-alt me-2" style="width: 20px;"></i> Logout
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                            @csrf
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        @endguest
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            padding: 0.5rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            color: #4a5568 !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+        
+        .nav-link:hover, 
+        .nav-link:focus {
+            color: #1D5C7F !important;
+            background-color: rgba(29, 92, 127, 0.05);
+        }
+        
+        .nav-link.active {
+            color: #1D5C7F !important;
+            font-weight: 600;
+        }
+        
+        /* Buttons */
+        .btn-pln {
+            background-color: #1D5C7F;
+            border-color: #1D5C7F;
+            color: white !important;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.4rem 1rem;
+        }
+        
+        .btn-pln:hover {
+            background-color: #174b6b;
+            border-color: #174b6b;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: white;
+                padding: 1rem;
+                margin-top: 0.5rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+            }
+            
+            .nav-item {
+                margin: 0.15rem 0;
+            }
+            
+            .nav-link {
+                padding: 0.6rem 1rem !important;
+            }
+            
+            .btn-pln {
+                width: 100%;
+                margin: 0.5rem 0 0;
+            }
+        }
+        
+        /* Body padding for fixed navbar */
+        body {
+            padding-top: 65px;
+        }
+    </style>
+    
+    <script>
+        // Close mobile menu when clicking on a nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarCollapse = document.querySelector('.navbar-collapse');
+                if (navbarCollapse.classList.contains('show')) {
+                    const bsCollapse = new bootstrap.Collapse(navbarCollapse, {toggle: false});
+                    bsCollapse.hide();
+                }
+            });
+        });
+    </script>
 
     <!-- Main Content -->
     <main>
@@ -4285,64 +5106,74 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer bg-pln py-5">
         <div class="container">
-            <!-- Main Footer Content -->
-            <div class="row footer-main">
+            <div class="row">
+                <!-- Logo & Brand -->
+                <div class="col-md-4 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN" class="me-3" style="height: 50px;">
+                        <div>
+                            <h5 class="text-white mb-0 fw-bold">PLN ICON PLUS</h5>
+                            <p class="text-white-50 mb-0">Sistem Informasi Aset & Properti</p>
+                        </div>
+                    </div>
+                    <p class="text-white-50 small">Platform terintegrasi untuk pengelolaan aset dan properti.</p>
+                    
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-md-2 mb-4">
+                    <h6 class="text-uppercase fw-bold text-white mb-3">Tautan Cepat</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('public.home') }}" class="text-decoration-none text-white-50">Beranda</a></li>
+                        <li class="mb-2"><a href="{{ route('public.peta') }}" class="text-decoration-none text-white-50">Peta Kantor</a></li>
+                        <li class="mb-2"><a href="{{ route('public.directory') }}" class="text-decoration-none text-white-50">Directory</a></li>
+                        <li><a href="#" class="text-decoration-none text-white-50">Tentang Kami</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div class="col-md-3 mb-4">
+                    <h6 class="text-uppercase fw-bold text-white mb-3">Kontak</h6>
+                    <ul class="list-unstyled text-white-50">
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-white me-2"></i> +62 21 1234 5678
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-envelope text-white me-2"></i> info@pln.co.id
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-clock text-white me-2"></i> Senin - Jumat, 08:00 - 17:00 WIB
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Address -->
                 <div class="col-md-3">
-                    <div class="footer-brand-section">
-                        <img src="{{ asset('images/logo/pln-logo.png') }}" alt="PLN Icon Plus" class="footer-logo">
-                        <div class="footer-brand">
-                            <h6 class="footer-title">PLN Icon Plus</h6>
-                            <p class="footer-subtitle">Sistem Manajemen Aset & Properti</p>
-                </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="footer-address-section">
-                        <h6 class="footer-section-title">Alamat Kantor</h6>
-                        <div class="footer-address">
-                            <p class="footer-address-line"><strong>Sub Bidang UMUM</strong></p>
-                            <p class="footer-address-line">Bidang Pengadaan dan UMUM</p>
-                            <p class="footer-address-line">Direktorat Human Capital Management dan Administrasi (HCMA)</p>
-                            <p class="footer-address-line">Lantai 10, Wing Selatan - Menara Jamsostek</p>
-                            <p class="footer-address-line">Jl. Gatot Subroto No.Kav. 38, RT.6/RW.1, Kuningan Bar., Kec. Mampang Prpt., Jakarta, Daerah Khusus Ibukota Jakarta 12710</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="footer-nav-section">
-                        <h6 class="footer-section-title">Navigasi</h6>
-                        <div class="footer-nav">
-                            <a href="{{ route('public.home') }}" class="footer-nav-link">Home</a>
-                            <a href="{{ route('public.peta') }}" class="footer-nav-link">Peta</a>
-                            <a href="{{ route('public.directory') }}" class="footer-nav-link">Directory</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="footer-contact-section">
-                        <h6 class="footer-section-title">Kontak</h6>
-                        <div class="footer-contact">
-                            <p class="footer-contact-line">
-                                <i class="fas fa-phone me-2"></i>
-                                <span>+62 21 1234 5678</span>
-                            </p>
-                            <p class="footer-contact-line">
-                                <i class="fas fa-envelope me-2"></i>
-                                <span>info@pln.co.id</span>
-                            </p>
-                        </div>
-                    </div>
+                    <h6 class="text-uppercase fw-bold text-white mb-3">Alamat</h6>
+                    <address class="small text-white-50">
+                        Sub Bidang UMUM<br>
+                        Bidang Pengadaan dan UMUM<br>
+                        Direktorat HCMA<br>
+                        Lantai 10, Wing Selatan - Menara Jamsostek<br>
+                        Jl. Gatot Subroto No.Kav. 38<br>
+                        Jakarta 12710
+                    </address>
                 </div>
             </div>
-            
-            <!-- Footer Bottom -->
-            <div class="row footer-bottom">
-                <div class="col-12">
-                    <div class="footer-copyright-section">
-                        <p class="footer-copyright">&copy; {{ date('Y') }} PLN Icon Plus. All rights reserved.</p>
-                    </div>
+
+            <!-- Copyright -->
+            <div class="row mt-4 pt-3 border-top border-white-10">
+                <div class="col-12 text-center">
+                    <p class="mb-0 text-white-50 small">
+                        &copy; {{ date('Y') }} PT PLN (Persero) - ICON PLUS. Seluruh Hak Cipta Dilindungi.
+                    </p>
                 </div>
             </div>
         </div>
@@ -4355,26 +5186,77 @@
     <!-- Library ExcelJS untuk export Excel dengan styling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     
-    <!-- Page Loading Overlay -->
-    <div class="page-loading" id="pageLoading">
-        <div class="spinner"></div>
-    </div>
 
     <!-- Custom JavaScript for Enhanced UX -->
     <script>
         // ===== HIGH PRIORITY IMPROVEMENTS JAVASCRIPT =====
-        
-        // Page Loading System
-        const pageLoading = document.getElementById('pageLoading');
-        
-        function showLoading() {
-            pageLoading.classList.add('active');
-        }
-        
-        function hideLoading() {
-            pageLoading.classList.remove('active');
-        }
-        
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousels = document.querySelectorAll('.company-timeline-carousel');
+
+            carousels.forEach(carousel => {
+                const track = carousel.querySelector('.timeline-track');
+                const slides = Array.from(carousel.querySelectorAll('.timeline-slide'));
+                const prevBtn = carousel.querySelector('.timeline-nav.prev');
+                const nextBtn = carousel.querySelector('.timeline-nav.next');
+                const wrapper = carousel.querySelector('.timeline-track-wrapper');
+
+                if (!track || slides.length === 0 || !prevBtn || !nextBtn || !wrapper) {
+                    return;
+                }
+
+                let gap = 16;
+                let slideWidth = slides[0].getBoundingClientRect().width;
+                let visibleCount = 1;
+                let currentIndex = 0;
+                let maxIndex = 0;
+
+                const updateMetrics = () => {
+                    const style = window.getComputedStyle(track);
+                    gap = parseFloat(style.columnGap || style.gap || '0');
+                    slideWidth = slides[0].getBoundingClientRect().width;
+
+                    const wrapperWidth = wrapper.getBoundingClientRect().width;
+                    const totalSlideWidth = slideWidth + gap;
+                    visibleCount = Math.max(1, Math.round(wrapperWidth / totalSlideWidth));
+                    maxIndex = Math.max(0, slides.length - visibleCount);
+                    currentIndex = Math.min(currentIndex, maxIndex);
+
+                    applyTransform();
+                };
+
+                const applyTransform = () => {
+                    const offset = -currentIndex * (slideWidth + gap);
+                    track.style.transform = `translateX(${offset}px)`;
+
+                    const atStart = currentIndex === 0;
+                    const atEnd = currentIndex >= maxIndex;
+
+                    carousel.classList.toggle('at-start', atStart);
+                    carousel.classList.toggle('at-end', atEnd);
+
+                    prevBtn.disabled = atStart;
+                    nextBtn.disabled = atEnd;
+                };
+
+                const move = direction => {
+                    currentIndex = Math.min(Math.max(0, currentIndex + direction), maxIndex);
+                    applyTransform();
+                };
+
+                prevBtn.addEventListener('click', () => move(-1));
+                nextBtn.addEventListener('click', () => move(1));
+
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(updateMetrics, 150);
+                });
+
+                updateMetrics();
+            });
+        });
+
         // Button Loading States
         function setButtonLoading(button, loading = true) {
             if (loading) {
@@ -4410,7 +5292,6 @@
                 if (submitBtn) {
                     setButtonLoading(submitBtn, true);
                 }
-                showLoading();
             });
         });
         
@@ -4457,19 +5338,6 @@
         });
         
         // Page transition loading
-        document.querySelectorAll('a:not([href^="#"]):not([href^="mailto"]):not([href^="tel"]):not([target="_blank"])').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.hostname === window.location.hostname) {
-                    showLoading();
-                }
-            });
-        });
-        
-        // Hide loading when page loads
-        window.addEventListener('load', function() {
-            hideLoading();
-        });
-        
         // Error handling for images
         document.querySelectorAll('img').forEach(img => {
             img.addEventListener('error', function() {

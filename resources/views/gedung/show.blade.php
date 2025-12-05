@@ -14,6 +14,40 @@
 
 @section('content')
 <div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-sitemap"></i>
+                    Struktur Gedung
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="mb-2">Status Kepemilikan</h6>
+                    <span class="badge bg-info">{{ ucfirst($gedung->status_kepemilikan) }}</span>
+                </div>
+                <div class="mb-3">
+                    <h6 class="mb-2">Total Lantai</h6>
+                    <span class="badge bg-primary">{{ $gedung->lantai->count() }} Lantai</span>
+                </div>
+                <div class="mb-3">
+                    <h6 class="mb-2">Total Ruangan</h6>
+                    <span class="badge bg-success">
+                        {{ $gedung->lantai->flatMap->ruang->count() }} Ruang
+                    </span>
+                </div>
+                @if($gedung->layout_url)
+                    <div class="mt-3">
+                        <h6 class="mb-2">Layout Gedung</h6>
+                        <a href="{{ $gedung->layout_url }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-file-download me-2"></i>Lihat / Unduh Layout
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">

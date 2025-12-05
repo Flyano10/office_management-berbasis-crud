@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AuditLogService
 {
@@ -34,7 +35,7 @@ class AuditLogService
             }
         }
 
-        return AuditLog::create([
+        $auditLog = AuditLog::create([
             'user_type' => 'admin',
             'user_id' => $user?->id,
             'user_name' => $user?->nama_admin,
@@ -51,6 +52,66 @@ class AuditLogService
             'description' => $description,
             'metadata' => $metadata,
         ]);
+
+        // Clear dashboard cache jika action mempengaruhi stats (create, update, delete)
+        // Hanya untuk model yang mempengaruhi dashboard stats
+        if (in_array($action, ['create', 'update', 'delete']) && $model) {
+            $modelClass = get_class($model);
+            $affectsDashboard = in_array($modelClass, [
+                \App\Models\Kantor::class,
+                \App\Models\Gedung::class,
+                \App\Models\Lantai::class,
+                \App\Models\Ruang::class,
+                \App\Models\Okupansi::class,
+                \App\Models\Kontrak::class,
+                \App\Models\Realisasi::class,
+                \App\Models\Bidang::class,
+                \App\Models\SubBidang::class,
+            ]);
+
+            if ($affectsDashboard) {
+                // Clear dashboard cache secara async (tidak blocking)
+                Cache::forget('dashboard.stats');
+                Cache::forget('dashboard.status_stats');
+                Cache::forget('dashboard.analytics');
+                Cache::forget('dashboard.kantor_by_kota');
+                Cache::forget('dashboard.gedung_by_kantor');
+                Cache::forget('dashboard.okupansi_by_bidang');
+                Cache::forget('dashboard.kontrak_by_status');
+                Cache::forget('dashboard.kontrak_by_month');
+                Cache::forget('dashboard.top_kantor');
+                Cache::forget('dashboard.top_bidang');
+                Cache::forget('dashboard.kantor_map');
+                
+                // Clear public cache juga
+                Cache::forget('public.home.stats');
+                Cache::forget('public.api.kantor_data');
+                Cache::forget('public.directory.kota');
+                Cache::forget('public.directory.jenis_kantor');
+            }
+            
+            // Clear cache berdasarkan model yang diubah
+            if ($modelClass === \App\Models\Kantor::class) {
+                Cache::forget('public.api.kantor_data');
+                Cache::forget('admin.kantor.jenis_kantor');
+                Cache::forget('admin.kantor.kota');
+                Cache::forget('admin.gedung.kantor.all');
+            } elseif ($modelClass === \App\Models\Inventaris::class) {
+                // Clear inventaris cache - akan di-clear per kantor saat diakses
+                // Cache akan expired otomatis dalam 5 menit
+            } elseif ($modelClass === \App\Models\Kontrak::class) {
+                // Clear kontrak cache - akan di-clear per kantor saat diakses
+                // Cache akan expired otomatis dalam 5 menit
+            } elseif ($modelClass === \App\Models\Gedung::class) {
+                Cache::forget('public.home.stats');
+            }
+        }
+
+        // Clear recent activities cache untuk semua action
+        Cache::forget('dashboard.recent_activities');
+        Cache::forget('dashboard.activity_counts');
+
+        return $auditLog;
     }
 
     /**

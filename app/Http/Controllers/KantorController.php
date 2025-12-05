@@ -39,11 +39,17 @@ class KantorController extends Controller
             $query->where('kota_id', $request->kota);
         }
 
-        $kantor = $query->orderBy('created_at', 'desc')->get();
+        // Optimasi: Gunakan pagination untuk data besar
+        $kantor = $query->orderBy('created_at', 'desc')->paginate(50);
         
-        // Ambil opsi filter - optimasi query database
-        $jenisKantor = JenisKantor::select('id', 'nama_jenis')->get();
-        $kota = Kota::select('id', 'nama_kota', 'provinsi_id')->with('provinsi:id,nama_provinsi')->get();
+        // Optimasi: Cache filter options (10 menit)
+        $jenisKantor = \Illuminate\Support\Facades\Cache::remember('admin.kantor.jenis_kantor', 600, function () {
+            return JenisKantor::select('id', 'nama_jenis')->get();
+        });
+        
+        $kota = \Illuminate\Support\Facades\Cache::remember('admin.kantor.kota', 600, function () {
+            return Kota::select('id', 'nama_kota', 'provinsi_id')->with('provinsi:id,nama_provinsi')->get();
+        });
             
         return view('kantor.index', compact('kantor', 'jenisKantor', 'kota'));
     }
@@ -95,8 +101,15 @@ class KantorController extends Controller
                 'jenis_kantor_id' => 'required|exists:jenis_kantor,id',
                 'status_kantor' => 'required|in:aktif,tidak_aktif',
                 'status_kepemilikan' => 'required|in:milik,sewa',
+                'jenis_kepemilikan' => 'required|in:tunai,non_tunai,non_pln',
                 'latitude' => 'nullable|numeric',
                 'longitude' => 'nullable|numeric',
+                'luas_tanah' => 'nullable|numeric|min:0',
+                'luas_bangunan' => 'nullable|numeric|min:0',
+                'daya_listrik_va' => 'nullable|integer|min:0',
+                'kapasitas_genset_kva' => 'nullable|integer|min:0',
+                'jumlah_sumur' => 'nullable|integer|min:0',
+                'jumlah_septictank' => 'nullable|integer|min:0',
                 'parent_kantor_id' => 'nullable|exists:kantor,id'
             ]);
 
@@ -207,8 +220,15 @@ class KantorController extends Controller
                 'jenis_kantor_id' => 'required|exists:jenis_kantor,id',
                 'status_kantor' => 'required|in:aktif,tidak_aktif',
                 'status_kepemilikan' => 'required|in:milik,sewa',
+                'jenis_kepemilikan' => 'required|in:tunai,non_tunai,non_pln',
                 'latitude' => 'nullable|numeric',
                 'longitude' => 'nullable|numeric',
+                'luas_tanah' => 'nullable|numeric|min:0',
+                'luas_bangunan' => 'nullable|numeric|min:0',
+                'daya_listrik_va' => 'nullable|integer|min:0',
+                'kapasitas_genset_kva' => 'nullable|integer|min:0',
+                'jumlah_sumur' => 'nullable|integer|min:0',
+                'jumlah_septictank' => 'nullable|integer|min:0',
                 'parent_kantor_id' => 'nullable|exists:kantor,id'
             ]);
 

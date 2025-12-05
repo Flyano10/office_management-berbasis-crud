@@ -27,6 +27,10 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// MFA routes
+Route::get('/mfa/verify', [AuthController::class, 'showMFAVerify'])->name('mfa.verify');
+Route::post('/mfa/verify', [AuthController::class, 'verifyMFA'])->name('mfa.verify.post');
+
 // Route CSRF token refresh untuk mencegah error 419
 Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
@@ -64,6 +68,14 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
             $id = Auth::guard('admin')->id();
             return app(\App\Http\Controllers\AdminController::class)->update($request, $id);
         })->name('profile.update');
+    });
+    
+    // MFA Setup routes (requires authentication)
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('/mfa/setup', [AuthController::class, 'showMFASetup'])->name('mfa.setup');
+        Route::post('/mfa/enable', [AuthController::class, 'enableMFA'])->name('mfa.enable');
+        Route::post('/mfa/disable', [AuthController::class, 'disableMFA'])->name('mfa.disable');
+        Route::post('/mfa/regenerate-backup-codes', [AuthController::class, 'regenerateBackupCodes'])->name('mfa.regenerate-backup-codes');
     });
     
     // Audit Log routes (Super Admin and Admin Regional)

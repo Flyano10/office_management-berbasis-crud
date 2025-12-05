@@ -10,9 +10,12 @@ class TrustProxies extends Middleware
     /**
      * The trusted proxies for this application.
      *
+     * Untuk production, set di .env:
+     * TRUSTED_PROXIES=* (untuk semua proxy) atau IP spesifik
+     *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    protected $proxies = '*'; // Di production, bisa diubah ke IP spesifik load balancer
 
     /**
      * The headers that should be used to detect proxies.

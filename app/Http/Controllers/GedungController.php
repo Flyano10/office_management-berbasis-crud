@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Gedung;
 use App\Models\Kantor;
 use App\Services\AuditLogService;
+use Illuminate\Support\Facades\Storage;
 
 class GedungController extends Controller
 {
@@ -14,7 +15,8 @@ class GedungController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Gedung::with(['kantor.kota.provinsi']);
+        // Optimasi: Select specific columns untuk eager loading
+        $query = Gedung::with(['kantor:id,nama_kantor', 'kantor.kota:id,nama_kota', 'kantor.kota.provinsi:id,nama_provinsi']);
 
         // Scoping berdasarkan role admin (kantor)
         $actor = auth('admin')->user();
@@ -32,14 +34,18 @@ class GedungController extends Controller
         }
 
 
-        $gedung = $query->orderBy('created_at', 'desc')->get();
+        // Optimasi: Gunakan pagination
+        $gedung = $query->orderBy('created_at', 'desc')->paginate(50);
         
-        // Ambil opsi filter
-        // Batasi opsi kantor untuk non-super_admin
+        // Optimasi: Cache filter options (10 menit)
         if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
-            $kantor = Kantor::where('status_kantor', 'Aktif')->where('id', $actor->kantor_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.gedung.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('status_kantor', 'Aktif')->where('id', $actor->kantor_id)->get();
+            });
         } else {
-            $kantor = Kantor::where('status_kantor', 'Aktif')->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember('admin.gedung.kantor.all', 600, function () {
+                return Kantor::select('id', 'nama_kantor')->where('status_kantor', 'Aktif')->get();
+            });
         }
             
         return view('gedung.index', compact('gedung', 'kantor'));
@@ -72,14 +78,19 @@ class GedungController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'status_gedung' => 'required|in:aktif,non_aktif',
-            'status_kepemilikan' => 'required|in:milik,sewa'
+            'status_kepemilikan' => 'required|in:milik,sewa',
+            'layout_gedung' => 'nullable|file|mimes:pdf,jpg,jpeg,png,svg|max:20480'
         ]);
 
-        $data = $request->all();
+        $data = $request->except('layout_gedung');
         // Enforcement: non-super_admin harus pada kantor sendiri
         $actor = auth('admin')->user();
         if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
             $data['kantor_id'] = $actor->kantor_id;
+        }
+
+        if ($request->hasFile('layout_gedung')) {
+            $data['layout_path'] = $request->file('layout_gedung')->store('gedung_layouts', 'public');
         }
 
         $gedung = Gedung::create($data);
@@ -165,12 +176,20 @@ class GedungController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'status_gedung' => 'required|in:aktif,non_aktif',
-            'status_kepemilikan' => 'required|in:milik,sewa'
+            'status_kepemilikan' => 'required|in:milik,sewa',
+            'layout_gedung' => 'nullable|file|mimes:pdf,jpg,jpeg,png,svg|max:20480'
         ]);
 
-        $data = $request->all();
+        $data = $request->except('layout_gedung');
         if ($actor && in_array($actor->role, ['admin_regional', 'staf'], true)) {
             $data['kantor_id'] = $actor->kantor_id;
+        }
+
+        if ($request->hasFile('layout_gedung')) {
+            if ($gedung->layout_path && Storage::disk('public')->exists($gedung->layout_path)) {
+                Storage::disk('public')->delete($gedung->layout_path);
+            }
+            $data['layout_path'] = $request->file('layout_gedung')->store('gedung_layouts', 'public');
         }
 
         $gedung->update($data);
@@ -195,6 +214,10 @@ class GedungController extends Controller
                     'message' => 'Anda tidak memiliki akses untuk menghapus gedung ini!'
                 ]);
         }
+        if ($gedung->layout_path && Storage::disk('public')->exists($gedung->layout_path)) {
+            Storage::disk('public')->delete($gedung->layout_path);
+        }
+
         $gedung->delete();
 
         return redirect()->route('gedung.index')

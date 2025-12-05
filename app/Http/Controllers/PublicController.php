@@ -18,12 +18,21 @@ class PublicController extends Controller
      */
     public function home()
     {
-        // Ambil statistik cepat untuk ditampilkan di homepage
-        $stats = [
-            'total_kantor' => Kantor::count(),
-            'total_gedung' => Gedung::count(),
-            'total_ruang' => Ruang::count(),
-        ];
+        // Optimasi: Cache stats (5 menit)
+        $stats = \Illuminate\Support\Facades\Cache::remember('public.home.stats', 300, function () {
+            $counts = DB::select("
+                SELECT 
+                    (SELECT COUNT(*) FROM kantor) as total_kantor,
+                    (SELECT COUNT(*) FROM gedung) as total_gedung,
+                    (SELECT COUNT(*) FROM ruang) as total_ruang
+            ");
+            
+            return [
+                'total_kantor' => $counts[0]->total_kantor,
+                'total_gedung' => $counts[0]->total_gedung,
+                'total_ruang' => $counts[0]->total_ruang,
+            ];
+        });
 
         return view('public.home', compact('stats'));
     }
@@ -41,7 +50,7 @@ class PublicController extends Controller
      */
     public function directory(Request $request)
     {
-        $query = Kantor::with(['kota', 'jenisKantor']);
+        $query = Kantor::with(['kota:id,nama_kota', 'jenisKantor:id,nama_jenis']);
 
         // Fungsi pencarian kantor berdasarkan nama atau alamat
         if ($request->filled('search')) {
@@ -67,11 +76,24 @@ class PublicController extends Controller
 
         $kantor = $query->paginate(20)->appends(request()->query());
 
-        // Ambil opsi filter untuk dropdown
-        $kota = Kota::orderBy('nama_kota')->get();
-        $jenisKantor = JenisKantor::orderBy('nama_jenis')->get();
+        // Optimasi: Cache filter options (10 menit)
+        $kota = \Illuminate\Support\Facades\Cache::remember('public.directory.kota', 600, function () {
+            return Kota::select('id', 'nama_kota')->orderBy('nama_kota')->get();
+        });
+        
+        $jenisKantor = \Illuminate\Support\Facades\Cache::remember('public.directory.jenis_kantor', 600, function () {
+            return JenisKantor::select('id', 'nama_jenis')->orderBy('nama_jenis')->get();
+        });
 
         return view('public.directory', compact('kantor', 'kota', 'jenisKantor'));
+    }
+
+    /**
+     * Profil Perusahaan - About Page
+     */
+    public function about()
+    {
+        return view('public.about');
     }
 
 
@@ -80,23 +102,60 @@ class PublicController extends Controller
      */
     public function getKantorData()
     {
-        $kantor = Kantor::with(['kota', 'jenisKantor'])
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get()
-            ->map(function($k) {
-                return [
-                    'id' => $k->id,
-                    'nama_kantor' => $k->nama_kantor,
-                    'alamat' => $k->alamat,
-                    'telepon' => $k->telepon,
-                    'email' => $k->email,
-                    'latitude' => $k->latitude,
-                    'longitude' => $k->longitude,
-                    'kota' => $k->kota->nama_kota ?? '',
-                    'jenis' => $k->jenisKantor->nama_jenis ?? ''
-                ];
-            });
+        // Fix: Gunakan Eloquent dengan eager loading yang benar
+        // Pastikan semua kolom yang diperlukan di-load termasuk gedung untuk layout
+        $kantor = Kantor::with([
+            'kota:id,nama_kota',  // Include id untuk foreign key
+            'jenisKantor:id,nama_jenis',  // Include id untuk foreign key
+            'gedung:id,kantor_id,layout_path'  // Load gedung untuk layout_path
+        ])
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get()
+        ->map(function($kantor) {
+            // Ambil layout_url dari gedung pertama yang punya layout_path
+            $layoutUrl = null;
+            if ($kantor->gedung && $kantor->gedung->isNotEmpty()) {
+                $gedungWithLayout = $kantor->gedung->firstWhere('layout_path', '!=', null);
+                if ($gedungWithLayout && $gedungWithLayout->layout_path) {
+                    // Pastikan path sudah benar (storage path)
+                    $layoutPath = $gedungWithLayout->layout_path;
+                    if (strpos($layoutPath, 'storage/') === 0) {
+                        $layoutUrl = asset($layoutPath);
+                    } elseif (strpos($layoutPath, '/') === 0) {
+                        $layoutUrl = asset('storage' . $layoutPath);
+                    } else {
+                        $layoutUrl = asset('storage/' . $layoutPath);
+                    }
+                }
+            }
+            
+            return [
+                'id' => $kantor->id,
+                'nama_kantor' => $kantor->nama_kantor,
+                'kode_kantor' => $kantor->kode_kantor,
+                'jenis_id' => $kantor->jenis_kantor_id,
+                'jenis' => $kantor->jenisKantor ? $kantor->jenisKantor->nama_jenis : '-',
+                'latitude' => (float) $kantor->latitude,
+                'longitude' => (float) $kantor->longitude,
+                'kota' => $kantor->kota ? $kantor->kota->nama_kota : '',
+                'status_kepemilikan' => $kantor->status_kepemilikan,
+                'jenis_kepemilikan' => $kantor->jenis_kepemilikan,
+                'luas_tanah' => $kantor->luas_tanah,
+                'luas_bangunan' => $kantor->luas_bangunan,
+                'daya_listrik_va' => $kantor->daya_listrik_va,
+                'kapasitas_genset_kva' => $kantor->kapasitas_genset_kva,
+                'jumlah_sumur' => $kantor->jumlah_sumur,
+                'jumlah_septictank' => $kantor->jumlah_septictank,
+                'parent_kantor' => $this->formatParentKantor($kantor->sbu_type, $kantor->sbu),
+                'asset_owner' => $kantor->asset_owner,
+                'ruang_lingkup' => $kantor->ruang_lingkup ?? '-',
+                'peruntukan_kantor' => $kantor->peruntukan_kantor ?? '-',
+                'alamat' => $kantor->alamat ?? '-',
+                'keterangan' => $kantor->keterangan ?? '-',
+                'layout_url' => $layoutUrl
+            ];
+        });
 
         return response()->json($kantor);
     }
@@ -106,26 +165,41 @@ class PublicController extends Controller
      */
     public function getInventarisData($kantorId)
     {
-        $inventaris = \App\Models\Inventaris::with(['kategori', 'gedung', 'lantai', 'ruang', 'bidang'])
-            ->where('lokasi_kantor_id', $kantorId)
-            ->get()
-            ->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'nama_barang' => $item->nama_barang,
-                    'kode_inventaris' => $item->kode_inventaris,
-                    'kategori' => $item->kategori->nama_kategori ?? '',
-                    'jumlah' => $item->jumlah,
-                    'kondisi' => $item->kondisi,
-                    'lokasi_gedung' => $item->gedung->nama_gedung ?? '',
-                    'lokasi_lantai' => $item->lantai->nama_lantai ?? '',
-                    'lokasi_ruang' => $item->ruang->nama_ruang ?? '',
-                    'bidang' => $item->bidang->nama_bidang ?? '',
-                    'tanggal_input' => $item->tanggal_input->format('d/m/Y'),
-                    'gambar' => $item->gambar ? asset($item->gambar) : null,
-                    'deskripsi' => $item->deskripsi
-                ];
-            });
+        // Optimasi: Select specific columns (cache disabled sementara untuk debugging)
+        $inventaris = \App\Models\Inventaris::with([
+            'kategori:id,nama_kategori',
+            'gedung:id,nama_gedung',
+            'lantai:id,nama_lantai,nomor_lantai',
+            'ruang:id,nama_ruang',
+            'bidang:id,nama_bidang'
+        ])
+        ->where('lokasi_kantor_id', $kantorId)
+        ->select('id', 'nama_barang', 'kode_inventaris', 'kategori_id', 'jumlah', 'kondisi', 
+                 'lokasi_gedung_id', 'lokasi_lantai_id', 'lokasi_ruang_id', 'bidang_id',
+                 'tanggal_input', 'harga', 'merk', 'tahun', 'tanggal_pembelian', 'deskripsi', 'gambar')
+        ->get()
+        ->map(function($item) {
+            return [
+                'id' => $item->id,
+                'nama_barang' => $item->nama_barang,
+                'kode_inventaris' => $item->kode_inventaris,
+                'kategori' => $item->kategori->nama_kategori ?? '',
+                'jumlah' => $item->jumlah,
+                'kondisi' => $item->kondisi,
+                'lokasi_gedung' => $item->gedung->nama_gedung ?? '',
+                'lokasi_lantai' => $item->lantai->nama_lantai ?? '',
+                'lokasi_lantai_nomor' => $item->lantai->nomor_lantai ?? null,
+                'lokasi_ruang' => $item->ruang->nama_ruang ?? '',
+                'bidang' => $item->bidang->nama_bidang ?? '',
+                'tanggal_input' => $item->tanggal_input->format('d/m/Y'),
+                'harga' => $item->harga,
+                'merk' => $item->merk,
+                'tahun' => $item->tahun,
+                'tanggal_pembelian' => $item->tanggal_pembelian,
+                'deskripsi' => $item->deskripsi,
+                'gambar' => $item->gambar ? asset($item->gambar) : null,
+            ];
+        });
 
         return response()->json($inventaris);
     }
@@ -135,18 +209,23 @@ class PublicController extends Controller
      */
     public function getKontrakData(Request $request, $kantorId)
     {
-        $status = $request->get('status', 'Aktif');
+        $status = $request->get('status', null); // Allow null untuk ambil semua
 
-        $query = \App\Models\Kontrak::with(['kantor'])
-            ->where('kantor_id', $kantorId);
+        // Optimasi: Select specific columns dengan error handling
+        try {
+            $query = \App\Models\Kontrak::with(['kantor:id,nama_kantor'])
+                ->where('kantor_id', $kantorId)
+                ->select('id', 'nama_perjanjian', 'no_perjanjian_pihak_1', 'no_perjanjian_pihak_2',
+                         'tanggal_mulai', 'tanggal_selesai', 'nilai_kontrak', 'status_perjanjian', 'status',
+                         'kantor_id', 'sbu', 'asset_owner', 'ruang_lingkup', 
+                         'peruntukan_kantor', 'alamat', 'keterangan', 'parent_kantor');
 
-        if ($status) {
-            $query->where('status', $status);
-        }
+            // Filter by status jika ada, jika tidak ambil semua
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
+            }
 
-        $kontrak = $query
-            ->get()
-            ->map(function($k) {
+            $kontrak = $query->get()->map(function($k) {
                 // Hitung durasi kontrak dalam hari
                 $durasi = 0;
                 if ($k->tanggal_mulai && $k->tanggal_selesai) {
@@ -174,7 +253,7 @@ class PublicController extends Controller
                     'status_perjanjian' => $k->status_perjanjian,
                     'status' => $k->status ?? 'Aktif',
                     'kantor' => $k->kantor->nama_kantor ?? '',
-                    'parent_kantor' => $this->formatParentKantor($k->sbu_type, $k->sbu),
+                    'parent_kantor' => $this->formatParentKantor(null, $k->sbu),
                     'asset_owner' => $k->asset_owner,
                     'ruang_lingkup' => $k->ruang_lingkup ?? '-',
                     'peruntukan_kantor' => $k->peruntukan_kantor ?? '-',
@@ -183,7 +262,20 @@ class PublicController extends Controller
                 ];
             });
 
-        return response()->json($kontrak);
+            return response()->json($kontrak);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error loading kontrak data', [
+                'kantor_id' => $kantorId,
+                'status' => $status,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Gagal memuat data kontrak',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -253,6 +345,7 @@ class PublicController extends Controller
      */
     public function getEmployeeData($kantorId)
     {
+        // Optimasi: Query langsung (cache disabled sementara untuk debugging)
         $employeeStats = \App\Models\Okupansi::join('ruang', 'okupansi.ruang_id', '=', 'ruang.id')
             ->join('lantai', 'ruang.lantai_id', '=', 'lantai.id')
             ->join('gedung', 'lantai.gedung_id', '=', 'gedung.id')
@@ -265,10 +358,10 @@ class PublicController extends Controller
             ->first();
 
         return response()->json([
-            'total_organik' => (int) $employeeStats->total_organik,
-            'total_tad' => (int) $employeeStats->total_tad, 
-            'total_kontrak' => (int) $employeeStats->total_kontrak,
-            'total_all' => (int) ($employeeStats->total_organik + $employeeStats->total_tad + $employeeStats->total_kontrak)
+            'total_organik' => (int) ($employeeStats->total_organik ?? 0),
+            'total_tad' => (int) ($employeeStats->total_tad ?? 0), 
+            'total_kontrak' => (int) ($employeeStats->total_kontrak ?? 0),
+            'total_all' => (int) (($employeeStats->total_organik ?? 0) + ($employeeStats->total_tad ?? 0) + ($employeeStats->total_kontrak ?? 0))
         ]);
     }
 
@@ -280,8 +373,9 @@ class PublicController extends Controller
         $kategoriId = $request->get('kategori_id');
         $searchBarang = $request->get('search_barang');
         
+        // Optimasi: Select specific columns (cache disabled sementara untuk debugging)
         // Ambil opsi kategori dari database
-        $kategoriOptions = \App\Models\KategoriInventaris::all();
+        $kategoriOptions = \App\Models\KategoriInventaris::select('id', 'nama_kategori')->get();
         
         // Ambil opsi daftar barang dari database
         $barangOptions = \App\Models\Inventaris::where('lokasi_kantor_id', $kantorId)
@@ -290,8 +384,17 @@ class PublicController extends Controller
             ->orderBy('nama_barang')
             ->pluck('nama_barang');
         
-        $query = \App\Models\Inventaris::with(['kategori', 'gedung', 'lantai', 'ruang', 'bidang'])
-            ->where('lokasi_kantor_id', $kantorId);
+        $query = \App\Models\Inventaris::with([
+            'kategori:id,nama_kategori',
+            'gedung:id,nama_gedung',
+            'lantai:id,nama_lantai,nomor_lantai',
+            'ruang:id,nama_ruang',
+            'bidang:id,nama_bidang'
+        ])
+        ->where('lokasi_kantor_id', $kantorId)
+        ->select('id', 'nama_barang', 'kode_inventaris', 'jumlah', 'kondisi', 'merk', 'harga', 
+                 'tahun', 'tanggal_pembelian', 'deskripsi', 'kategori_id', 
+                 'lokasi_gedung_id', 'lokasi_lantai_id', 'lokasi_ruang_id', 'bidang_id');
         
         if ($kategoriId) {
             $query->where('kategori_id', $kategoriId);
@@ -303,7 +406,9 @@ class PublicController extends Controller
         
         $inventaris = $query->get()
             ->groupBy(function($item) {
-                return $item->gedung->nama_gedung . ' - ' . $item->lantai->nama_lantai;
+                $gedungName = $item->gedung->nama_gedung ?? 'Gedung';
+                $lantaiLabel = $this->formatLantaiLabel($item->lantai);
+                return trim($gedungName . ' - ' . $lantaiLabel);
             })
             ->map(function($items, $lokasi) {
                 return $items->map(function($item) {
@@ -321,10 +426,20 @@ class PublicController extends Controller
                     'kategori' => $item->kategori->nama_kategori ?? '',
                     'gedung' => $item->gedung->nama_gedung ?? '',
                     'lantai' => $item->lantai->nama_lantai ?? '',
+                    'lantai_label' => $this->formatLantaiLabel($item->lantai),
+                    'lantai_nomor' => $item->lantai->nomor_lantai ?? null,
                     'ruang' => $item->ruang->nama_ruang ?? '',
                     'bidang' => $item->bidang->nama_bidang ?? ''
                 ];
                 });
+            })
+            ->sortBy(function($items, $lokasi) {
+                // Sort by nomor_lantai (extract from first item in group)
+                $firstItem = $items->first();
+                if ($firstItem && $firstItem['lantai_nomor'] !== null) {
+                    return (int)$firstItem['lantai_nomor'];
+                }
+                return 9999; // Put items without nomor_lantai at the end
             });
         
         return response()->json([
@@ -352,5 +467,32 @@ class PublicController extends Controller
         }
         
         return $sbu ?? '-';
+    }
+
+    /**
+     * Format label lantai (nama + nomor)
+     */
+    private function formatLantaiLabel($lantai): string
+    {
+        if (!$lantai) {
+            return '-';
+        }
+
+        $nama = $lantai->nama_lantai ?? '';
+        $nomor = $lantai->nomor_lantai ?? '';
+
+        if ($nama && $nomor) {
+            return "{$nama} (Lantai {$nomor})";
+        }
+
+        if ($nama) {
+            return $nama;
+        }
+
+        if ($nomor) {
+            return "Lantai {$nomor}";
+        }
+
+        return '-';
     }
 }

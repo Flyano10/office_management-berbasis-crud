@@ -40,7 +40,8 @@ class RuangController extends Controller
             $query->where('bidang_id', $request->bidang);
         }
 
-        $ruang = $query->orderBy('created_at', 'desc')->get();
+        // Optimasi: Gunakan pagination
+        $ruang = $query->orderBy('created_at', 'desc')->paginate(50);
         
         // Ambil opsi filter (batasi pilihan untuk non-super_admin)
         if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {

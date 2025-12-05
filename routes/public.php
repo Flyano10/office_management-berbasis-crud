@@ -22,22 +22,29 @@ Route::get('/peta', [PublicController::class, 'peta'])->name('public.peta');
 // Directory Kantor
 Route::get('/directory', [PublicController::class, 'directory'])->name('public.directory');
 
+// Profil Perusahaan
+Route::get('/profil', [PublicController::class, 'about'])->name('public.about');
 
+
+Route::prefix('api')
+    ->middleware(['throttle:public-api', 'public.api'])
+    ->group(function () {
 // API untuk data kantor (untuk peta)
-Route::get('/api/kantor', [PublicController::class, 'getKantorData'])->name('public.api.kantor');
+        Route::get('/kantor', [PublicController::class, 'getKantorData'])->name('public.api.kantor');
 
 // API untuk data inventaris berdasarkan kantor
-Route::get('/api/inventaris/{kantorId}', [PublicController::class, 'getInventarisData'])->name('public.api.inventaris');
+        Route::get('/inventaris/{kantorId}', [PublicController::class, 'getInventarisData'])->name('public.api.inventaris');
 
 // API untuk data kontrak berdasarkan kantor
-Route::get('/api/kontrak/{kantorId}', [PublicController::class, 'getKontrakData'])->name('public.api.kontrak');
+        Route::get('/kontrak/{kantorId}', [PublicController::class, 'getKontrakData'])->name('public.api.kontrak');
 
 // API untuk kontrak yang mendekati jatuh tempo berdasarkan kantor (6/3/1 bulan)
-Route::get('/api/kontrak-expiring/{kantorId}', [PublicController::class, 'getExpiringContracts'])
+        Route::get('/kontrak-expiring/{kantorId}', [PublicController::class, 'getExpiringContracts'])
     ->name('public.api.kontrak-expiring');
 
 // API untuk laporan inventaris berdasarkan kantor
-Route::get('/api/laporan-inventaris/{kantorId}', [PublicController::class, 'getLaporanInventarisData'])->name('public.api.laporan-inventaris');
+        Route::get('/laporan-inventaris/{kantorId}', [PublicController::class, 'getLaporanInventarisData'])->name('public.api.laporan-inventaris');
 
 // API untuk data pegawai berdasarkan kantor (dari okupansi)
-Route::get('/api/pegawai/{kantorId}', [PublicController::class, 'getEmployeeData'])->name('public.api.pegawai');
+        Route::get('/pegawai/{kantorId}', [PublicController::class, 'getEmployeeData'])->name('public.api.pegawai');
+    });
