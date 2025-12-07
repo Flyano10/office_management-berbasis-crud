@@ -113,21 +113,22 @@
                     </div>
                     @endif
 
-                    <div class="table-responsive">
-                        <table class="table modern-table">
+                    <div class="table-wrapper">
+                        <div class="table-responsive" id="tableContainer">
+                            <table class="table modern-table">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th style="width: 50px;">
                                         <input type="checkbox" id="select-all" class="form-check-input modern-checkbox">
                                     </th>
-                                    <th>#</th>
-                                    <th>Kode Kantor</th>
-                                    <th>Nama Kantor</th>
-                                    <th>Jenis</th>
-                                    <th>Alamat</th>
-                                    <th>Kota</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
+                                    <th style="width: 60px;">#</th>
+                                    <th style="min-width: 120px;">Kode Kantor</th>
+                                    <th style="min-width: 200px;">Nama Kantor</th>
+                                    <th style="min-width: 120px;">Jenis</th>
+                                    <th style="min-width: 250px;">Alamat</th>
+                                    <th style="min-width: 180px;">Kota</th>
+                                    <th style="width: 100px;">Status</th>
+                                    <th style="width: 140px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -136,7 +137,9 @@
                                     <td>
                                         <input type="checkbox" class="form-check-input modern-checkbox item-checkbox" value="{{ $k->id }}">
                                     </td>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <span style="color: #64748b; font-weight: 600;">{{ $loop->iteration + ($kantor->currentPage() - 1) * $kantor->perPage() }}</span>
+                                    </td>
                                     <td>
                                         <span class="badge modern-badge badge-kantor">{{ $k->kode_kantor }}</span>
                                     </td>
@@ -144,7 +147,7 @@
                                         <div class="kantor-info">
                                             <strong>{{ $k->nama_kantor }}</strong>
                                             @if($k->parentKantor)
-                                                <br><small class="text-muted">Parent: {{ $k->parentKantor->nama_kantor }}</small>
+                                                <small>Parent: {{ $k->parentKantor->nama_kantor }}</small>
                                             @endif
                                         </div>
                                     </td>
@@ -155,7 +158,7 @@
                                     <td>
                                         <div class="location-info">
                                             <strong>{{ $k->kota->nama_kota }}</strong>
-                                            <br><small class="text-muted">{{ $k->kota->provinsi->nama_provinsi }}</small>
+                                            <small>{{ $k->kota->provinsi->nama_provinsi }}</small>
                                         </div>
                                     </td>
                                     <td>
@@ -191,7 +194,7 @@
                                 <tr>
                                     <td colspan="9" class="text-center text-muted empty-state">
                                         <div class="empty-content">
-                                            <i class="fas fa-info-circle"></i>
+                                            <i class="fas fa-building"></i>
                                             <p>Belum ada data kantor. Silakan tambah data kantor baru.</p>
                                         </div>
                                     </td>
@@ -199,7 +202,27 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
+                        <!-- Scroll Controls Below Table -->
+                        <div class="table-scroll-controls">
+                            <button class="scroll-btn scroll-left" id="scrollLeftBtn" aria-label="Scroll left">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="scroll-indicator">
+                                <span id="scrollPosition">0</span> / <span id="scrollMax">0</span>
+                            </div>
+                            <button class="scroll-btn scroll-right" id="scrollRightBtn" aria-label="Scroll right">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
+
+                    <!-- Pagination -->
+                    @if(method_exists($kantor, 'links'))
+                    <div class="pagination-wrapper mt-4">
+                        {{ $kantor->links() }}
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -212,6 +235,193 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Table Horizontal Scroll with Arrow Buttons
+    const tableContainer = document.getElementById('tableContainer');
+    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+    const scrollRightBtn = document.getElementById('scrollRightBtn');
+
+    // Initialize auto-scroll functionality (no click-hold needed)
+    if (tableContainer) {
+        let autoScrollInterval = null;
+        let scrollSpeed = 0;
+
+        // Auto-scroll on mouse move near edges
+        tableContainer.addEventListener('mousemove', function(e) {
+            if (tableContainer.scrollWidth <= tableContainer.clientWidth) {
+                return; // No scroll needed
+            }
+
+            const rect = tableContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const containerWidth = rect.width;
+            const edgeThreshold = 50; // Distance from edge to trigger scroll
+            const maxSpeed = 15; // Maximum scroll speed
+
+            // Clear existing interval
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+
+            // Check if mouse is near left edge
+            if (mouseX < edgeThreshold && tableContainer.scrollLeft > 0) {
+                scrollSpeed = -maxSpeed * (1 - mouseX / edgeThreshold);
+                autoScrollInterval = setInterval(function() {
+                    if (tableContainer.scrollLeft > 0) {
+                        tableContainer.scrollLeft += scrollSpeed;
+                    } else {
+                        clearInterval(autoScrollInterval);
+                        autoScrollInterval = null;
+                    }
+                }, 16); // ~60fps
+            }
+            // Check if mouse is near right edge
+            else if (mouseX > containerWidth - edgeThreshold) {
+                const maxScroll = tableContainer.scrollWidth - tableContainer.clientWidth;
+                if (tableContainer.scrollLeft < maxScroll) {
+                    const distanceFromRight = containerWidth - mouseX;
+                    scrollSpeed = maxSpeed * (1 - distanceFromRight / edgeThreshold);
+                    autoScrollInterval = setInterval(function() {
+                        const maxScroll = tableContainer.scrollWidth - tableContainer.clientWidth;
+                        if (tableContainer.scrollLeft < maxScroll) {
+                            tableContainer.scrollLeft += scrollSpeed;
+                        } else {
+                            clearInterval(autoScrollInterval);
+                            autoScrollInterval = null;
+                        }
+                    }, 16); // ~60fps
+                }
+            }
+        });
+
+        // Stop auto-scroll when mouse leaves
+        tableContainer.addEventListener('mouseleave', function() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        });
+
+        // Horizontal wheel scroll - natural scrolling (primary method)
+        // This works with mouse wheel, trackpad, and touch gestures
+        tableContainer.addEventListener('wheel', function(e) {
+            // Only handle if there's horizontal scroll available
+            if (tableContainer.scrollWidth <= tableContainer.clientWidth) {
+                return;
+            }
+
+            // Check if this is a horizontal scroll gesture
+            const deltaX = e.deltaX;
+            const deltaY = e.deltaY;
+            const hasHorizontalScroll = Math.abs(deltaX) > 0;
+            const hasVerticalScroll = Math.abs(deltaY) > 0;
+            
+            // Priority 1: If horizontal scroll detected (trackpad swipe or mouse wheel tilt), use it directly
+            if (hasHorizontalScroll && Math.abs(deltaX) >= Math.abs(deltaY)) {
+                e.preventDefault();
+                tableContainer.scrollLeft += deltaX;
+                return;
+            }
+            
+            // Priority 2: If shift + vertical scroll, convert to horizontal
+            if (e.shiftKey && hasVerticalScroll) {
+                e.preventDefault();
+                tableContainer.scrollLeft += deltaY;
+                return;
+            }
+            
+            // Priority 3: For trackpad, if there's any horizontal component, use it
+            // This handles diagonal swipes on trackpad
+            if (hasHorizontalScroll && Math.abs(deltaX) > 2) {
+                e.preventDefault();
+                tableContainer.scrollLeft += deltaX;
+                return;
+            }
+        }, { passive: false });
+
+        // Also enable horizontal scroll with trackpad gestures
+        // This handles two-finger horizontal swipe on trackpad
+        let lastTouchX = null;
+        tableContainer.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                lastTouchX = e.touches[0].clientX;
+            }
+        }, { passive: true });
+
+        tableContainer.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 1 && lastTouchX !== null) {
+                const currentX = e.touches[0].clientX;
+                const diffX = lastTouchX - currentX;
+                
+                if (Math.abs(diffX) > 5) { // Minimum swipe distance
+                    e.preventDefault();
+                    tableContainer.scrollLeft += diffX;
+                    lastTouchX = currentX;
+                }
+            }
+        }, { passive: false });
+    }
+
+    // Initialize scroll buttons (if they exist)
+    if (tableContainer && scrollLeftBtn && scrollRightBtn) {
+        const scrollPosition = document.getElementById('scrollPosition');
+        const scrollMax = document.getElementById('scrollMax');
+
+        function updateScrollButtons() {
+            const { scrollLeft, scrollWidth, clientWidth } = tableContainer;
+            const maxScroll = scrollWidth - clientWidth;
+            
+            // Update scroll indicator
+            if (scrollPosition && scrollMax) {
+                scrollPosition.textContent = Math.round(scrollLeft);
+                scrollMax.textContent = Math.round(maxScroll);
+            }
+            
+            // Enable/disable left button
+            if (scrollLeft > 5) {
+                scrollLeftBtn.disabled = false;
+            } else {
+                scrollLeftBtn.disabled = true;
+            }
+            
+            // Enable/disable right button
+            if (scrollLeft < maxScroll - 5) {
+                scrollRightBtn.disabled = false;
+            } else {
+                scrollRightBtn.disabled = true;
+            }
+        }
+
+        // Initial check
+        setTimeout(updateScrollButtons, 100);
+
+        // Scroll event listener
+        tableContainer.addEventListener('scroll', updateScrollButtons);
+
+        // Window resize listener
+        window.addEventListener('resize', updateScrollButtons);
+
+        // Left scroll button
+        scrollLeftBtn.addEventListener('click', function() {
+            if (!this.disabled) {
+                tableContainer.scrollBy({
+                    left: -300,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Right scroll button
+        scrollRightBtn.addEventListener('click', function() {
+            if (!this.disabled) {
+                tableContainer.scrollBy({
+                    left: 300,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    }
+
     console.log('DOM loaded, initializing bulk operations...');
     
     const selectAllCheckbox = document.getElementById('select-all');
@@ -438,6 +648,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
+    :root {
+        --pln-blue: #21618C;
+        --pln-blue-dark: #1A4D73;
+        --pln-blue-light: #2E86AB;
+        --pln-blue-lighter: #E8F4F8;
+        --pln-blue-bg: #F5FAFC;
+    }
     /* Aksi Header */
     .header-actions {
         display: flex;
@@ -484,188 +701,379 @@ document.addEventListener('DOMContentLoaded', function() {
         transform: scale(1.05);
     }
 
-    /* Card Kantor */
+    /* Card Kantor - Modern Design */
     .kantor-card {
         background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(33, 97, 140, 0.08), 0 4px 12px rgba(33, 97, 140, 0.05);
+        border: 1px solid rgba(33, 97, 140, 0.1);
         overflow: hidden;
     }
 
     .kantor-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        padding: 1.5rem 1.75rem;
+        border-bottom: 1px solid rgba(33, 97, 140, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .kantor-title {
-        font-size: 1.25rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        letter-spacing: -0.02em;
     }
 
     .kantor-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pln-blue-lighter);
+        border-radius: 10px;
     }
 
     .kantor-body {
-        padding: 1.5rem;
+        padding: 1.5rem 1.75rem;
     }
 
-    /* Card Filter */
+    /* Table Wrapper with Scroll Controls */
+    .table-wrapper {
+        position: relative;
+        margin: 1.5rem 0;
+    }
+
+    .table-responsive {
+        border-radius: 0;
+        overflow-x: auto;
+        overflow-y: visible;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        scroll-behavior: smooth;
+        touch-action: pan-x pinch-zoom; /* Enable horizontal panning on touch devices */
+    }
+
+    /* Default cursor on table area */
+    .table-responsive tbody,
+    .table-responsive tbody tr,
+    .table-responsive tbody td {
+        cursor: default;
+    }
+
+    /* Interactive elements keep pointer cursor and allow selection */
+    .table-responsive input,
+    .table-responsive button,
+    .table-responsive a,
+    .table-responsive label,
+    .table-responsive .badge {
+        cursor: pointer !important;
+        user-select: auto !important;
+        -webkit-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: auto !important;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+    /* Scroll Controls Below Table */
+    .table-scroll-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background: #fafbfc;
+        border-top: 1px solid rgba(33, 97, 140, 0.1);
+        margin-top: 0;
+    }
+
+    .scroll-btn {
+        background: white;
+        color: var(--pln-blue);
+        border: 2px solid var(--pln-blue);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(33, 97, 140, 0.15);
+        transition: all 0.2s ease;
+    }
+
+    .scroll-btn:hover:not(:disabled) {
+        background: var(--pln-blue-lighter);
+        border-color: var(--pln-blue-dark);
+        box-shadow: 0 4px 10px rgba(33, 97, 140, 0.25);
+        transform: scale(1.1);
+    }
+
+    .scroll-btn:active:not(:disabled) {
+        transform: scale(0.95);
+    }
+
+    .scroll-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .scroll-btn i {
+        font-size: 0.85rem;
+        color: var(--pln-blue);
+    }
+
+    .scroll-indicator {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 600;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .table-scroll-controls {
+            padding: 0.5rem;
+            gap: 0.75rem;
+        }
+        
+        .scroll-btn {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .scroll-indicator {
+            font-size: 0.75rem;
+            min-width: 50px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table-responsive::-webkit-scrollbar {
+            display: block;
+            height: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--pln-blue);
+            border-radius: 2px;
+        }
+    }
+
+    /* Card Filter - Modern Collapsible Design */
     .filter-card {
         background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(33, 97, 140, 0.08), 0 2px 8px rgba(33, 97, 140, 0.05);
+        border: 1px solid rgba(33, 97, 140, 0.1);
         overflow: hidden;
+        margin-bottom: 1.5rem;
     }
 
     .filter-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(33, 97, 140, 0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-header:hover {
+        background: var(--pln-blue-lighter);
     }
 
     .filter-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .filter-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
+        font-size: 1.1rem;
     }
 
     .filter-body {
         padding: 1.5rem;
+        background: #fafbfc;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        display: block;
     }
 
     .modern-select {
-        border: 2px solid #e2e8f0;
-        border-radius: 0.75rem;
-        padding: 0.75rem 1rem;
+        border: 1.5px solid rgba(33, 97, 140, 0.2);
+        border-radius: 10px;
+        padding: 0.625rem 1rem;
         background: white;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .modern-select:hover {
+        border-color: rgba(33, 97, 140, 0.4);
     }
 
     .modern-select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: var(--pln-blue);
+        box-shadow: 0 0 0 4px rgba(33, 97, 140, 0.1);
+        outline: none;
+        background: white;
     }
 
-    /* Button Modern */
+    /* Button Modern - Clean Design */
     .btn-modern {
-        border-radius: 0.75rem;
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 0.625rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modern:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.2);
     }
 
     .btn-modern.btn-primary {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue);
         color: white;
-        border-color: #3b82f6;
+        border: 1px solid var(--pln-blue);
+        box-shadow: 0 2px 6px rgba(33, 97, 140, 0.15);
     }
 
     .btn-modern.btn-primary:hover {
-        background: linear-gradient(135deg, #2563eb, #3b82f6);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        background: var(--pln-blue-dark);
+        border-color: var(--pln-blue-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
     }
 
     .btn-modern.btn-filter {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue);
         color: white;
-        border-color: #3b82f6;
+        border: 1px solid var(--pln-blue);
+        box-shadow: 0 2px 6px rgba(33, 97, 140, 0.15);
     }
 
     .btn-modern.btn-filter:hover {
-        background: linear-gradient(135deg, #2563eb, #3b82f6);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        background: var(--pln-blue-dark);
+        border-color: var(--pln-blue-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
     }
 
     .btn-modern.btn-clear {
-        background: linear-gradient(135deg, #64748b, #94a3b8);
-        color: white;
-        border-color: #64748b;
+        background: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
     }
 
     .btn-modern.btn-clear:hover {
-        background: linear-gradient(135deg, #475569, #64748b);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        background: #f8f9fa;
+        color: #475569;
+        border-color: #cbd5e0;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
+    /* Action Buttons - PLN Branding */
     .btn-modern.btn-info {
-        background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        background: var(--pln-blue);
         color: white;
-        border-color: #06b6d4;
+        border: 1px solid var(--pln-blue);
     }
 
     .btn-modern.btn-info:hover {
-        background: linear-gradient(135deg, #0891b2, #06b6d4);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        background: var(--pln-blue-dark);
+        border-color: var(--pln-blue-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
     }
 
     .btn-modern.btn-warning {
-        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        background: var(--pln-blue);
         color: white;
-        border-color: #f59e0b;
+        border: 1px solid var(--pln-blue);
     }
 
     .btn-modern.btn-warning:hover {
-        background: linear-gradient(135deg, #d97706, #f59e0b);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        background: var(--pln-blue-dark);
+        border-color: var(--pln-blue-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
     }
 
     .btn-modern.btn-danger {
-        background: linear-gradient(135deg, #ef4444, #f87171);
+        background: #dc3545;
         color: white;
-        border-color: #ef4444;
+        border: 1px solid #dc3545;
     }
 
     .btn-modern.btn-danger:hover {
-        background: linear-gradient(135deg, #dc2626, #ef4444);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        background: #c82333;
+        border-color: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
     }
 
     .btn-modern.btn-success {
-        background: linear-gradient(135deg, #10b981, #34d399);
+        background: #28a745;
         color: white;
-        border-color: #10b981;
+        border: 1px solid #28a745;
     }
 
     .btn-modern.btn-success:hover {
-        background: linear-gradient(135deg, #059669, #10b981);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        background: #218838;
+        border-color: #218838;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
     }
 
     /* Aksi Bulk */
     .bulk-actions-card {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        border: 1px solid #3b82f6;
-        border-radius: 1rem;
-        padding: 1rem;
+        background: var(--pln-blue-lighter);
+        border: 2px solid var(--pln-blue);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.15);
     }
 
     .bulk-actions-content {
@@ -680,46 +1088,76 @@ document.addEventListener('DOMContentLoaded', function() {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: #1e40af;
+        color: var(--pln-blue-dark);
         font-weight: 600;
     }
 
     .bulk-info i {
-        color: #3b82f6;
+        color: var(--pln-blue);
     }
 
     .bulk-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
+        align-items: center;
     }
 
-    /* Tabel Modern */
+    .bulk-actions .btn-modern {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid transparent;
+    }
+
+    .bulk-actions .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Tabel Modern - Clean & Professional */
     .modern-table {
         margin: 0;
-        border-radius: 1rem;
+        border-radius: 0;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(33, 97, 140, 0.1);
+        background: white;
     }
 
     .modern-table thead th {
-        background: #f8fafc;
+        background: white;
         border: none;
-        padding: 1rem;
-        font-weight: 600;
-        color: #1e293b;
-        border-bottom: 2px solid #e2e8f0;
+        padding: 1rem 1.25rem;
+        font-weight: 700;
+        color: var(--pln-blue);
+        border-bottom: 2px solid var(--pln-blue);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        white-space: nowrap;
     }
 
     .modern-table tbody td {
-        padding: 1rem;
+        padding: 1rem 1.25rem;
         border: none;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .modern-table tbody tr {
+        transition: all 0.15s ease;
+        background: white;
     }
 
     .modern-table tbody tr:hover {
-        background: #f8fafc;
+        background: var(--pln-blue-lighter);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none;
     }
 
     .modern-table tbody tr:last-child td {
@@ -730,82 +1168,122 @@ document.addEventListener('DOMContentLoaded', function() {
     .modern-checkbox {
         width: 1.2rem;
         height: 1.2rem;
-        border-radius: 0.375rem;
-        border: 2px solid #d1d5db;
-        transition: all 0.3s ease;
+        border-radius: 4px;
+        border: 2px solid rgba(33, 97, 140, 0.3);
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
 
     .modern-checkbox:checked {
-        background: #3b82f6;
-        border-color: #3b82f6;
+        background: var(--pln-blue);
+        border-color: var(--pln-blue);
     }
 
     .modern-checkbox:focus {
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.15);
+        outline: none;
     }
 
-    /* Modern Badges */
+    /* Modern Badges - Clean Design */
     .modern-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        font-weight: 500;
-        font-size: 0.8rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-block;
+        letter-spacing: 0.3px;
     }
 
     .badge-kantor {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue);
         color: white;
     }
 
     .badge-jenis {
-        background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        background: var(--pln-blue-light);
         color: white;
     }
 
     .badge-success {
-        background: linear-gradient(135deg, #10b981, #34d399);
+        background: #10b981;
         color: white;
     }
 
     .badge-danger {
-        background: linear-gradient(135deg, #ef4444, #f87171);
+        background: #ef4444;
         color: white;
     }
 
-    /* Table Content */
+    /* Table Content - Modern Typography */
     .kantor-info strong {
         color: #1e293b;
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .kantor-info small {
+        color: #64748b;
+        font-size: 0.8rem;
     }
 
     .location-info strong {
         color: #1e293b;
         font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .location-info small {
+        color: #64748b;
+        font-size: 0.8rem;
     }
 
     .alamat-cell {
-        max-width: 200px;
+        max-width: 250px;
         word-wrap: break-word;
+        color: #475569;
+        font-size: 0.875rem;
+        line-height: 1.5;
     }
 
     .action-buttons {
         display: flex;
-        gap: 0.25rem;
+        gap: 0.5rem;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .action-buttons .btn-modern {
-        padding: 0.5rem;
+        padding: 0.5rem 0.75rem;
         min-width: 2.5rem;
         height: 2.5rem;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
     }
 
-    /* Empty State */
+    .action-buttons .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-buttons .btn-modern.btn-sm {
+        padding: 0.4rem 0.65rem;
+        min-width: 2.25rem;
+        height: 2.25rem;
+        font-size: 0.75rem;
+    }
+
+    /* Empty State - Modern Design */
     .empty-state {
-        padding: 3rem 1rem;
+        padding: 4rem 2rem;
     }
 
     .empty-content {
@@ -816,14 +1294,54 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .empty-content i {
-        font-size: 3rem;
-        color: #94a3b8;
+        font-size: 3.5rem;
+        color: var(--pln-blue-lighter);
     }
 
     .empty-content p {
         margin: 0;
         color: #64748b;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* Pagination - Modern Design */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 1.5rem 0;
+    }
+
+    .pagination-wrapper .pagination {
+        margin: 0;
+        gap: 0.5rem;
+    }
+
+    .pagination-wrapper .page-link {
+        border: 1px solid rgba(33, 97, 140, 0.2);
+        color: var(--pln-blue);
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-wrapper .page-link:hover {
+        background: var(--pln-blue-lighter);
+        border-color: var(--pln-blue);
+        color: var(--pln-blue-dark);
+    }
+
+    .pagination-wrapper .page-item.active .page-link {
+        background: var(--pln-blue);
+        border-color: var(--pln-blue);
+        color: white;
+    }
+
+    .pagination-wrapper .page-item.disabled .page-link {
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        background: #f8f9fa;
     }
 
     /* Responsive */

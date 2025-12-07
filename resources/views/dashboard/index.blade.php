@@ -281,19 +281,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         label: 'Kontrak (Count)',
                         data: kontrakCount.length > 0 ? kontrakCount : [0, 0, 0, 0, 0, 0],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#21618C',
+                        backgroundColor: 'rgba(33, 97, 140, 0.1)',
                         tension: 0.4,
                         fill: true,
+                        borderWidth: 2,
                         yAxisID: 'y'
                     },
                     {
                         label: 'Nilai Kontrak (Juta)',
                         data: nilaiData.length > 0 ? nilaiData : [0, 0, 0, 0, 0, 0],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#2E86AB',
+                        backgroundColor: 'rgba(46, 134, 171, 0.1)',
                         tension: 0.4,
                         fill: true,
+                        borderWidth: 2,
                         yAxisID: 'y1'
                     }
                 ]
@@ -436,55 +438,86 @@ function showFallback() {
 
 @push('styles')
 <style>
+    :root {
+        --pln-blue: #21618C;
+        --pln-blue-dark: #1A4D73;
+        --pln-blue-light: #2E86AB;
+        --pln-blue-lighter: #E8F4F8;
+        --pln-blue-bg: #F5FAFC;
+    }
+
     /* Greeting Banner */
     .greeting-banner {
         display: flex;
         align-items: center;
         gap: 1rem;
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 1.25rem;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid rgba(33, 97, 140, 0.15);
+        border-left: 4px solid var(--pln-blue);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
     }
     .greeting-icon {
-        width: 44px;
-        height: 44px;
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        color: #3b82f6;
+        background: var(--pln-blue);
+        color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.2);
     }
-    .greeting-content h4 { color: #1e293b; font-weight: 700; }
+    .greeting-content h4 { color: var(--pln-blue); font-weight: 700; }
     .greeting-sub { color: #64748b; }
 
-    /* Card Statistik */
+    /* Card Statistik - Modern Design */
     .stat-card {
         background: #fff;
-        border-radius: 1rem;
-        padding: 1.25rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.25rem;
         height: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--pln-blue);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.15);
+        border-color: rgba(33, 97, 140, 0.25);
     }
 
     .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 0.75rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
-        background: #eff6ff;
-        color: #3b82f6;
+        font-size: 1.5rem;
+        background: var(--pln-blue);
+        color: #ffffff;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.2);
     }
 
     .stat-content {
@@ -492,9 +525,9 @@ function showFallback() {
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 2.25rem;
         font-weight: 800;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         line-height: 1;
     }
@@ -503,29 +536,29 @@ function showFallback() {
         color: #64748b;
         font-size: 0.9rem;
         margin: 0.5rem 0 0 0;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     /* Card Chart */
     .chart-card {
         background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .chart-header {
-        background: #f8fafc;
+        background: var(--pln-blue-bg);
         padding: 1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .chart-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
@@ -533,7 +566,7 @@ function showFallback() {
     }
 
     .chart-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
     }
 
     .chart-body {
@@ -548,23 +581,23 @@ function showFallback() {
     /* Card Status */
     .status-card {
         background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .status-header {
-        background: #f8fafc;
+        background: var(--pln-blue-bg);
         padding: 1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .status-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
@@ -572,7 +605,7 @@ function showFallback() {
     }
 
     .status-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
     }
 
     .status-body {
@@ -587,19 +620,26 @@ function showFallback() {
 
     .status-item {
         background: #fff;
-        border-radius: 0.75rem;
-        padding: 1rem;
+        border-radius: 10px;
+        padding: 1.25rem;
         text-align: center;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border: 2px solid rgba(33, 97, 140, 0.15);
+        box-shadow: 0 2px 6px rgba(33, 97, 140, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .status-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(33, 97, 140, 0.12);
+        border-color: rgba(33, 97, 140, 0.3);
     }
 
     .status-icon {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         margin-bottom: 0.75rem;
     }
 
-    .status-item .status-icon { color: #3b82f6; }
+    .status-item .status-icon { color: var(--pln-blue); }
 
     .status-content h3 {
         font-size: 0.875rem;
@@ -609,38 +649,42 @@ function showFallback() {
     }
 
     .status-number {
-        font-size: 1.75rem;
+        font-size: 2rem;
         font-weight: 800;
         margin-bottom: 0.25rem;
-        color: #1e293b;
+        color: var(--pln-blue);
     }
 
     .status-percentage {
         font-size: 0.875rem;
-        color: #6b7280;
-        font-weight: 600;
+        color: var(--pln-blue);
+        font-weight: 700;
+        background: var(--pln-blue-lighter);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        display: inline-block;
     }
 
     /* Card Map */
     .map-card {
         background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .map-header {
-        background: #f8fafc;
+        background: var(--pln-blue-bg);
         padding: 1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .map-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
@@ -648,7 +692,7 @@ function showFallback() {
     }
 
     .map-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
     }
 
     .map-body {
@@ -688,23 +732,23 @@ function showFallback() {
     /* Card Aktivitas */
     .activity-card {
         background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .activity-header {
-        background: #f8fafc;
+        background: var(--pln-blue-bg);
         padding: 1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .activity-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
@@ -712,7 +756,7 @@ function showFallback() {
     }
 
     .activity-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
     }
 
     .activity-body {
@@ -744,7 +788,7 @@ function showFallback() {
     }
 
     .activity-icon i {
-        color: #3b82f6;
+        color: var(--pln-blue);
         font-size: 0.5rem;
     }
 

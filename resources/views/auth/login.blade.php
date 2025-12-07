@@ -2,8 +2,9 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#21618C">
 
     <title>Login Admin - PLN Icon Plus</title>
 
@@ -15,131 +16,257 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Custom CSS - Theme Dominan Putih dan Biru Muda -->
+    <!-- Custom CSS - Theme Dominan Putih dan Biru PLN -->
     <style>
         :root {
-            --primary-color: #4A90E2;
-            --secondary-color: #6C757D;
+            --pln-blue: #21618C;
+            --pln-blue-dark: #1A4D73;
+            --pln-blue-light: #2E86AB;
+            --pln-blue-lighter: #E8F4F8;
+            --pln-blue-bg: #F5FAFC;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-border: #D1D5DB;
+            --text-dark: #1A1A1A;
+            --text-gray: #6C757D;
             --success-color: #28A745;
             --danger-color: #DC3545;
-            --warning-color: #FFC107;
-            --info-color: #17A2B8;
-            --light-color: #F8F9FA;
-            --dark-color: #343A40;
-            --white: #FFFFFF;
-            --blue-light: #E3F2FD;
-            --blue-lighter: #F0F8FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: #f5f7fb;
+            background: linear-gradient(to bottom, var(--pln-blue-lighter) 0%, #F8F9FA 40%);
             font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .login-container {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            max-width: 300px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(33, 97, 140, 0.2);
+            overflow: visible;
+            max-width: 380px;
             width: 100%;
+            position: relative;
+            z-index: 1;
+            margin: 20px auto;
         }
 
         .login-header {
-            background: #f8fafc;
-            color: #1e293b;
-            padding: 12px 12px 10px 12px;
+            background: var(--white);
+            color: var(--pln-blue);
+            padding: 30px 25px 0px 25px;
             text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-            min-height: 140px; /* keep header height steady despite bigger logo */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
+            position: relative;
+            border-bottom: 3px solid var(--pln-blue);
         }
 
-        .login-header h2 { display: none; }
+        .login-header .logo {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-header h2 {
+            color: var(--pln-blue);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 10px 0 6px 0;
+            position: relative;
+        }
 
         .login-header p {
-            margin: 0;
-            opacity: 0.9;
+            margin: 0 0 20px 0;
+            color: var(--text-gray);
             position: relative;
-            z-index: 1;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 400;
         }
 
         .login-body {
-            padding: 16px;
+            padding: 30px 25px 30px 25px;
+            background: var(--white);
+            position: relative;
+            min-height: auto;
+        }
+
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            color: var(--pln-blue);
+            margin-right: 8px;
+            font-size: 0.95rem;
+            width: 18px;
+            text-align: center;
         }
 
         .form-control {
             border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            padding: 8px 10px;
+            border: 2px solid var(--gray-border);
+            padding: 10px 14px;
             font-size: 14px;
             transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--text-dark);
         }
 
         .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: none;
+            border-color: var(--pln-blue);
+            box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.1);
             outline: none;
+            background: var(--white);
         }
 
-        .form-label {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 8px;
+        .form-control::placeholder {
+            color: #ADB5BD;
+            font-size: 14px;
         }
 
         .btn-login {
-            background: #fff;
-            color: #3b82f6;
-            border: 1px solid #3b82f6;
+            background: var(--pln-blue);
+            color: var(--white) !important;
+            border: none;
             border-radius: 8px;
-            padding: 8px 16px;
+            padding: 12px 20px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             width: 100%;
-            transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(33, 97, 140, 0.2);
+            cursor: pointer;
+            margin-top: 0;
+            text-transform: none;
+            letter-spacing: normal;
         }
-        .btn-login:hover { background: #eff6ff; color: #1e40af; box-shadow: 0 2px 8px rgba(59,130,246,.15); }
+
+        .btn-login:hover {
+            background: var(--pln-blue-dark);
+            box-shadow: 0 3px 6px rgba(33, 97, 140, 0.3);
+            color: var(--white) !important;
+        }
+
+        .btn-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(33, 97, 140, 0.2);
+        }
+
+        .btn-login:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.2);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-login.loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-login i {
+            margin-right: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-login.loading i {
+            opacity: 0;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--gray-border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
         .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(--pln-blue);
+            border-color: var(--pln-blue);
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.15);
         }
 
         .form-check-label {
-            color: var(--secondary-color);
+            color: var(--text-gray);
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 8px;
         }
 
         .alert {
-            border-radius: 10px;
+            border-radius: 12px;
             border: none;
+            padding: 12px 16px;
+            font-size: 14px;
         }
 
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #FFF5F5;
+            color: #C53030;
+            border-left: 4px solid var(--danger-color);
         }
 
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #F0FFF4;
+            color: #22543D;
+            border-left: 4px solid var(--success-color);
         }
 
         .input-group-text {
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
+            background-color: var(--pln-blue);
+            border: 2px solid var(--pln-blue);
             border-right: none;
             border-radius: 10px 0 0 10px;
+            color: var(--white);
+            padding: 10px 12px;
+            font-size: 14px;
         }
 
         .input-group .form-control {
@@ -147,125 +274,234 @@
             border-radius: 0 10px 10px 0;
         }
 
-        .input-group .form-control:focus {
+        /* Password toggle button */
+        .password-toggle {
+            background-color: var(--pln-blue);
+            border: 2px solid var(--pln-blue);
             border-left: none;
+            border-radius: 0 10px 10px 0;
+            color: var(--white);
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 45px;
         }
 
-        .input-group .form-control:focus + .input-group-text {
-            border-color: var(--primary-color);
+        .password-toggle:hover {
+            background-color: var(--pln-blue-dark);
+            border-color: var(--pln-blue-dark);
+            color: var(--white);
+        }
+
+        .password-toggle:active {
+            opacity: 0.8;
+        }
+
+        .input-group.password-group .form-control {
+            border-right: none;
+            border-radius: 0;
+        }
+
+        .input-group.password-group .password-toggle {
+            border-left: 2px solid var(--pln-blue);
+        }
+
+        .input-group.password-group:focus-within .password-toggle {
+            border-color: var(--pln-blue-dark);
+            background-color: var(--pln-blue-dark);
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--pln-blue-dark);
+            background-color: var(--pln-blue-dark);
+        }
+
+        .input-group:focus-within .form-control {
+            border-left: 2px solid var(--pln-blue);
         }
 
         .logo {
-            margin-bottom: 2px;
+            margin-bottom: 0;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .pln-logo {
-            height: 104px;
+            height: 65px;
             width: auto;
-            max-width: 140px;
+            max-width: 150px;
             object-fit: contain;
             background: transparent;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 0;
+            backdrop-filter: none;
+            box-shadow: none;
+            border: none;
+            filter: none;
         }
-
 
         .remember-me {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 20px 0;
+            margin: 16px 0 20px 0;
         }
 
         .forgot-password {
-            color: var(--primary-color);
+            color: var(--pln-blue);
             text-decoration: none;
             font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
         .forgot-password:hover {
-            color: #357ABD;
+            color: var(--pln-blue-dark);
             text-decoration: underline;
         }
 
         /* Keep alert area height constant so form size doesn't change */
-        .alert-fixed { min-height: 56px; }
-        .alert-fixed:empty { display:block; min-height:56px; }
+        .alert-fixed { 
+            min-height: 50px; 
+            margin-bottom: 16px;
+        }
+        .alert-fixed:empty { 
+            display: block; 
+            min-height: 50px; 
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 5px;
+        }
 
         /* Desain Responsive */
         @media (max-width: 768px) {
             .login-container {
                 max-width: 95%;
-                margin: 20px;
+                margin: 15px auto;
+                border-radius: 12px;
             }
             
             .login-header {
-                padding: 25px 20px;
+                padding: 25px 20px 0px 20px;
             }
             
             .login-body {
-                padding: 25px 20px;
+                padding: 25px 20px 25px 20px;
             }
             
             .pln-logo {
-                height: 50px;
-                max-width: 70px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 6px;
-                padding: 4px;
+                height: 55px;
+                max-width: 130px;
             }
             
             .login-header h2 {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
             
             .login-header p {
-                font-size: 0.9rem;
+                font-size: 0.75rem;
             }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
             .login-container {
                 max-width: 100%;
-                margin: 10px;
-                border-radius: 15px;
+                margin: 10px auto;
+                border-radius: 12px;
             }
             
             .login-header {
-                padding: 20px 15px;
+                padding: 20px 15px 0px 15px;
             }
             
             .login-body {
-                padding: 20px 15px;
+                padding: 20px 15px 20px 15px;
+            }
+            
+            .pln-logo {
+                height: 50px;
+                max-width: 120px;
+            }
+
+            .login-header h2 {
+                font-size: 1.1rem;
+                margin: 8px 0 4px 0;
+            }
+            
+            .login-header p {
+                font-size: 0.7rem;
+                margin: 0 0 15px 0;
+            }
+            
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 11px 12px;
+            }
+            
+            .input-group-text {
+                padding: 11px 10px;
+                font-size: 13px;
+            }
+            
+            .password-toggle {
+                padding: 11px 10px;
+                min-width: 40px;
+            }
+            
+            .btn-login {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+
+            .form-label {
+                font-size: 0.8rem;
+                margin-bottom: 6px;
+            }
+            
+            .remember-me {
+                margin: 14px 0 18px 0;
+            }
+            
+            .forgot-password {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-header {
+                padding: 18px 12px 0px 12px;
+            }
+            
+            .login-body {
+                padding: 18px 12px 18px 12px;
             }
             
             .pln-logo {
                 height: 45px;
-                max-width: 60px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 5px;
-                padding: 3px;
+                max-width: 110px;
             }
             
-            .form-control {
-                font-size: 16px;
-                padding: 10px 12px;
-            }
-            
-            .btn-login {
-                padding: 12px 25px;
-                font-size: 15px;
+            .login-header h2 {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid" style="padding: 20px;">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
                 <div class="login-container">
                     <!-- Header -->
                     <div class="login-header">
@@ -306,7 +542,7 @@
                             @csrf
 
                             <!-- Username -->
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label for="username" class="form-label">
                                     <i class="fas fa-user me-2"></i>Username
                                 </label>
@@ -332,11 +568,11 @@
                             </div>
 
                             <!-- Password -->
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label for="password" class="form-label">
                                     <i class="fas fa-lock me-2"></i>Password
                                 </label>
-                                <div class="input-group">
+                                <div class="input-group password-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
                                     </span>
@@ -347,6 +583,9 @@
                                            required 
                                            autocomplete="current-password"
                                            placeholder="Masukkan password">
+                                    <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle password visibility">
+                                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                    </button>
                                 </div>
                                 @error('password')
                                     <div class="invalid-feedback d-block">
@@ -369,9 +608,9 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <button type="submit" class="btn btn-login">
+                            <button type="submit" class="btn btn-login" id="loginButton">
                                 <i class="fas fa-sign-in-alt me-2"></i>
-                                Login
+                                <span>Masuk ke Admin Panel</span>
                             </button>
                         </form>
                     </div>
@@ -385,29 +624,128 @@
     
     <!-- Custom JS -->
     <script>
-        // Auto-hide alert
-        setTimeout(function() {
-            $('.alert').fadeOut();
-        }, 5000);
-
-        // Validasi form
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alert dengan fade effect
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+
+            // Password Toggle Functionality
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
+            if (togglePassword && passwordInput && togglePasswordIcon) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Toggle icon
+                    if (type === 'password') {
+                        togglePasswordIcon.classList.remove('fa-eye-slash');
+                        togglePasswordIcon.classList.add('fa-eye');
+                    } else {
+                        togglePasswordIcon.classList.remove('fa-eye');
+                        togglePasswordIcon.classList.add('fa-eye-slash');
+                    }
+                });
+            }
+
+            // Form validation and loading state
             const form = document.querySelector('form');
             const username = document.getElementById('username');
             const password = document.getElementById('password');
+            const loginButton = document.getElementById('loginButton');
 
-            form.addEventListener('submit', function(e) {
-                if (!username.value.trim()) {
-                    e.preventDefault();
-                    username.focus();
-                    return false;
-                }
-                if (!password.value.trim()) {
-                    e.preventDefault();
-                    password.focus();
-                    return false;
-                }
+            if (form) {
+                // Prevent double submission
+                let isSubmitting = false;
+
+                form.addEventListener('submit', function(e) {
+                    if (isSubmitting) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    let isValid = true;
+
+                    // Validate username
+                    if (!username.value.trim()) {
+                        e.preventDefault();
+                        username.focus();
+                        username.style.borderColor = 'var(--danger-color)';
+                        isValid = false;
+                    } else {
+                        username.style.borderColor = '';
+                    }
+
+                    // Validate password
+                    if (!password.value.trim()) {
+                        e.preventDefault();
+                        if (isValid) password.focus();
+                        password.style.borderColor = 'var(--danger-color)';
+                        isValid = false;
+                    } else {
+                        password.style.borderColor = '';
+                    }
+
+                    // If valid, show loading state
+                    if (isValid && !e.defaultPrevented) {
+                        isSubmitting = true;
+                        loginButton.disabled = true;
+                        loginButton.classList.add('loading');
+                    }
+
+                    return isValid;
+                });
+
+                // Remove error styling on input
+                [username, password].forEach(function(input) {
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            this.style.borderColor = '';
+                            // Remove error class if exists
+                            this.classList.remove('is-invalid');
+                        });
+                    }
+                });
+
+                // Enter key to submit (natural form behavior, but ensure it works)
+                [username, password].forEach(function(input) {
+                    if (input) {
+                        input.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter' && !isSubmitting) {
+                                form.requestSubmit();
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Add focus animation to inputs
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(function(input) {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
             });
+
+            // Auto-focus username if empty (already has autofocus attribute, but ensure it works)
+            if (username && !username.value) {
+                setTimeout(function() {
+                    username.focus();
+                }, 100);
+            }
         });
     </script>
 </body>
