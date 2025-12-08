@@ -48,11 +48,18 @@
     <!-- Custom CSS -->
     <style>
         :root {
+            /* Palette Warna PLN Icon Plus - Konsisten dengan halaman lain */
+            --pln-blue: #21618C;
+            --pln-blue-dark: #1A4D73;
+            --pln-blue-light: #2E86AB;
+            --pln-blue-lighter: #E8F4F8;
+            --pln-blue-bg: #F5FAFC;
+            
             /* Palette Warna - Dominan Putih dengan Aksen Biru Muda */
-            --primary-color: #3b82f6;
-            --primary-light: #60a5fa;
-            --primary-lighter: #93c5fd;
-            --primary-lightest: #dbeafe;
+            --primary-color: #21618C;
+            --primary-light: #2E86AB;
+            --primary-lighter: #E8F4F8;
+            --primary-lightest: #F5FAFC;
             --secondary-color: #64748b;
             --success-color: #10b981;
             --warning-color: #f59e0b;
@@ -254,43 +261,115 @@
         .sidebar {
             background: var(--bg-primary);
             min-height: 100vh;
-            box-shadow: var(--shadow-lg);
-            border-right: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+            border-right: 1px solid rgba(33, 97, 140, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 80px !important;
+        }
+
+        .sidebar.collapsed .sidebar-brand-text,
+        .sidebar.collapsed .sidebar-welcome,
+        .sidebar.collapsed .nav-link span:not(.badge),
+        .sidebar.collapsed .nav-link i.fa-chevron-down {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+
+        .sidebar.collapsed .nav-link i:first-child {
+            margin-right: 0;
+        }
+
+        .sidebar.collapsed .collapse {
+            display: none !important;
+        }
+
+        #mainContent {
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ #mainContent {
+            margin-left: 0;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 1rem;
+            right: -15px;
+            width: 32px;
+            height: 32px;
+            background: var(--pln-blue);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(33, 97, 140, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--pln-blue-dark);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.3);
+        }
+
+        .sidebar-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
         }
 
         .sidebar .nav-link {
             color: var(--text-secondary);
             padding: 0.75rem 1rem;
             margin: 0.25rem 0.5rem;
-            border-radius: var(--radius-md);
+            border-radius: 0.5rem;
             transition: all 0.2s ease;
             border: 1px solid transparent;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
         }
 
         .sidebar .nav-link:hover {
-            background-color: var(--bg-accent);
-            color: var(--primary-color);
-            border-color: var(--primary-lightest);
-            transform: translateX(2px);
+            background-color: var(--pln-blue-bg);
+            color: var(--pln-blue);
+            border-color: var(--pln-blue-lighter);
+            transform: translateX(4px);
         }
 
         .sidebar .nav-link.active {
-            background: linear-gradient(135deg, var(--primary-lightest) 0%, var(--bg-accent) 100%);
-            color: var(--primary-color);
+            background: var(--pln-blue-lighter);
+            color: var(--pln-blue);
             font-weight: 600;
-            border-color: var(--primary-light);
+            border-left: 3px solid var(--pln-blue);
         }
 
         .sidebar .nav-link i {
             width: 20px;
             margin-right: 0.75rem;
             color: var(--text-muted);
+            font-size: 0.875rem;
         }
 
         .sidebar .nav-link:hover i,
         .sidebar .nav-link.active i {
-            color: var(--primary-color);
+            color: var(--pln-blue);
         }
 
         /* Organisasi Sidebar */
@@ -299,14 +378,6 @@
             margin: 0.5rem 1rem;
         }
 
-        .sidebar .nav-link {
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover {
-            transform: translateX(4px);
-        }
 
         /* Styling Page Header */
         .page-header {
@@ -345,63 +416,74 @@
             flex-direction: column;
             align-items: center;
             margin-bottom: 0.5rem;
+            padding: 0.5rem;
         }
 
         .sidebar-logo-img {
-            height: 32px;
+            height: 40px;
             width: auto;
             margin-bottom: 0.5rem;
         }
 
         .sidebar-logo-icon {
             font-size: 1.5rem;
-            color: var(--primary-color);
+            color: var(--pln-blue);
             margin-bottom: 0.5rem;
         }
 
         .sidebar-brand-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--pln-blue);
             margin: 0;
             line-height: 1.2;
         }
 
         .sidebar-welcome {
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 0.8125rem;
             margin: 0;
+            font-weight: 500;
         }
 
         /* Styling Menu Collapse */
         .sidebar .collapse {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
+            background: var(--pln-blue-bg);
+            border-radius: 0.5rem;
             margin: 0.25rem 0.5rem;
             padding: 0.5rem 0;
+            border: 1px solid var(--pln-blue-lighter);
         }
 
         .sidebar .collapse .nav-link {
-            padding: 0.5rem 1rem;
+            padding: 0.625rem 1rem;
             margin: 0.125rem 0.5rem;
-            font-size: 0.9rem;
-            border-radius: var(--radius-sm);
+            font-size: 0.8125rem;
+            border-radius: 0.375rem;
         }
 
         .sidebar .nav-link[data-bs-toggle="collapse"] {
             font-weight: 600;
             color: var(--text-primary);
-            background: var(--bg-accent);
-            border: 1px solid var(--border-light);
+            background: var(--pln-blue-bg);
+            border: 1px solid var(--pln-blue-lighter);
         }
 
         .sidebar .nav-link[data-bs-toggle="collapse"]:hover {
-            background: var(--primary-lightest);
-            color: var(--primary-color);
+            background: var(--pln-blue-lighter);
+            color: var(--pln-blue);
+            border-color: var(--pln-blue);
+        }
+
+        .sidebar .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] {
+            background: var(--pln-blue-lighter);
+            color: var(--pln-blue);
+            border-color: var(--pln-blue);
         }
 
         .sidebar .nav-link[data-bs-toggle="collapse"] i:last-child {
             transition: transform 0.3s ease;
+            margin-left: auto;
         }
 
         .sidebar .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] i:last-child {
@@ -523,9 +605,9 @@
         }
         
         .card {
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(33, 97, 140, 0.15);
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
             transition: all 0.3s ease;
             background-color: var(--bg-primary);
             overflow: hidden;
@@ -533,23 +615,23 @@
 
         .card:hover {
             transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-lightest);
+            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.15);
+            border-color: var(--pln-blue-lighter);
         }
 
         .card-header {
-            background: linear-gradient(135deg, var(--bg-accent) 0%, var(--primary-lightest) 100%);
+            background: var(--bg-primary);
             color: var(--text-primary);
-            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
             padding: 1.25rem 1.5rem;
             font-weight: 600;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 2px solid var(--pln-blue);
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            border: 1px solid var(--primary-color);
-            border-radius: var(--radius-md);
+            background: var(--pln-blue);
+            border: 1px solid var(--pln-blue);
+            border-radius: 0.5rem;
             padding: 0.75rem 1.5rem;
             font-weight: 600;
             transition: all 0.2s ease;
@@ -557,10 +639,10 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+            background: var(--pln-blue-dark);
+            border-color: var(--pln-blue-dark);
             transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
         }
 
         .btn-success {
@@ -627,8 +709,8 @@
         }
 
         .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-lightest);
+            border-color: var(--pln-blue);
+            box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.1);
             background-color: var(--bg-primary);
         }
 
@@ -744,7 +826,7 @@
         }
 
         .badge.bg-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%) !important;
+            background: var(--pln-blue) !important;
         }
 
         .badge.bg-success {
@@ -761,17 +843,18 @@
 
         /* Button Variants */
         .btn-outline-primary {
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
+            border: 1px solid var(--pln-blue);
+            color: var(--pln-blue);
             background-color: transparent;
-            border-radius: var(--radius-md);
+            border-radius: 0.5rem;
             font-weight: 500;
         }
 
         .btn-outline-primary:hover {
-            background-color: var(--primary-color);
+            background-color: var(--pln-blue);
             color: white;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
         }
 
         .btn-outline-secondary {
@@ -833,6 +916,14 @@
                 left: 0;
             }
 
+            .sidebar.collapsed {
+                left: -100%;
+            }
+
+            .sidebar-toggle {
+                display: none;
+            }
+
             .main-content {
                 margin: 0;
                 border-radius: 0;
@@ -847,7 +938,10 @@
         <div class="container-fluid">
             <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
+                <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <div class="sidebar-brand">
@@ -866,7 +960,7 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                                 <i class="fas fa-tachometer-alt"></i>
-                                Dashboard
+                                <span>Dashboard</span>
                             </a>
                         </li>
                         
@@ -874,7 +968,7 @@
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#dataManagement" role="button" aria-expanded="false" aria-controls="dataManagement">
                                 <i class="fas fa-database"></i>
-                                Data Management
+                                <span>Data Management</span>
                                 <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                             </a>
                             <div class="collapse" id="dataManagement">
@@ -882,39 +976,39 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('peta.*') ? 'active' : '' }}" href="{{ route('peta.index') }}">
                                             <i class="fas fa-map"></i>
-                                            Peta
+                                            <span>Peta</span>
                                         </a>
                                     </li>
                                     @if((Auth::guard('admin')->user()->role ?? '') !== 'staf')
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('kantor.*') ? 'active' : '' }}" href="{{ route('kantor.index') }}">
                                             <i class="fas fa-building"></i>
-                                            Kantor
+                                            <span>Kantor</span>
                                         </a>
                                     </li>
                                     @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('gedung.*') ? 'active' : '' }}" href="{{ route('gedung.index') }}">
                                             <i class="fas fa-home"></i>
-                                            Gedung
+                                            <span>Gedung</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('lantai.*') ? 'active' : '' }}" href="{{ route('lantai.index') }}">
                                             <i class="fas fa-layer-group"></i>
-                                            Lantai
+                                            <span>Lantai</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('ruang.*') ? 'active' : '' }}" href="{{ route('ruang.index') }}">
                                             <i class="fas fa-door-open"></i>
-                                            Ruang
+                                            <span>Ruang</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('okupansi.*') ? 'active' : '' }}" href="{{ route('okupansi.index') }}">
                                             <i class="fas fa-chart-pie"></i>
-                                            Okupansi
+                                            <span>Okupansi</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -925,7 +1019,7 @@
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#businessManagement" role="button" aria-expanded="false" aria-controls="businessManagement">
                                 <i class="fas fa-briefcase"></i>
-                                Business
+                                <span>Business</span>
                                 <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                             </a>
                             <div class="collapse" id="businessManagement">
@@ -934,7 +1028,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('bidang.*') ? 'active' : '' }}" href="{{ route('bidang.index') }}">
                                             <i class="fas fa-sitemap"></i>
-                                            Bidang
+                                            <span>Bidang</span>
                                         </a>
                                     </li>
                                     @endif
@@ -942,20 +1036,20 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('sub-bidang.*') ? 'active' : '' }}" href="{{ route('sub-bidang.index') }}">
                                             <i class="fas fa-sitemap"></i>
-                                            Sub Bidang
+                                            <span>Sub Bidang</span>
                                         </a>
                                     </li>
                                     @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('kontrak.*') ? 'active' : '' }}" href="{{ route('kontrak.index') }}">
                                             <i class="fas fa-file-contract"></i>
-                                            Kontrak
+                                            <span>Kontrak</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('realisasi.*') ? 'active' : '' }}" href="{{ route('realisasi.index') }}">
                                             <i class="fas fa-chart-line"></i>
-                                            Realisasi
+                                            <span>Realisasi</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -966,7 +1060,7 @@
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#inventarisManagement" role="button" aria-expanded="false" aria-controls="inventarisManagement">
                                 <i class="fas fa-box"></i>
-                                Inventaris
+                                <span>Inventaris</span>
                                 <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                             </a>
                             <div class="collapse" id="inventarisManagement">
@@ -974,13 +1068,13 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('inventaris.*') ? 'active' : '' }}" href="{{ route('inventaris.index') }}">
                                             <i class="fas fa-box"></i>
-                                            Data Inventaris
+                                            <span>Data Inventaris</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('kategori-inventaris.*') ? 'active' : '' }}" href="{{ route('kategori-inventaris.index') }}">
                                             <i class="fas fa-tags"></i>
-                                            Kategori Inventaris
+                                            <span>Kategori Inventaris</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -991,13 +1085,13 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}" href="{{ route('analytics.index') }}">
                                 <i class="fas fa-chart-bar"></i>
-                                Analytics
+                                <span>Analytics</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('import.*') ? 'active' : '' }}" href="{{ route('import.index') }}">
                                 <i class="fas fa-upload"></i>
-                                Import Data
+                                <span>Import Data</span>
                             </a>
                         </li>
                         
@@ -1006,7 +1100,7 @@
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#adminSection" role="button" aria-expanded="false" aria-controls="adminSection">
                                 <i class="fas fa-cog"></i>
-                                Admin
+                                <span>Admin</span>
                                 <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                             </a>
                             <div class="collapse" id="adminSection">
@@ -1014,13 +1108,13 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" href="{{ route('admin.index') }}">
                                             <i class="fas fa-users-cog"></i>
-                                            Admin Management
+                                            <span>Admin Management</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('audit-log.*') ? 'active' : '' }}" href="{{ route('audit-log.index') }}">
                                             <i class="fas fa-history"></i>
-                                            Audit Log
+                                            <span>Audit Log</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -1031,7 +1125,7 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('mfa.*') || request()->routeIs('profile.*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#settingsSection" role="button" aria-expanded="false" aria-controls="settingsSection">
                                 <i class="fas fa-cog"></i>
-                                Pengaturan
+                                <span>Pengaturan</span>
                                 <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                             </a>
                             <div class="collapse" id="settingsSection">
@@ -1039,7 +1133,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('mfa.*') ? 'active' : '' }}" href="{{ route('mfa.setup') }}">
                                             <i class="fas fa-shield-alt"></i>
-                                            MFA / 2FA
+                                            <span>MFA / 2FA</span>
                                             @if(Auth::guard('admin')->check() && Auth::guard('admin')->user()->mfa_enabled)
                                                 <span class="badge bg-success ms-2" style="font-size: 0.65rem;">Aktif</span>
                                             @else
@@ -1050,7 +1144,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
                                             <i class="fas fa-user"></i>
-                                            Profil Saya
+                                            <span>Profil Saya</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -1063,7 +1157,7 @@
                                 @csrf
                                 <button type="submit" class="nav-link btn btn-link text-danger w-100 text-start">
                                     <i class="fas fa-sign-out-alt"></i>
-                                    Logout
+                                    <span>Logout</span>
                                 </button>
                             </form>
                         </li>
@@ -1072,7 +1166,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="mainContent">
                 <div class="main-content">
                     <!-- Top Navigation -->
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -1312,6 +1406,59 @@
             performSearch(query);
         }
     }
+
+    // Sidebar Toggle Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+        // Set initial state
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+
+        // Toggle sidebar
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sidebar.classList.toggle('collapsed');
+                const isNowCollapsed = sidebar.classList.contains('collapsed');
+                localStorage.setItem('sidebarCollapsed', isNowCollapsed);
+                
+                // Close all collapse menus when sidebar is collapsed
+                if (isNowCollapsed) {
+                    const collapseElements = sidebar.querySelectorAll('.collapse.show');
+                    collapseElements.forEach(collapse => {
+                        const bsCollapse = bootstrap.Collapse.getInstance(collapse);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    });
+                }
+            });
+        }
+
+        // Auto-collapse on mobile
+        if (window.innerWidth < 768) {
+            sidebar.classList.add('collapsed');
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('collapsed');
+            } else {
+                // Restore saved state on desktop
+                if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                    sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            }
+        });
+    });
     </script>
 </body>
 </html>

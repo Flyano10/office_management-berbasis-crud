@@ -294,7 +294,7 @@
                 <div class="guide-header">
                     <h6 class="guide-title">
                         <i class="fas fa-lightbulb"></i>
-                        Tips Pengisian
+                        Panduan Pengisian
                     </h6>
                 </div>
                 <div class="guide-body">
