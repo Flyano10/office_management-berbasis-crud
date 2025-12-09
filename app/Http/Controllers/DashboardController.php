@@ -54,32 +54,24 @@ class DashboardController extends Controller
 
         // Optimasi: Combine status stats dalam single query
         $statusStats = \Illuminate\Support\Facades\Cache::remember('dashboard.status_stats', 300, function () {
-            $kantorStats = DB::select("
-                SELECT 
-                    status_kepemilikan,
-                    COUNT(*) as total
-                FROM kantor
-                WHERE status_kepemilikan IN ('milik', 'sewa')
-                GROUP BY status_kepemilikan
-            ");
+            // Optimasi: Gunakan query builder dengan select spesifik untuk performa lebih baik
+            $kantorStats = DB::table('kantor')
+                ->select('status_kepemilikan', DB::raw('COUNT(*) as total'))
+                ->whereIn('status_kepemilikan', ['milik', 'sewa'])
+                ->groupBy('status_kepemilikan')
+                ->get();
             
-            $gedungStats = DB::select("
-                SELECT 
-                    status_kepemilikan,
-                    COUNT(*) as total
-                FROM gedung
-                WHERE status_kepemilikan IN ('milik', 'sewa')
-                GROUP BY status_kepemilikan
-            ");
+            $gedungStats = DB::table('gedung')
+                ->select('status_kepemilikan', DB::raw('COUNT(*) as total'))
+                ->whereIn('status_kepemilikan', ['milik', 'sewa'])
+                ->groupBy('status_kepemilikan')
+                ->get();
             
-            $kontrakStats = DB::select("
-                SELECT 
-                    status_perjanjian,
-                    COUNT(*) as total
-                FROM kontrak
-                WHERE status_perjanjian IN ('aktif', 'selesai')
-                GROUP BY status_perjanjian
-            ");
+            $kontrakStats = DB::table('kontrak')
+                ->select('status_perjanjian', DB::raw('COUNT(*) as total'))
+                ->whereIn('status_perjanjian', ['aktif', 'selesai'])
+                ->groupBy('status_perjanjian')
+                ->get();
             
             $result = [
                 'kantor_milik' => 0,

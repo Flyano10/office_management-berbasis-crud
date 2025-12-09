@@ -120,62 +120,88 @@ class PublicController extends Controller
      */
     public function getKantorData()
     {
-        // Fix: Gunakan Eloquent dengan eager loading yang benar
-        // Pastikan semua kolom yang diperlukan di-load termasuk gedung untuk layout
-        $kantor = Kantor::with([
-            'kota:id,nama_kota',  // Include id untuk foreign key
-            'jenisKantor:id,nama_jenis',  // Include id untuk foreign key
-            'gedung:id,kantor_id,layout_path'  // Load gedung untuk layout_path
-        ])
-        ->whereNotNull('latitude')
-        ->whereNotNull('longitude')
-        ->get()
-        ->map(function($kantor) {
-            // Ambil layout_url dari gedung pertama yang punya layout_path
-            $layoutUrl = null;
-            if ($kantor->gedung && $kantor->gedung->isNotEmpty()) {
-                $gedungWithLayout = $kantor->gedung->firstWhere('layout_path', '!=', null);
-                if ($gedungWithLayout && $gedungWithLayout->layout_path) {
-                    // Pastikan path sudah benar (storage path)
-                    $layoutPath = $gedungWithLayout->layout_path;
-                    if (strpos($layoutPath, 'storage/') === 0) {
-                        $layoutUrl = asset($layoutPath);
-                    } elseif (strpos($layoutPath, '/') === 0) {
-                        $layoutUrl = asset('storage' . $layoutPath);
-                    } else {
-                        $layoutUrl = asset('storage/' . $layoutPath);
-                    }
+        try {
+            // Optimasi: Cache data kantor (10 menit) dengan select specific columns
+            $kantor = \Illuminate\Support\Facades\Cache::remember('public.kantor_data', 600, function () {
+                try {
+                    // Select hanya kolom yang ada di database (gunakan get() tanpa select untuk aman)
+                    $kantors = Kantor::with([
+                        'kota:id,nama_kota',
+                        'jenisKantor:id,nama_jenis',
+                        'gedung:id,kantor_id,layout_path'
+                    ])
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get();
+                    
+                    // Map data dengan helper function untuk formatParentKantor
+                    return $kantors->map(function($kantor) {
+                        // Ambil layout_url dari gedung pertama yang punya layout_path
+                        $layoutUrl = null;
+                        if ($kantor->gedung && $kantor->gedung->isNotEmpty()) {
+                            $gedungWithLayout = $kantor->gedung->firstWhere('layout_path', '!=', null);
+                            if ($gedungWithLayout && $gedungWithLayout->layout_path) {
+                                // Pastikan path sudah benar (storage path)
+                                $layoutPath = $gedungWithLayout->layout_path;
+                                if (strpos($layoutPath, 'storage/') === 0) {
+                                    $layoutUrl = asset($layoutPath);
+                                } elseif (strpos($layoutPath, '/') === 0) {
+                                    $layoutUrl = asset('storage' . $layoutPath);
+                                } else {
+                                    $layoutUrl = asset('storage/' . $layoutPath);
+                                }
+                            }
+                        }
+                        
+                        // Format parent kantor inline (tidak perlu $this)
+                        $parentKantor = '-';
+                        if ($kantor->sbu_type && $kantor->sbu) {
+                            $parentKantor = $kantor->sbu;
+                        } elseif ($kantor->sbu_type) {
+                            $parentKantor = $kantor->sbu_type;
+                        } elseif ($kantor->sbu) {
+                            $parentKantor = $kantor->sbu;
+                        }
+                        
+                        return [
+                            'id' => $kantor->id,
+                            'nama_kantor' => $kantor->nama_kantor ?? '',
+                            'kode_kantor' => $kantor->kode_kantor ?? '',
+                            'jenis_id' => $kantor->jenis_kantor_id ?? null,
+                            'jenis' => $kantor->jenisKantor ? $kantor->jenisKantor->nama_jenis : '-',
+                            'latitude' => (float) ($kantor->latitude ?? 0),
+                            'longitude' => (float) ($kantor->longitude ?? 0),
+                            'kota' => $kantor->kota ? $kantor->kota->nama_kota : '',
+                            'status_kepemilikan' => $kantor->status_kepemilikan ?? '',
+                            'jenis_kepemilikan' => $kantor->jenis_kepemilikan ?? '',
+                            'luas_tanah' => $kantor->luas_tanah ?? null,
+                            'luas_bangunan' => $kantor->luas_bangunan ?? null,
+                            'daya_listrik_va' => $kantor->daya_listrik_va ?? null,
+                            'kapasitas_genset_kva' => $kantor->kapasitas_genset_kva ?? null,
+                            'jumlah_sumur' => $kantor->jumlah_sumur ?? null,
+                            'jumlah_septictank' => $kantor->jumlah_septictank ?? null,
+                            'parent_kantor' => $parentKantor,
+                            'asset_owner' => isset($kantor->asset_owner) ? $kantor->asset_owner : '',
+                            'ruang_lingkup' => isset($kantor->ruang_lingkup) ? $kantor->ruang_lingkup : '-',
+                            'peruntukan_kantor' => isset($kantor->peruntukan_kantor) ? $kantor->peruntukan_kantor : '-',
+                            'alamat' => $kantor->alamat ?? '-',
+                            'keterangan' => isset($kantor->keterangan) ? $kantor->keterangan : '-',
+                            'layout_url' => $layoutUrl
+                        ];
+                    });
+                } catch (\Exception $e) {
+                    \Log::error('Error in getKantorData cache closure: ' . $e->getMessage());
+                    \Log::error($e->getTraceAsString());
+                    return [];
                 }
-            }
-            
-            return [
-                'id' => $kantor->id,
-                'nama_kantor' => $kantor->nama_kantor,
-                'kode_kantor' => $kantor->kode_kantor,
-                'jenis_id' => $kantor->jenis_kantor_id,
-                'jenis' => $kantor->jenisKantor ? $kantor->jenisKantor->nama_jenis : '-',
-                'latitude' => (float) $kantor->latitude,
-                'longitude' => (float) $kantor->longitude,
-                'kota' => $kantor->kota ? $kantor->kota->nama_kota : '',
-                'status_kepemilikan' => $kantor->status_kepemilikan,
-                'jenis_kepemilikan' => $kantor->jenis_kepemilikan,
-                'luas_tanah' => $kantor->luas_tanah,
-                'luas_bangunan' => $kantor->luas_bangunan,
-                'daya_listrik_va' => $kantor->daya_listrik_va,
-                'kapasitas_genset_kva' => $kantor->kapasitas_genset_kva,
-                'jumlah_sumur' => $kantor->jumlah_sumur,
-                'jumlah_septictank' => $kantor->jumlah_septictank,
-                'parent_kantor' => $this->formatParentKantor($kantor->sbu_type, $kantor->sbu),
-                'asset_owner' => $kantor->asset_owner,
-                'ruang_lingkup' => $kantor->ruang_lingkup ?? '-',
-                'peruntukan_kantor' => $kantor->peruntukan_kantor ?? '-',
-                'alamat' => $kantor->alamat ?? '-',
-                'keterangan' => $kantor->keterangan ?? '-',
-                'layout_url' => $layoutUrl
-            ];
-        });
+            });
 
-        return response()->json($kantor);
+            return response()->json($kantor ?? []);
+        } catch (\Exception $e) {
+            \Log::error('Error in getKantorData: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return response()->json(['error' => 'Failed to load kantor data'], 500);
+        }
     }
 
     /**

@@ -14,17 +14,23 @@ class PetaController extends Controller
      */
     public function index()
     {
-        // Ambil data kantor dengan koordinat
-        $kantorData = Kantor::with(['kota', 'jenisKantor'])
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get();
+        // Optimasi: Cache data kantor dan gedung (10 menit)
+        $kantorData = \Illuminate\Support\Facades\Cache::remember('peta.kantor_data', 600, function () {
+            return Kantor::with(['kota:id,nama_kota', 'jenisKantor:id,nama_jenis'])
+                ->select('id', 'nama_kantor', 'kode_kantor', 'alamat', 'kota_id', 'jenis_kantor_id', 'status_kantor', 'latitude', 'longitude')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+        });
 
-        // Ambil data gedung dengan koordinat (opsional - bisa di-comment untuk sembunyikan gedung)
-        $gedungData = Gedung::with(['kantor.kota'])
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get();
+        // Optimasi: Cache data gedung (10 menit)
+        $gedungData = \Illuminate\Support\Facades\Cache::remember('peta.gedung_data', 600, function () {
+            return Gedung::with(['kantor:id,nama_kantor,kota_id', 'kantor.kota:id,nama_kota'])
+                ->select('id', 'nama_gedung', 'alamat', 'kantor_id', 'status_gedung', 'latitude', 'longitude')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+        });
 
         // Siapkan lokasi untuk tabel
         $locations = collect();
@@ -71,51 +77,59 @@ class PetaController extends Controller
     {
         $type = $request->get('type', 'all'); // kantor, gedung, all
         
-        $data = [];
-        
-        if ($type === 'kantor' || $type === 'all') {
-            $kantor = Kantor::with(['kota', 'jenisKantor'])
-                ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->get();
-                
-            foreach ($kantor as $k) {
-                $data[] = [
-                    'id' => $k->id,
-                    'nama' => $k->nama_kantor,
-                    'kode' => $k->kode_kantor,
-                    'alamat' => $k->alamat,
-                    'kota' => $k->kota->nama_kota ?? 'N/A',
-                    'jenis' => $k->jenisKantor->nama_jenis ?? 'N/A',
-                    'status' => $k->status_kantor,
-                    'latitude' => $k->latitude,
-                    'longitude' => $k->longitude,
-                    'type' => 'kantor'
-                ];
+        // Optimasi: Cache berdasarkan type (10 menit)
+        $cacheKey = 'peta.locations.' . $type;
+        $data = \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () use ($type) {
+            $result = [];
+            
+            if ($type === 'kantor' || $type === 'all') {
+                $kantor = Kantor::with(['kota:id,nama_kota', 'jenisKantor:id,nama_jenis'])
+                    ->select('id', 'nama_kantor', 'kode_kantor', 'alamat', 'kota_id', 'jenis_kantor_id', 'status_kantor', 'latitude', 'longitude')
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get();
+                    
+                foreach ($kantor as $k) {
+                    $result[] = [
+                        'id' => $k->id,
+                        'nama' => $k->nama_kantor,
+                        'kode' => $k->kode_kantor,
+                        'alamat' => $k->alamat,
+                        'kota' => $k->kota->nama_kota ?? 'N/A',
+                        'jenis' => $k->jenisKantor->nama_jenis ?? 'N/A',
+                        'status' => $k->status_kantor,
+                        'latitude' => $k->latitude,
+                        'longitude' => $k->longitude,
+                        'type' => 'kantor'
+                    ];
+                }
             }
-        }
-        
-        if ($type === 'gedung' || $type === 'all') {
-            $gedung = Gedung::with(['kantor.kota'])
-                ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->get();
-                
-            foreach ($gedung as $g) {
-                $data[] = [
-                    'id' => $g->id,
-                    'nama' => $g->nama_gedung,
-                    'kode' => null,
-                    'alamat' => $g->alamat,
-                    'kota' => $g->kantor->kota->nama_kota ?? 'N/A',
-                    'jenis' => 'Gedung',
-                    'status' => $g->status_gedung,
-                    'latitude' => $g->latitude,
-                    'longitude' => $g->longitude,
-                    'type' => 'gedung'
-                ];
+            
+            if ($type === 'gedung' || $type === 'all') {
+                $gedung = Gedung::with(['kantor:id,nama_kantor,kota_id', 'kantor.kota:id,nama_kota'])
+                    ->select('id', 'nama_gedung', 'alamat', 'kantor_id', 'status_gedung', 'latitude', 'longitude')
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get();
+                    
+                foreach ($gedung as $g) {
+                    $result[] = [
+                        'id' => $g->id,
+                        'nama' => $g->nama_gedung,
+                        'kode' => null,
+                        'alamat' => $g->alamat,
+                        'kota' => $g->kantor->kota->nama_kota ?? 'N/A',
+                        'jenis' => 'Gedung',
+                        'status' => $g->status_gedung,
+                        'latitude' => $g->latitude,
+                        'longitude' => $g->longitude,
+                        'type' => 'gedung'
+                    ];
+                }
             }
-        }
+            
+            return $result;
+        });
         
         return response()->json($data);
     }

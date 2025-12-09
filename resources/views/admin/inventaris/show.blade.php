@@ -14,7 +14,7 @@
         <i class="fas fa-edit"></i> Edit
     </a>
     @endif
-    <button type="button" class="btn btn-modern btn-success" onclick="showBarcodeModal()">
+    <button type="button" class="btn btn-modern btn-success" onclick="window.showBarcodeModal && window.showBarcodeModal()">
         <i class="fas fa-barcode"></i> Print Barcode
     </button>
     <a href="{{ route('inventaris.index') }}" class="btn btn-modern btn-clear">
@@ -170,11 +170,16 @@
                 </div>
                 <div class="detail-body">
                     <div class="text-center">
-                        <div id="barcode-{{ $inventaris->id }}" class="qr-code-container"></div>
+                        <div id="barcode-{{ $inventaris->id }}" class="qr-code-container">
+                            <div class="qr-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p class="mt-2 text-muted">Memuat QR Code...</p>
+                            </div>
+                        </div>
                         <div class="mt-3">
                             <p class="mb-2"><strong>Kode:</strong> {{ $inventaris->kode_inventaris }}</p>
                             <p class="mb-3"><strong>Kantor:</strong> {{ $inventaris->kantor->nama_kantor }}</p>
-                            <button type="button" class="btn btn-modern btn-success" onclick="showBarcodeModal()">
+                            <button type="button" class="btn btn-modern btn-success" onclick="window.showBarcodeModal && window.showBarcodeModal()">
                                 <i class="fas fa-print"></i> Print Barcode
                             </button>
                         </div>
@@ -543,17 +548,32 @@
 
     /* QR Code Container */
     .qr-code-container {
-        display: inline-block;
-        padding: 10px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
         background: white;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        min-height: 250px;
+        min-width: 250px;
     }
 
     .qr-code-container canvas {
         display: block;
         max-width: 100%;
         height: auto;
+    }
+
+    .qr-loading {
+        text-align: center;
+        color: var(--pln-blue);
+    }
+
+    .qr-loading i {
+        font-size: 2rem;
+        color: var(--pln-blue);
     }
 
     /* Responsive */
@@ -570,16 +590,293 @@
 @endpush
 
 @push('scripts')
-<!-- QR Code Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-
+<!-- QR Code Library with fallback -->
 <script>
-    // Generate QR Code
-    document.addEventListener('DOMContentLoaded', function() {
+    // Track if QRCode is loaded
+    window.qrcodeLoaded = false;
+    window.qrcodeReadyCallback = null;
+    
+    // Function to check if QRCode is available
+    function checkQRCodeLoaded() {
+        if (typeof QRCode !== 'undefined') {
+            window.qrcodeLoaded = true;
+            console.log('QRCode library loaded successfully');
+            // Call callback if exists
+            if (window.qrcodeReadyCallback) {
+                window.qrcodeReadyCallback();
+                window.qrcodeReadyCallback = null;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    // Show error message if QRCode cannot be loaded
+    function showQRCodeError() {
+        const container = document.getElementById('barcode-{{ $inventaris->id }}');
+        if (container) {
+            const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+            // Try using online QR code API as last resort
+            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+            container.innerHTML = '<div class="text-center">' +
+                '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;" onerror="this.parentElement.innerHTML=\'<div class=\\\'alert alert-warning\\\'><i class=\\\'fas fa-exclamation-triangle\\\'></i> QR Code tidak dapat dimuat. Pastikan koneksi internet aktif atau refresh halaman.</div>\'">' +
+                '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
+                '</div>';
+        }
+    }
+    
+    // Fallback loader for QRCode library - MUST be defined before script tag
+    window.loadQRCodeFallback = function() {
+        if (typeof QRCode === 'undefined' && !window.qrcodeLoaded) {
+            console.log('Trying to load QRCode from unpkg...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
+            script.onerror = function() {
+                console.error('Failed to load QRCode from unpkg, trying cdnjs...');
+                const script2 = document.createElement('script');
+                script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js';
+                script2.onerror = function() {
+                    console.error('All QRCode CDN sources failed');
+                    window.qrcodeLoaded = false;
+                    showQRCodeError();
+                };
+                script2.onload = function() {
+                    console.log('QRCode loaded from cdnjs');
+                    window.qrcodeLoaded = checkQRCodeLoaded();
+                    // Trigger generateQRCode if it exists
+                    if (window.qrcodeLoaded) {
+                        setTimeout(function() {
+                            if (typeof generateQRCode === 'function') {
+                                generateQRCode();
+                            } else if (window.qrcodeReadyCallback) {
+                                window.qrcodeReadyCallback();
+                            }
+                        }, 100);
+                    }
+                };
+                document.head.appendChild(script2);
+            };
+            script.onload = function() {
+                console.log('QRCode loaded from unpkg');
+                window.qrcodeLoaded = checkQRCodeLoaded();
+                // Trigger generateQRCode if it exists
+                if (window.qrcodeLoaded) {
+                    setTimeout(function() {
+                        if (typeof generateQRCode === 'function') {
+                            generateQRCode();
+                        } else if (window.qrcodeReadyCallback) {
+                            window.qrcodeReadyCallback();
+                        }
+                    }, 100);
+                }
+            };
+            document.head.appendChild(script);
+        }
+    };
+</script>
+<script>
+    // Load QRCode library with proper error handling
+    (function() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+        script.async = true;
+        
+        script.onload = function() {
+            checkQRCodeLoaded();
+        };
+        
+        script.onerror = function() {
+            console.error('Failed to load QRCode from jsdelivr, trying alternative...');
+            if (typeof window.loadQRCodeFallback === 'function') {
+                window.loadQRCodeFallback();
+            } else {
+                console.error('loadQRCodeFallback not available, will retry...');
+                setTimeout(function() {
+                    if (typeof window.loadQRCodeFallback === 'function') {
+                        window.loadQRCodeFallback();
+                    }
+                }, 100);
+            }
+        };
+        
+        document.head.appendChild(script);
+    })();
+</script>
+<script>
+
+    // Make functions global
+    window.showBarcodeModal = function() {
         const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+        const modal = document.getElementById('barcodePrintModal');
+        const printBarcode = document.getElementById('print-barcode');
+        
+        if (!modal) {
+            console.error('Modal element not found');
+            return;
+        }
+        
+        if (!printBarcode) {
+            console.error('Print barcode element not found');
+            return;
+        }
+        
+        // Clear previous QR code
+        printBarcode.innerHTML = '';
+        
+        // Check if QRCode library is loaded
+        if (typeof QRCode !== 'undefined' && window.qrcodeLoaded) {
+            // Use library to generate QR code
+            QRCode.toCanvas(printBarcode, barcodeData, {
+                width: 300,
+                margin: 3,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error('Error generating QR Code:', error);
+                    // Fallback to API
+                    useQRCodeAPI(printBarcode, barcodeData, modal);
+                } else {
+                    // Show modal after QR code is generated
+                    showModal(modal);
+                }
+            });
+        } else {
+            // Library not loaded, use API fallback
+            console.log('QRCode library not available, using API fallback');
+            useQRCodeAPI(printBarcode, barcodeData, modal);
+        }
+    };
+    
+    // Function to use QR Code API as fallback
+    function useQRCodeAPI(container, data, modal) {
+        const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(data);
+        const img = document.createElement('img');
+        img.src = qrApiUrl;
+        img.alt = 'QR Code';
+        img.className = 'img-fluid';
+        img.style.maxWidth = '100%';
+        img.onerror = function() {
+            if (container) {
+                container.innerHTML = '<p class="text-danger">Gagal memuat QR Code. Pastikan koneksi internet aktif.</p>';
+            }
+        };
+        img.onload = function() {
+            if (container) {
+                // Clear container first
+                container.innerHTML = '';
+                container.appendChild(img);
+            }
+            // Show modal after image is loaded (if modal provided)
+            if (modal) {
+                showModal(modal);
+            }
+        };
+    }
+    
+    // Function to show modal
+    function showModal(modal) {
+        try {
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        } catch (e) {
+            // Fallback if Bootstrap Modal not available
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    // Print Barcode
+    window.printBarcode = function() {
+        // Ensure QR code is loaded before printing
+        const printBarcode = document.getElementById('print-barcode');
+        if (printBarcode && printBarcode.children.length === 0) {
+            // QR code not generated yet, generate it first
+            const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+            if (typeof QRCode !== 'undefined' && window.qrcodeLoaded) {
+                QRCode.toCanvas(printBarcode, barcodeData, {
+                    width: 300,
+                    margin: 3,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, function (error) {
+                    if (error) {
+                        // Use API fallback
+                        useQRCodeAPI(printBarcode, barcodeData, null);
+                    }
+                    // Wait a bit then print
+                    setTimeout(function() {
+                        window.print();
+                    }, 500);
+                });
+            } else {
+                // Use API fallback
+                useQRCodeAPI(printBarcode, barcodeData, null);
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            }
+        } else {
+            // QR code already loaded, print immediately
+            window.print();
+        }
+    };
+
+    // Generate QR Code on page load
+    let qrCodeRetryCount = 0;
+    const maxRetries = 50; // Maximum 5 seconds (50 * 100ms)
+    
+    function generateQRCode() {
         const container = document.getElementById('barcode-{{ $inventaris->id }}');
         
-        if (container) {
+        if (!container) {
+            console.error('QR Code container not found');
+            return;
+        }
+        
+        // Check if QRCode library is loaded
+        if (typeof QRCode === 'undefined' || !window.qrcodeLoaded) {
+            qrCodeRetryCount++;
+            
+            if (qrCodeRetryCount >= maxRetries) {
+                // Max retries reached, use API fallback
+                console.log('QRCode library failed to load after ' + maxRetries + ' attempts, using API fallback');
+                if (qrCodeRetryCount === maxRetries) {
+                    // Try fallback CDN loader once more
+                    if (typeof window.loadQRCodeFallback === 'function') {
+                        window.loadQRCodeFallback();
+                        setTimeout(generateQRCode, 500);
+                        return;
+                    }
+                }
+                // If still not loaded, use API fallback
+                const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+                const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+                container.innerHTML = '<div class="text-center">' +
+                    '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;" onerror="this.parentElement.innerHTML=\'<div class=\\\'alert alert-warning\\\'><i class=\\\'fas fa-exclamation-triangle\\\'></i> QR Code tidak dapat dimuat.</div>\'">' +
+                    '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
+                    '</div>';
+                return;
+            }
+            
+            // Retry after 100ms
+            setTimeout(generateQRCode, 100);
+            return;
+        }
+
+        // Library is loaded, generate QR code
+        const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+        
+        // Clear loading indicator
+        container.innerHTML = '';
+        
+        // Generate QR Code directly to container
+        try {
             QRCode.toCanvas(container, barcodeData, {
                 width: 200,
                 margin: 2,
@@ -590,50 +887,63 @@
             }, function (error) {
                 if (error) {
                     console.error('Error generating QR Code:', error);
-                    container.innerHTML = '<p class="text-danger">Gagal generate QR Code</p>';
+                    // Fallback to API
+                    const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+                    container.innerHTML = '<div class="text-center">' +
+                        '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;">' +
+                        '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
+                        '</div>';
+                } else {
+                    console.log('QR Code generated successfully');
                 }
             });
+        } catch (e) {
+            console.error('Exception generating QR Code:', e);
+            // Fallback to API
+            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+            container.innerHTML = '<div class="text-center">' +
+                '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;">' +
+                '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
+                '</div>';
         }
-    });
-
-    // Show Barcode Modal
-    function showBarcodeModal() {
-        const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
-        const modal = document.getElementById('barcodePrintModal');
-        const printBarcode = document.getElementById('print-barcode');
-        
-        if (!modal || !printBarcode) {
-            console.error('Modal or print barcode element not found');
-            return;
-        }
-        
-        // Clear previous QR code
-        printBarcode.innerHTML = '';
-        
-        // Generate new QR code
-        QRCode.toCanvas(printBarcode, barcodeData, {
-            width: 300,
-            margin: 3,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
-            }
-        }, function (error) {
-            if (error) {
-                console.error('Error generating QR Code:', error);
-                printBarcode.innerHTML = '<p class="text-danger">Gagal generate QR Code</p>';
-            } else {
-                // Show modal after QR code is generated
-                const bsModal = new bootstrap.Modal(modal);
-                bsModal.show();
-            }
-        });
     }
 
-    // Print Barcode
-    function printBarcode() {
-        window.print();
+    // Initialize when DOM is ready and library is loaded
+    function initializeQRCode() {
+        // Set callback for when library loads
+        window.qrcodeReadyCallback = function() {
+            if (typeof generateQRCode === 'function') {
+                generateQRCode();
+            }
+        };
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                // Wait a bit for external scripts to load
+                setTimeout(function() {
+                    if (typeof QRCode !== 'undefined' || window.qrcodeLoaded) {
+                        generateQRCode();
+                    } else {
+                        // Library not loaded yet, start retry mechanism
+                        generateQRCode();
+                    }
+                }, 500);
+            });
+        } else {
+            // DOM already loaded
+            setTimeout(function() {
+                if (typeof QRCode !== 'undefined' || window.qrcodeLoaded) {
+                    generateQRCode();
+                } else {
+                    // Library not loaded yet, start retry mechanism
+                    generateQRCode();
+                }
+            }, 500);
+        }
     }
+    
+    // Start initialization after all functions are defined
+    initializeQRCode();
 </script>
 @endpush
 
@@ -714,7 +1024,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="min-width: 100px;">
                     <i class="fas fa-times me-2"></i>Tutup
                 </button>
-                <button type="button" class="btn btn-success" onclick="printBarcode()" style="min-width: 120px; background: var(--pln-blue); border-color: var(--pln-blue);">
+                <button type="button" class="btn btn-success" onclick="window.printBarcode && window.printBarcode()" style="min-width: 120px; background: var(--pln-blue); border-color: var(--pln-blue);">
                     <i class="fas fa-print me-2"></i>Print
                 </button>
             </div>
@@ -752,33 +1062,93 @@
 
     /* Print Styles */
     @media print {
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        
         body * {
             visibility: hidden;
         }
+        
+        #barcodePrintModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background: white !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .modal-dialog {
+            max-width: 100% !important;
+            margin: 0 !important;
+            height: 100% !important;
+        }
+        
+        .modal-content {
+            border: none !important;
+            box-shadow: none !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+        }
+        
+        .modal-header, .modal-footer {
+            display: none !important;
+        }
+        
+        .modal-body {
+            padding: 20mm !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
         #barcode-print-content, #barcode-print-content * {
-            visibility: visible;
+            visibility: visible !important;
         }
+        
         #barcode-print-content {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            max-width: 600px;
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto;
         }
-        .modal-footer, .modal-header {
-            display: none;
-        }
+        
         .barcode-info-card {
             border: 2px solid #000 !important;
             box-shadow: none !important;
+            background: white !important;
         }
+        
         .qr-code-wrapper {
             border: 2px solid #000 !important;
             box-shadow: none !important;
+            background: white !important;
         }
+        
+        .qr-code-wrapper img,
+        .qr-code-wrapper canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
         .barcode-text {
             border: 1px solid #000 !important;
+            background: white !important;
+        }
+        
+        /* Hide everything else */
+        .navbar, .sidebar, header, footer, .btn, button:not(.print-only) {
+            display: none !important;
         }
     }
 </style>
@@ -786,9 +1156,18 @@
 @if(session('show_barcode'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            showBarcodeModal();
-        }, 500);
+        // Wait for showBarcodeModal function to be available
+        function tryShowModal() {
+            if (typeof window.showBarcodeModal === 'function') {
+                setTimeout(function() {
+                    window.showBarcodeModal();
+                }, 1000);
+            } else {
+                // Retry after 100ms
+                setTimeout(tryShowModal, 100);
+            }
+        }
+        tryShowModal();
     });
 </script>
 @endif

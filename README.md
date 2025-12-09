@@ -2,7 +2,7 @@
 
 Aplikasi web untuk mengelola aset dan properti perusahaan PLN Icon Plus. Sistem ini dibuat untuk memudahkan tracking inventaris, kontrak, lokasi kantor, dan data terkait lainnya dalam satu platform terpusat.
 
-## 📋 Tentang Project
+##  Tentang Project
 
 Project ini dikembangkan untuk kebutuhan internal PLN Icon Plus dalam mengelola semua data aset dan properti perusahaan. Mulai dari inventaris barang, kontrak perjanjian, hingga informasi detail setiap kantor bisa diakses dan dikelola melalui sistem ini.
 
@@ -10,7 +10,7 @@ Sistem ini punya dua bagian utama:
 - **Halaman Public**: Untuk melihat informasi umum seperti peta lokasi kantor, profil perusahaan, dan scan barcode inventaris
 - **Halaman Admin**: Untuk mengelola semua data dengan akses berdasarkan role pengguna
 
-## ✨ Fitur Utama
+##  Fitur Utama
 
 ### 1. Manajemen Inventaris
 - CRUD lengkap untuk data inventaris
@@ -69,7 +69,7 @@ Fitur lengkap untuk kelola data:
 - Scan QR Code langsung redirect ke halaman peta dengan auto-open modal kantor
 - Highlight inventaris yang di-scan di daftar inventaris
 
-## 🛠️ Teknologi yang Digunakan
+##  Teknologi yang Digunakan
 
 - **Backend**: Laravel 10
 - **Frontend**: Blade Templates, Bootstrap 5, JavaScript (Vanilla)
@@ -80,7 +80,7 @@ Fitur lengkap untuk kelola data:
 - **Excel**: Maatwebsite Excel untuk import/export
 - **MFA**: Google2FA untuk two-factor authentication
 
-## 📦 Requirements
+##  Requirements
 
 - PHP >= 8.1
 - Composer
@@ -88,7 +88,7 @@ Fitur lengkap untuk kelola data:
 - MySQL 5.7+ atau MariaDB 10.3+
 - Web server (Apache/Nginx) atau Laragon untuk development
 
-## 🚀 Instalasi
+##  Instalasi
 
 ### 1. Clone Repository
 ```bash
@@ -174,7 +174,7 @@ $admin = App\Models\Admin::create([
 
 **Note**: Ganti email dan password sesuai kebutuhan, dan jangan lupa setup MFA setelah login pertama kali.
 
-## 📁 Struktur Project
+##  Struktur Project
 
 ```
 office_management-berbasis-crud/
@@ -198,7 +198,7 @@ office_management-berbasis-crud/
 └── storage/                # Storage untuk uploads
 ```
 
-## 🔑 Fitur Keamanan
+##  Fitur Keamanan
 
 ### Multi-Factor Authentication (MFA)
 Setiap admin wajib setup MFA setelah login pertama. Sistem menggunakan Google Authenticator untuk 2FA. Backup codes disediakan untuk recovery jika kehilangan akses ke authenticator.
@@ -218,7 +218,7 @@ Semua aktivitas penting dicatat di audit log:
 - Perubahan role atau akses
 - Aktivitas penting lainnya
 
-## 📊 Fitur Analytics
+##  Fitur Analytics
 
 Dashboard analytics menampilkan:
 - Total kantor, gedung, ruang
@@ -227,7 +227,7 @@ Dashboard analytics menampilkan:
 - Chart okupansi ruang
 - Activity log terbaru
 
-## 🗺️ Fitur Peta
+##  Fitur Peta
 
 Peta interaktif menggunakan Leaflet.js dengan fitur:
 - Marker berbeda warna per jenis kantor
@@ -236,7 +236,7 @@ Peta interaktif menggunakan Leaflet.js dengan fitur:
 - Filter berdasarkan kota dan jenis
 - Auto-zoom ke lokasi yang dipilih
 
-## 📱 Scan Barcode
+##  Scan Barcode
 
 Setiap inventaris punya QR Code yang bisa:
 - Di-print dan ditempel di barang fisik
@@ -244,7 +244,7 @@ Setiap inventaris punya QR Code yang bisa:
 - Auto-redirect ke halaman peta dengan modal kantor terbuka
 - Highlight item yang di-scan di daftar inventaris
 
-## 🔄 Import & Export
+##  Import & Export
 
 ### Import Data
 - Support format Excel (.xlsx) dan CSV
@@ -258,7 +258,7 @@ Setiap inventaris punya QR Code yang bisa:
 - Filter data sebelum export
 - Support export berbagai jenis data
 
-## 🗄️ Backup & Restore
+##  Backup & Restore
 
 Fitur backup database:
 - Backup otomatis atau manual
@@ -266,7 +266,7 @@ Fitur backup database:
 - Restore dari backup file
 - Log backup history
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Error "Class not found"
 ```bash
@@ -286,7 +286,7 @@ Pastikan library qrcode.js sudah ter-load. Cek console browser untuk error JavaS
 ### Modal tidak muncul
 Pastikan Bootstrap 5 sudah ter-load dengan benar. Cek apakah ada error JavaScript di console.
 
-## 📝 Catatan Development
+##  Catatan Development
 
 - Project ini menggunakan Laravel 10 dengan PHP 8.1+
 - Untuk development, disarankan pakai Laragon atau Laravel Sail
@@ -294,7 +294,7 @@ Pastikan Bootstrap 5 sudah ter-load dengan benar. Cek apakah ada error JavaScrip
 - Jangan commit file `.env` ke repository
 - Gunakan `php artisan optimize:clear` jika ada masalah cache
 
-## 🤝 Kontribusi
+##  Kontribusi
 
 Untuk kontribusi ke project ini:
 1. Fork repository
@@ -303,15 +303,15 @@ Untuk kontribusi ke project ini:
 4. Push ke branch (`git push origin feature/AmazingFeature`)
 5. Buat Pull Request
 
-## 📄 License
+## License
 
-Project ini untuk penggunaan internal PLN Icon Plus.
+Project ini untuk penggunaan interna.
 
-## 👨‍💻 Developer
+##  Developer
 
-Dikembangkan untuk kebutuhan internal PLN Icon Plus.
+Dikembangkan untuk kebutuhan internal.
 
 ---
 
-**Note**: Untuk pertanyaan atau issue, silakan buat issue di repository atau hubungi tim development.
+**Note**: Untuk pertanyaan atau issue, silakan buat issue di repository atau hubungi development.
 
