@@ -4962,8 +4962,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('public.directory') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.directory') }}">
-                            <i class="fas fa-building d-lg-none me-2"></i> Directory
+                        <a class="nav-link {{ request()->routeIs('public.help') ? 'active' : '' }} px-3 py-2 mx-1" href="{{ route('public.help') }}">
+                            <i class="fas fa-phone d-lg-none me-2"></i> Kontak
                         </a>
                     </li>
                     <li class="nav-item">
@@ -5133,8 +5133,8 @@
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{{ route('public.home') }}" class="text-decoration-none text-white-50">Beranda</a></li>
                         <li class="mb-2"><a href="{{ route('public.peta') }}" class="text-decoration-none text-white-50">Peta Kantor</a></li>
-                        <li class="mb-2"><a href="{{ route('public.directory') }}" class="text-decoration-none text-white-50">Directory</a></li>
-                        <li><a href="#" class="text-decoration-none text-white-50">Tentang Kami</a></li>
+                        <li class="mb-2"><a href="{{ route('public.help') }}" class="text-decoration-none text-white-50">Kontak</a></li>
+                        <li><a href="{{ route('public.about') }}" class="text-decoration-none text-white-50">Tentang Kami</a></li>
                     </ul>
                 </div>
 

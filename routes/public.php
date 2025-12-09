@@ -19,11 +19,18 @@ Route::get('/', [PublicController::class, 'home'])->name('public.home');
 // Peta - Map Interaktif
 Route::get('/peta', [PublicController::class, 'peta'])->name('public.peta');
 
-// Directory Kantor
-Route::get('/directory', [PublicController::class, 'directory'])->name('public.directory');
+// Bantuan / Help
+Route::get('/bantuan', [PublicController::class, 'help'])->name('public.help');
 
 // Profil Perusahaan
 Route::get('/profil', [PublicController::class, 'about'])->name('public.about');
+
+// Scan Barcode Inventaris
+Route::get('/scan-barcode', [PublicController::class, 'scanBarcode'])->name('public.scan-barcode');
+Route::post('/scan-barcode/result', [PublicController::class, 'scanResult'])->name('public.scan-result');
+
+// Detail Inventaris Public (Info Terbatas)
+Route::get('/inventaris/{id}', [PublicController::class, 'inventarisDetail'])->name('public.inventaris.detail');
 
 
 Route::prefix('api')

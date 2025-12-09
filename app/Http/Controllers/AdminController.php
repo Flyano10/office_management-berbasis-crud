@@ -18,7 +18,11 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Admin::with(['region', 'bidang', 'kantor']);
+        // Optimize: Select specific columns & eager load only needed relationships
+        $query = Admin::with([
+            'bidang:id,nama_bidang',
+            'kantor:id,nama_kantor'
+        ])->select('admin.*');
 
         // Fungsi pencarian
         if ($request->filled('search')) {
@@ -88,10 +92,18 @@ class AdminController extends Controller
 
         $admins = $query->paginate(10)->appends(request()->query());
 
-        // Load data untuk filter dropdown
-        $regions = \App\Models\Provinsi::all();
-        $bidangs = \App\Models\Bidang::all();
-        $kantors = \App\Models\Kantor::all();
+        // Load data untuk filter dropdown dengan cache & select specific columns
+        $regions = \Illuminate\Support\Facades\Cache::remember('admin.filter.regions', 600, function () {
+            return \App\Models\Provinsi::select('id', 'nama_provinsi')->orderBy('nama_provinsi')->get();
+        });
+        
+        $bidangs = \Illuminate\Support\Facades\Cache::remember('admin.filter.bidangs', 600, function () {
+            return \App\Models\Bidang::select('id', 'nama_bidang')->orderBy('nama_bidang')->get();
+        });
+        
+        $kantors = \Illuminate\Support\Facades\Cache::remember('admin.filter.kantors', 600, function () {
+            return \App\Models\Kantor::select('id', 'nama_kantor')->orderBy('nama_kantor')->get();
+        });
 
         return view('admin.index', compact('admins', 'regions', 'bidangs', 'kantors'));
     }
@@ -111,10 +123,18 @@ class AdminController extends Controller
                     'message' => 'Staf tidak diizinkan membuat admin.'
                 ]);
         }
-        // Load data untuk dropdown (regions tetap dipassing untuk kompatibilitas view)
-        $regions = \App\Models\Provinsi::all();
-        $bidangs = \App\Models\Bidang::all();
-        $kantors = \App\Models\Kantor::all();
+        // Load data untuk dropdown dengan cache & select specific columns
+        $regions = \Illuminate\Support\Facades\Cache::remember('admin.filter.regions', 600, function () {
+            return \App\Models\Provinsi::select('id', 'nama_provinsi')->orderBy('nama_provinsi')->get();
+        });
+        
+        $bidangs = \Illuminate\Support\Facades\Cache::remember('admin.filter.bidangs', 600, function () {
+            return \App\Models\Bidang::select('id', 'nama_bidang')->orderBy('nama_bidang')->get();
+        });
+        
+        $kantors = \Illuminate\Support\Facades\Cache::remember('admin.filter.kantors', 600, function () {
+            return \App\Models\Kantor::select('id', 'nama_kantor')->orderBy('nama_kantor')->get();
+        });
 
         return view('admin.create', compact('regions', 'bidangs', 'kantors'));
     }
@@ -288,7 +308,11 @@ class AdminController extends Controller
     public function show(Request $request, string $id)
     {
         $actor = auth('admin')->user();
-        $admin = Admin::with(['region', 'bidang', 'kantor'])->findOrFail($id);
+        // Optimize: Select specific columns & eager load only needed relationships
+        $admin = Admin::with([
+            'bidang:id,nama_bidang',
+            'kantor:id,nama_kantor'
+        ])->select('admin.*')->findOrFail($id);
 
         if ($actor && !in_array($actor->role, ['super_admin','admin'], true)) {
             if ($actor->role === 'staf') {
@@ -356,10 +380,18 @@ class AdminController extends Controller
                 ]);
         }
 
-        // Load data untuk dropdown
-        $regions = \App\Models\Provinsi::all();
-        $bidangs = \App\Models\Bidang::all();
-        $kantors = \App\Models\Kantor::all();
+        // Load data untuk dropdown dengan cache & select specific columns
+        $regions = \Illuminate\Support\Facades\Cache::remember('admin.filter.regions', 600, function () {
+            return \App\Models\Provinsi::select('id', 'nama_provinsi')->orderBy('nama_provinsi')->get();
+        });
+        
+        $bidangs = \Illuminate\Support\Facades\Cache::remember('admin.filter.bidangs', 600, function () {
+            return \App\Models\Bidang::select('id', 'nama_bidang')->orderBy('nama_bidang')->get();
+        });
+        
+        $kantors = \Illuminate\Support\Facades\Cache::remember('admin.filter.kantors', 600, function () {
+            return \App\Models\Kantor::select('id', 'nama_kantor')->orderBy('nama_kantor')->get();
+        });
 
         return view('admin.edit', compact('admin', 'regions', 'bidangs', 'kantors'));
     }

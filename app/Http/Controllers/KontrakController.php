@@ -17,7 +17,8 @@ class KontrakController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Kontrak::with(['kantor']);
+        // Optimize: Select specific columns & eager load only needed relationships
+        $query = Kontrak::with(['kantor:id,nama_kantor'])->select('kontrak.*');
 
         // Scoping berdasarkan role (kantor)
         $actor = auth('admin')->user();
@@ -42,7 +43,8 @@ class KontrakController extends Controller
             $query->whereDate('tanggal_mulai', '<=', $request->tanggal_mulai_sampai);
         }
 
-        $kontrak = $query->orderBy('created_at', 'desc')->get();
+        // Optimize: Add pagination instead of get() to prevent loading all data
+        $kontrak = $query->orderBy('created_at', 'desc')->paginate(20)->appends(request()->query());
 
         return view('kontrak.index', compact('kontrak'));
     }
@@ -53,10 +55,21 @@ class KontrakController extends Controller
     public function create()
     {
         $actor = auth('admin')->user();
+        // Optimize: Cache & select specific columns
         if ($actor && in_array($actor->role, ['admin_regional', 'manager_bidang', 'staf'], true)) {
-            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.kontrak.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')
+                    ->where('status_kantor', 'aktif')
+                    ->where('id', $actor->kantor_id)
+                    ->get();
+            });
         } else {
-            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember('admin.kontrak.kantor.all', 600, function () {
+                return Kantor::select('id', 'nama_kantor')
+                    ->where('status_kantor', 'aktif')
+                    ->orderBy('nama_kantor')
+                    ->get();
+            });
         }
         
         return view('kontrak.create', compact('kantor'));
@@ -135,8 +148,12 @@ class KontrakController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $kontrak = Kontrak::with(['kantor.kota.provinsi'])
-            ->findOrFail($id);
+        // Optimize: Select specific columns & eager load only needed relationships
+        $kontrak = Kontrak::with([
+            'kantor:id,nama_kantor',
+            'kantor.kota:id,nama_kota',
+            'kantor.kota.provinsi:id,nama_provinsi'
+        ])->select('kontrak.*')->findOrFail($id);
 
         // Scoping akses lihat
         $actor = auth('admin')->user();
@@ -173,9 +190,19 @@ class KontrakController extends Controller
                         'message' => 'Anda tidak memiliki akses untuk mengedit kontrak ini!'
                     ]);
             }
-            $kantor = Kantor::where('status_kantor', 'aktif')->where('id', $actor->kantor_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.kontrak.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')
+                    ->where('status_kantor', 'aktif')
+                    ->where('id', $actor->kantor_id)
+                    ->get();
+            });
         } else {
-            $kantor = Kantor::where('status_kantor', 'aktif')->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember('admin.kontrak.kantor.all', 600, function () {
+                return Kantor::select('id', 'nama_kantor')
+                    ->where('status_kantor', 'aktif')
+                    ->orderBy('nama_kantor')
+                    ->get();
+            });
         }
         
         return view('kontrak.edit', compact('kontrak', 'kantor'));

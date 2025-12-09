@@ -4,18 +4,28 @@
 
 @push('styles')
 <style>
- /* Popup Leaflet - Clean look */
+ :root {
+  --pln-blue: #21618C;
+  --pln-blue-dark: #1A4D73;
+  --pln-blue-light: #2E86AB;
+  --pln-blue-lighter: #E8F4F8;
+  --pln-blue-bg: #F5FAFC;
+  --text-dark: #1A1A1A;
+  --text-gray: #6C757D;
+ }
+
+ /* Popup Leaflet - Professional look */
  .leaflet-popup.custom-popup .leaflet-popup-content-wrapper {
   background: #ffffff;
-  border: 1px solid #1D5C7F;
-  border-radius: 14px;
-  box-shadow: 0 16px 42px rgba(15, 61, 87, 0.2);
+  border: 1px solid var(--pln-blue);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(33, 97, 140, 0.15);
   padding: 0;
   overflow: hidden;
  }
  .leaflet-popup.custom-popup .leaflet-popup-tip {
   background: #ffffff;
-  border: 1px solid #1D5C7F;
+  border: 1px solid var(--pln-blue);
   box-shadow: none;
  }
  .leaflet-popup.custom-popup .leaflet-popup-content {
@@ -27,35 +37,40 @@
   overflow-y: auto;
 }
  .custom-popup .popup-header {
-  background: #1D5C7F;
-  padding: 10px 12px;
+  background: var(--pln-blue);
+  padding: 12px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px 12px 0 0;
+  border-radius: 8px 8px 0 0;
  }
- .custom-popup .popup-header h6 { margin: 0 0 2px; font-weight: 700; font-size: 0.95rem; color:#ffffff; }
- .custom-popup .popup-header p { margin: 0; color: rgba(255,255,255,0.88); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+ .custom-popup .popup-header h6 { margin: 0 0 4px; font-weight: 700; font-size: 0.95rem; color:#ffffff; }
+ .custom-popup .popup-header p { margin: 0; color: rgba(255,255,255,0.9); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.875rem; }
  .custom-popup .popup-header .text-white { color:#ffffff !important; }
  .custom-popup .popup-header .text-white-50 { color: rgba(255,255,255,0.75) !important; }
  .custom-popup .popup-header .employee-summary { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color:#ffffff; }
- .custom-popup .employee-summary { background: rgba(29, 92, 127, 0.06); border:1px solid #1D5C7F; border-radius: 10px; color:#1D5C7F; }
+ .custom-popup .employee-summary { background: var(--pln-blue-lighter); border:1px solid var(--pln-blue); border-radius: 8px; color:var(--pln-blue); }
  .custom-popup .nav.nav-tabs.nav-sm {
-  border-bottom: 1px solid #1D5C7F;
+  border-bottom: 1px solid var(--pln-blue);
   padding: 0 12px;
   gap: 8px;
  }
  .custom-popup .nav.nav-tabs.nav-sm .nav-link {
   border: none;
   border-bottom: 2px solid transparent;
-  padding: 8px 8px;
-  font-size: .8rem;
-  color: rgba(29,92,127,0.8);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: rgba(33,97,140,0.8);
   background: transparent;
   border-radius: 0;
+  transition: all 0.2s ease;
+ }
+ .custom-popup .nav.nav-tabs.nav-sm .nav-link:hover {
+  color: var(--pln-blue);
+  background: rgba(33,97,140,0.05);
  }
  .custom-popup .nav.nav-tabs.nav-sm .nav-link.active {
-  color: #1D5C7F;
+  color: var(--pln-blue);
   font-weight: 600;
-  border-bottom-color: #1D5C7F;
+  border-bottom-color: var(--pln-blue);
   background: transparent;
  }
 .custom-popup .tab-content { 
@@ -66,33 +81,428 @@
 .custom-popup .popup-body { 
   padding: 8px 0; 
 }
- .custom-popup .badge { border-radius: 999px; font-weight: 600; padding:4px 8px; line-height: 1; }
- .custom-popup .badge i { font-size: .8rem; }
+ .custom-popup .badge { border-radius: 6px; font-weight: 600; padding:4px 8px; line-height: 1.2; font-size: 0.75rem; }
+ .custom-popup .badge i { font-size: 0.75rem; }
  .custom-popup .d-flex.align-items-center { gap: 6px; }
- .custom-popup i.fas { font-size: .85rem; }
+ .custom-popup i.fas { font-size: 0.85rem; }
  /* Two-color scheme for badges and text inside popup */
  .custom-popup .bg-warning-subtle,
  .custom-popup .bg-success-subtle,
  .custom-popup .bg-info-subtle,
  .custom-popup .bg-primary-subtle,
- .custom-popup .bg-secondary-subtle { background: rgba(29, 92, 127, 0.1) !important; color:#1D5C7F !important; border:1px solid #1D5C7F !important; }
+ .custom-popup .bg-secondary-subtle { background: var(--pln-blue-lighter) !important; color:var(--pln-blue) !important; border:1px solid var(--pln-blue) !important; }
  .custom-popup .text-warning-emphasis,
  .custom-popup .text-success-emphasis,
  .custom-popup .text-info-emphasis,
  .custom-popup .text-primary-emphasis,
- .custom-popup .text-secondary-emphasis { color:#1D5C7F !important; }
+ .custom-popup .text-secondary-emphasis { color:var(--pln-blue) !important; }
  .custom-popup .text-primary,
  .custom-popup .text-info,
  .custom-popup .text-success,
  .custom-popup .text-warning,
- .custom-popup .text-secondary { color:#1D5C7F !important; }
- .custom-popup .btn { border-radius: 10px; box-shadow: none !important; }
- .custom-popup .btn.btn-primary { background:#1D5C7F; border-color:#1D5C7F; }
- .custom-popup .btn.btn-outline-info { border-color:#1D5C7F; color:#1D5C7F; }
- .custom-popup .btn.btn-outline-info:hover { background:#1D5C7F; color:#fff; }
- .custom-popup small { color:#1D5C7F; }
+ .custom-popup .text-secondary { color:var(--pln-blue) !important; }
+ .custom-popup .btn { border-radius: 6px; box-shadow: none !important; transition: all 0.2s ease; }
+ .custom-popup .btn.btn-primary { background:var(--pln-blue); border-color:var(--pln-blue); }
+ .custom-popup .btn.btn-primary:hover { background:var(--pln-blue-dark); border-color:var(--pln-blue-dark); }
+ .custom-popup .btn.btn-outline-info { border-color:var(--pln-blue); color:var(--pln-blue); }
+ .custom-popup .btn.btn-outline-info:hover { background:var(--pln-blue); color:#fff; }
+ .custom-popup small { color:var(--pln-blue); }
  .custom-popup .icon.icon-18 { width:14px; height:14px; }
- @media (max-width: 420px){ .custom-popup .popup-container{ width: 300px; } }
+
+ /* Peta Dashboard Panel */
+ .peta-dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+ }
+
+ .peta-dashboard-panel {
+  width: 360px;
+  background: #ffffff;
+  border-right: 1px solid rgba(33, 97, 140, 0.15);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  box-shadow: 2px 0 8px rgba(33, 97, 140, 0.08);
+ }
+
+ .peta-dashboard-panel.collapsed {
+  width: 0;
+  overflow: hidden;
+  border-right: none;
+ }
+
+ .panel-header {
+  padding: 1.25rem 1.5rem;
+  background: var(--pln-blue);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+ }
+
+ .panel-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 0.25rem;
+ }
+
+ .panel-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+ }
+
+ .panel-collapse {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+ }
+
+ .panel-collapse:hover {
+  background: rgba(255, 255, 255, 0.1);
+ }
+
+ .panel-divider {
+  height: 1px;
+  background: rgba(33, 97, 140, 0.1);
+  margin: 0;
+ }
+
+ .panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+ }
+
+ .stats-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+ }
+
+ .stat-card {
+  background: white;
+  border: 1px solid rgba(33, 97, 140, 0.15);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+ }
+
+ .stat-card:hover {
+  border-color: var(--pln-blue);
+  box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+ }
+
+ .stat-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--pln-blue-lighter);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pln-blue);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+ }
+
+ .stat-label {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+  margin-bottom: 0.25rem;
+ }
+
+ .stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--pln-blue);
+  line-height: 1;
+ }
+
+ .panel-summary {
+  padding: 1rem;
+  background: var(--pln-blue-bg);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(33, 97, 140, 0.1);
+ }
+
+ .summary-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-gray);
+ }
+
+ .summary-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--pln-blue);
+ }
+
+ .panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+ }
+
+ .panel-btn {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--pln-blue);
+  background: white;
+  color: var(--pln-blue);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ }
+
+ .panel-btn:hover {
+  background: var(--pln-blue);
+  color: white;
+ }
+
+ .panel-btn.primary {
+  background: var(--pln-blue);
+  color: white;
+ }
+
+ .panel-btn.primary:hover {
+  background: var(--pln-blue-dark);
+ }
+
+ .panel-legend {
+  margin-bottom: 1.5rem;
+ }
+
+ .legend-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--pln-blue);
+  display: block;
+  margin-bottom: 0.75rem;
+ }
+
+ .legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+ }
+
+ .legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-gray);
+ }
+
+ .legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+ }
+
+ .peta-side-tip {
+  background: var(--pln-blue-lighter);
+  border: 1px solid var(--pln-blue);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+ }
+
+ .peta-side-tip i {
+  color: var(--pln-blue);
+  margin-right: 0.5rem;
+ }
+
+ .peta-side-tip p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-gray);
+  line-height: 1.5;
+ }
+
+ .peta-quick-section h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--pln-blue);
+  margin-bottom: 0.75rem;
+ }
+
+ .peta-quick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+ }
+
+ .peta-quick-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--pln-blue-bg);
+  border-radius: 8px;
+  border: 1px solid rgba(33, 97, 140, 0.1);
+ }
+
+ .peta-quick-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--pln-blue);
+  color: white;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+ }
+
+ .peta-quick-item strong {
+  font-size: 0.875rem;
+  color: var(--pln-blue);
+  display: block;
+  margin-bottom: 0.25rem;
+ }
+
+ .peta-quick-item p {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+  margin: 0;
+  line-height: 1.4;
+ }
+
+ .peta-dashboard-map {
+  flex: 1;
+  position: relative;
+ }
+
+ .peta-map {
+  width: 100%;
+  height: 100%;
+ }
+
+ .map-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+ }
+
+ .map-control {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid rgba(33, 97, 140, 0.15);
+  border-radius: 8px;
+  color: var(--pln-blue);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(33, 97, 140, 0.1);
+ }
+
+ .map-control:hover {
+  background: var(--pln-blue);
+  color: white;
+  border-color: var(--pln-blue);
+ }
+
+ /* Modal Styling */
+ .peta-modal {
+  border-radius: 8px;
+  border: 1px solid rgba(33, 97, 140, 0.15);
+  overflow: hidden;
+ }
+
+ .peta-modal-header {
+  background: var(--pln-blue);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .peta-modal-header .modal-title {
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin: 0;
+ }
+
+ .peta-modal-header .btn-close {
+  filter: brightness(0) invert(1);
+ }
+
+ .peta-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--pln-blue);
+  margin-bottom: 0.5rem;
+ }
+
+ .peta-input,
+ .peta-select {
+  border: 1px solid rgba(33, 97, 140, 0.15);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+ }
+
+ .peta-input:focus,
+ .peta-select:focus {
+  border-color: var(--pln-blue);
+  box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.1);
+ }
+
+ @media (max-width: 420px){ 
+  .custom-popup .popup-container{ width: 300px; } 
+  .peta-dashboard-panel {
+   width: 100%;
+   position: absolute;
+   z-index: 1000;
+   height: 100%;
+  }
+  .peta-dashboard-panel.collapsed {
+   transform: translateX(-100%);
+  }
+ }
 </style>
 @endpush
 
@@ -534,6 +944,9 @@ function addMarkersToMap(kantorData) {
                     updateDetailPanel(kantor);
                 });
             
+            // Store kantor ID in marker for barcode scan lookup
+            marker._kantorId = kantor.id;
+            
             // Add click event to marker
             marker.on('click', function(e) {
                 // Update detail panel if function exists
@@ -969,7 +1382,7 @@ function loadInventarisModal(kantorId) {
             data.forEach(item => {
                 const kondisiClass = getKondisiClass(item.kondisi);
                 inventarisHTML += `
-                    <tr>
+                    <tr data-inventaris-id="${item.id || ''}">
                         <td><strong>${item.nama_barang}</strong></td>
                         <td><span class="badge bg-info">${item.kode_inventaris}</span></td>
                         <td><span class="badge bg-secondary">${item.kategori}</span></td>
@@ -2580,6 +2993,98 @@ function restoreOverlayState() {
         console.warn('Unable to restore overlay state:', error);
     }
 }
+
+// Handle barcode scan - Auto open modal and highlight inventaris
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const kantorId = urlParams.get('kantor_id');
+    const inventarisId = urlParams.get('inventaris_id');
+    const tab = urlParams.get('tab');
+    
+    if (kantorId && tab === 'inventaris') {
+        // Wait for map and markers to be loaded
+        setTimeout(function() {
+            // Find marker for this kantor
+            const marker = markers.find(m => {
+                const popup = m.getPopup();
+                if (popup) {
+                    const content = popup.getContent();
+                    if (content && content.includes(`kantor.id}`)) {
+                        // Extract kantor id from marker data
+                        return m._kantorId == kantorId;
+                    }
+                }
+                return false;
+            });
+            
+            if (marker) {
+                // Open popup
+                marker.openPopup();
+                
+                // Wait for popup to open, then switch to inventaris tab
+                setTimeout(function() {
+                    // Click inventaris tab
+                    const inventarisTab = document.getElementById(`inventaris-tab-${kantorId}`);
+                    if (inventarisTab) {
+                        inventarisTab.click();
+                        
+                        // Load inventaris data if not loaded
+                        if (!window[`inventarisLoaded_${kantorId}`]) {
+                            loadInventaris(kantorId);
+                            window[`inventarisLoaded_${kantorId}`] = true;
+                        }
+                        
+                        // Wait for inventaris to load, then highlight
+                        if (inventarisId) {
+                            setTimeout(function() {
+                                highlightInventaris(inventarisId);
+                            }, 1000);
+                        }
+                    }
+                }, 500);
+            }
+        }, 1000);
+    }
+    
+    // Show success message if scan was successful
+    @if(session('scan_success'))
+        setTimeout(function() {
+            alert('{{ session('scan_success') }}');
+        }, 1500);
+    @endif
+});
+
+// Function to highlight specific inventaris in the list
+function highlightInventaris(inventarisId) {
+    const inventarisContainer = document.querySelector(`[data-inventaris-id="${inventarisId}"]`);
+    if (inventarisContainer) {
+        // Scroll to element
+        inventarisContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add highlight class
+        inventarisContainer.classList.add('highlight-inventaris');
+        
+        // Remove highlight after 3 seconds
+        setTimeout(function() {
+            inventarisContainer.classList.remove('highlight-inventaris');
+        }, 3000);
+    }
+}
 </script>
+
+<style>
+.highlight-inventaris {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    border-radius: 8px;
+    padding: 8px;
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+</style>
 
 @endpush

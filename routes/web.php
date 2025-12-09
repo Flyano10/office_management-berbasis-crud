@@ -92,9 +92,21 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::post('/bulk/export/{model}', [BulkController::class, 'bulkExport'])->name('bulk.export');
     
     // Import operations
+    // Data Management Center routes
     Route::get('/import', [ImportController::class, 'index'])->name('import.index');
     Route::get('/import/download-template', [ImportController::class, 'downloadTemplate'])->name('import.download-template');
     Route::post('/import/process', [ImportController::class, 'processImport'])->name('import.process');
+    
+    // Export routes
+    Route::get('/data-management/export', [ImportController::class, 'exportData'])->name('data-management.export');
+    
+    // Backup & Restore routes
+    Route::post('/data-management/backup', [ImportController::class, 'createBackup'])->name('data-management.backup');
+    Route::get('/data-management/backup/download/{filename}', [ImportController::class, 'downloadBackup'])->name('data-management.download-backup');
+    Route::post('/data-management/restore', [ImportController::class, 'restoreBackup'])->name('data-management.restore');
+    
+    // Report routes
+    Route::get('/data-management/report', [ImportController::class, 'generateReport'])->name('data-management.report');
     
     // Search routes
     Route::get('/search/global', [SearchController::class, 'globalSearch'])->name('search.global');

@@ -10,6 +10,7 @@ use App\Models\Gedung;
 use App\Models\Ruang;
 use Illuminate\Support\Facades\DB;
 use App\Models\Kontrak;
+use App\Models\Inventaris;
 
 class PublicController extends Controller
 {
@@ -46,46 +47,11 @@ class PublicController extends Controller
     }
 
     /**
-     * Directory Kantor
+     * Bantuan / Help
      */
-    public function directory(Request $request)
+    public function help()
     {
-        $query = Kantor::with(['kota:id,nama_kota', 'jenisKantor:id,nama_jenis']);
-
-        // Fungsi pencarian kantor berdasarkan nama atau alamat
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_kantor', 'like', "%{$search}%")
-                  ->orWhere('alamat', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter kantor berdasarkan kota
-        if ($request->filled('kota_id')) {
-            $query->where('kota_id', $request->kota_id);
-        }
-
-        // Filter kantor berdasarkan jenis kantor
-        if ($request->filled('jenis_kantor_id')) {
-            $query->where('jenis_kantor_id', $request->jenis_kantor_id);
-        }
-
-        // Urutkan kantor berdasarkan nama kantor
-        $query->orderBy('nama_kantor', 'asc');
-
-        $kantor = $query->paginate(20)->appends(request()->query());
-
-        // Optimasi: Cache filter options (10 menit)
-        $kota = \Illuminate\Support\Facades\Cache::remember('public.directory.kota', 600, function () {
-            return Kota::select('id', 'nama_kota')->orderBy('nama_kota')->get();
-        });
-        
-        $jenisKantor = \Illuminate\Support\Facades\Cache::remember('public.directory.jenis_kantor', 600, function () {
-            return JenisKantor::select('id', 'nama_jenis')->orderBy('nama_jenis')->get();
-        });
-
-        return view('public.directory', compact('kantor', 'kota', 'jenisKantor'));
+        return view('public.help');
     }
 
     /**
@@ -94,6 +60,58 @@ class PublicController extends Controller
     public function about()
     {
         return view('public.about');
+    }
+
+    /**
+     * Scan Barcode - Halaman untuk scan barcode inventaris
+     */
+    public function scanBarcode()
+    {
+        return view('public.scan-barcode');
+    }
+
+    /**
+     * Scan Result - Hasil scan barcode, redirect ke peta dengan auto-open modal
+     */
+    public function scanResult(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string'
+        ]);
+
+        // Format barcode: KODE_INVENTARIS|NAMA_KANTOR
+        $parts = explode('|', $request->code);
+        
+        if (count($parts) < 2) {
+            return redirect()->route('public.peta')
+                ->with('error', 'Format barcode tidak valid.');
+        }
+
+        $kodeInventaris = $parts[0];
+        $namaKantor = $parts[1];
+
+        // Cari inventaris berdasarkan kode
+        $inventaris = Inventaris::with(['kantor:id,nama_kantor'])
+            ->where('kode_inventaris', $kodeInventaris)
+            ->first();
+
+        if (!$inventaris) {
+            return redirect()->route('public.peta')
+                ->with('error', 'Inventaris tidak ditemukan.');
+        }
+
+        // Verifikasi nama kantor sesuai
+        if ($inventaris->kantor && $inventaris->kantor->nama_kantor !== $namaKantor) {
+            return redirect()->route('public.peta')
+                ->with('error', 'Data inventaris tidak sesuai.');
+        }
+
+        // Redirect ke peta dengan parameter untuk auto-open modal dan highlight inventaris
+        return redirect()->route('public.peta', [
+            'kantor_id' => $inventaris->lokasi_kantor_id,
+            'inventaris_id' => $inventaris->id,
+            'tab' => 'inventaris'
+        ])->with('scan_success', 'Barcode berhasil di-scan!');
     }
 
 

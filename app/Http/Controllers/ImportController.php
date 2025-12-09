@@ -14,16 +14,285 @@ use App\Models\SubBidang;
 use App\Models\Okupansi;
 use App\Models\Kontrak;
 use App\Models\Realisasi;
+use App\Models\Inventaris;
+use App\Models\KategoriInventaris;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ImportController extends Controller
 {
     /**
-     * Show import form
+     * Show Data Management Center
      */
     public function index()
     {
         return view('import.index');
+    }
+
+    /**
+     * Export data to CSV or Excel
+     */
+    public function exportData(Request $request)
+    {
+        try {
+            $request->validate([
+                'model' => 'required|string|in:kantor,gedung,lantai,ruang,bidang,sub_bidang,okupansi,kontrak,realisasi,inventaris',
+                'format' => 'required|string|in:csv,excel'
+            ]);
+
+            $model = $request->model;
+            $format = $request->format;
+            
+            // Get data from model
+            $data = $this->getModelData($model);
+            
+            if ($format === 'csv') {
+                return $this->exportCsv($data, $model);
+            } else {
+                return $this->exportExcel($data, $model);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Export error', [
+                'error' => $e->getMessage(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Create database backup
+     */
+    public function createBackup(Request $request)
+    {
+        try {
+            $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+            $storagePath = storage_path('app/backups');
+            
+            // Create directory if not exists
+            if (!file_exists($storagePath)) {
+                mkdir($storagePath, 0755, true);
+            }
+            
+            $filepath = $storagePath . '/' . $filename;
+            
+            // Get database credentials
+            $dbHost = config('database.connections.mysql.host');
+            $dbName = config('database.connections.mysql.database');
+            $dbUser = config('database.connections.mysql.username');
+            $dbPass = config('database.connections.mysql.password');
+            
+            // Try to find mysqldump in Laragon path (Windows)
+            $mysqldumpPath = 'mysqldump';
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                // Check common Laragon paths
+                $possiblePaths = [
+                    'C:\\laragon\\bin\\mysql\\mysql-8.0.30\\bin\\mysqldump.exe',
+                    'C:\\laragon\\bin\\mysql\\mysql-5.7.24\\bin\\mysqldump.exe',
+                    'mysqldump.exe'
+                ];
+                
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $mysqldumpPath = '"' . $path . '"';
+                        break;
+                    }
+                }
+            }
+            
+            // Create mysqldump command
+            $command = sprintf(
+                '%s --host=%s --user=%s --password=%s --no-tablespaces %s > "%s" 2>&1',
+                $mysqldumpPath,
+                escapeshellarg($dbHost),
+                escapeshellarg($dbUser),
+                escapeshellarg($dbPass),
+                escapeshellarg($dbName),
+                $filepath
+            );
+            
+            // Execute backup
+            exec($command, $output, $returnVar);
+            
+            // Check if backup file was created and has content
+            if (file_exists($filepath) && filesize($filepath) > 0) {
+                Log::info('Database backup created', [
+                    'filename' => $filename,
+                    'size' => filesize($filepath),
+                    'user' => auth('admin')->user()->nama_admin ?? 'Unknown'
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Backup created successfully',
+                    'filename' => $filename,
+                    'size' => $this->formatBytes(filesize($filepath)),
+                    'download_url' => route('data-management.download-backup', ['filename' => $filename])
+                ]);
+            } else {
+                // Log the error output
+                Log::error('Backup failed', [
+                    'command' => $command,
+                    'output' => $output,
+                    'return_var' => $returnVar
+                ]);
+                
+                throw new \Exception('Backup failed. Check if mysqldump is available. Output: ' . implode(' ', $output));
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Backup error', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Backup failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Format bytes to human readable
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Download backup file
+     */
+    public function downloadBackup($filename)
+    {
+        $filepath = storage_path('app/backups/' . $filename);
+        
+        if (file_exists($filepath)) {
+            return response()->download($filepath);
+        }
+        
+        abort(404, 'Backup file not found');
+    }
+
+    /**
+     * Restore database from backup
+     */
+    public function restoreBackup(Request $request)
+    {
+        try {
+            $request->validate([
+                'backup_file' => 'required|file|mimes:sql'
+            ]);
+
+            $file = $request->file('backup_file');
+            $filepath = $file->getPathname();
+            
+            // Get database credentials
+            $dbHost = config('database.connections.mysql.host');
+            $dbName = config('database.connections.mysql.database');
+            $dbUser = config('database.connections.mysql.username');
+            $dbPass = config('database.connections.mysql.password');
+            
+            // Try to find mysql in Laragon path (Windows)
+            $mysqlPath = 'mysql';
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                // Check common Laragon paths
+                $possiblePaths = [
+                    'C:\\laragon\\bin\\mysql\\mysql-8.0.30\\bin\\mysql.exe',
+                    'C:\\laragon\\bin\\mysql\\mysql-5.7.24\\bin\\mysql.exe',
+                    'mysql.exe'
+                ];
+                
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $mysqlPath = '"' . $path . '"';
+                        break;
+                    }
+                }
+            }
+            
+            // Create mysql import command
+            $command = sprintf(
+                '%s --host=%s --user=%s --password=%s %s < "%s" 2>&1',
+                $mysqlPath,
+                escapeshellarg($dbHost),
+                escapeshellarg($dbUser),
+                escapeshellarg($dbPass),
+                escapeshellarg($dbName),
+                $filepath
+            );
+            
+            // Execute restore
+            exec($command, $output, $returnVar);
+            
+            if ($returnVar === 0 || empty($output)) {
+                Log::info('Database restored', [
+                    'user' => auth('admin')->user()->nama_admin ?? 'Unknown'
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Database restored successfully'
+                ]);
+            } else {
+                Log::error('Restore failed', [
+                    'output' => $output,
+                    'return_var' => $returnVar
+                ]);
+                
+                throw new \Exception('Restore failed. Output: ' . implode(' ', $output));
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Restore error', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Restore failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate report
+     */
+    public function generateReport(Request $request)
+    {
+        try {
+            $request->validate([
+                'type' => 'required|string|in:inventaris,kontrak,okupansi,summary,ruang,realisasi',
+                'format' => 'required|string|in:pdf,excel'
+            ]);
+
+            $type = $request->type;
+            $format = $request->format;
+            
+            // Get report data
+            $data = $this->getReportData($type);
+            
+            if ($format === 'pdf') {
+                return $this->generatePdfReport($data, $type);
+            } else {
+                return $this->generateExcelReport($data, $type);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Report generation error', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Report generation failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -461,6 +730,189 @@ class ImportController extends Controller
             'lokasi_kantor' => $row['lokasi_kantor'] ?? null,
             'alamat' => $row['alamat'] ?? null
         ];
+    }
+
+    /**
+     * Get model data for export
+     */
+    private function getModelData($model)
+    {
+        switch ($model) {
+            case 'kantor':
+                return Kantor::with(['jenisKantor', 'kota'])->get();
+            case 'gedung':
+                return Gedung::with('kantor')->get();
+            case 'lantai':
+                return Lantai::with('gedung')->get();
+            case 'ruang':
+                return Ruang::with(['lantai', 'bidang', 'subBidang'])->get();
+            case 'bidang':
+                return Bidang::all();
+            case 'sub_bidang':
+                return SubBidang::with('bidang')->get();
+            case 'okupansi':
+                return Okupansi::with(['ruang', 'bidang', 'subBidang'])->get();
+            case 'kontrak':
+                return Kontrak::with('kantor')->get();
+            case 'realisasi':
+                return Realisasi::with('kontrak')->get();
+            case 'inventaris':
+                return Inventaris::with(['kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang'])->get();
+            default:
+                return collect([]);
+        }
+    }
+
+    /**
+     * Export to CSV
+     */
+    private function exportCsv($data, $model)
+    {
+        try {
+            $filename = "export_{$model}_" . date('Y-m-d_H-i-s') . '.csv';
+            
+            $callback = function() use ($data) {
+                $file = fopen('php://output', 'w');
+                
+                // Set UTF-8 BOM for Excel compatibility
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                
+                if ($data && $data->count() > 0) {
+                    $firstItem = $data->first();
+                    
+                    // Handle array or object
+                    if (is_array($firstItem)) {
+                        $headers = array_keys($firstItem);
+                        fputcsv($file, $headers);
+                        
+                        foreach ($data as $row) {
+                            fputcsv($file, is_array($row) ? $row : (array)$row);
+                        }
+                    } else {
+                        // Write headers
+                        $headers = array_keys($firstItem->toArray());
+                        fputcsv($file, $headers);
+                        
+                        // Write data
+                        foreach ($data as $row) {
+                            fputcsv($file, $row->toArray());
+                        }
+                    }
+                } else {
+                    // Empty data
+                    fputcsv($file, ['No data available']);
+                }
+                
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Export CSV error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Export failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Export to Excel (CSV format with .xlsx extension for simplicity)
+     */
+    private function exportExcel($data, $model)
+    {
+        // For simplicity, we'll use CSV format but with .xlsx extension
+        // In production, consider using PhpSpreadsheet or Laravel Excel package
+        return $this->exportCsv($data, $model);
+    }
+
+    /**
+     * Get report data
+     */
+    private function getReportData($type)
+    {
+        switch ($type) {
+            case 'inventaris':
+                return Inventaris::with(['kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang'])
+                    ->orderBy('lokasi_kantor_id')
+                    ->get();
+            case 'kontrak':
+                return Kontrak::with('kantor')
+                    ->where('tanggal_selesai', '>', now())
+                    ->where('tanggal_selesai', '<', now()->addMonths(3))
+                    ->orderBy('tanggal_selesai')
+                    ->get();
+            case 'okupansi':
+                return Okupansi::with(['ruang', 'bidang', 'subBidang'])
+                    ->orderBy('bidang_id')
+                    ->get();
+            case 'ruang':
+                return Ruang::with(['lantai', 'bidang', 'subBidang'])
+                    ->orderBy('status_ruang')
+                    ->get();
+            case 'realisasi':
+                return Realisasi::with('kontrak')
+                    ->orderBy('tanggal_realisasi', 'desc')
+                    ->get();
+            case 'summary':
+                return [
+                    'total_kantor' => Kantor::count(),
+                    'total_gedung' => Gedung::count(),
+                    'total_lantai' => Lantai::count(),
+                    'total_ruang' => Ruang::count(),
+                    'total_bidang' => Bidang::count(),
+                    'total_sub_bidang' => SubBidang::count(),
+                    'total_okupansi' => Okupansi::sum('jml_pegawai_organik') + Okupansi::sum('jml_pegawai_tad') + Okupansi::sum('jml_pegawai_kontrak'),
+                    'total_kontrak' => Kontrak::count(),
+                    'kontrak_aktif' => Kontrak::where('status_perjanjian', 'aktif')->count(),
+                ];
+            default:
+                return collect([]);
+        }
+    }
+
+    /**
+     * Generate PDF report (placeholder)
+     */
+    private function generatePdfReport($data, $type)
+    {
+        // Placeholder - implement with DomPDF or similar
+        $filename = "report_{$type}_" . date('Y-m-d') . '.csv';
+        
+        // Convert to collection if array
+        if (is_array($data)) {
+            $data = collect([$data]);
+        } elseif (!($data instanceof \Illuminate\Support\Collection)) {
+            $data = collect($data);
+        }
+        
+        // For now, return CSV
+        return $this->exportCsv($data, $type);
+    }
+
+    /**
+     * Generate Excel report
+     */
+    private function generateExcelReport($data, $type)
+    {
+        // Convert to collection if array
+        if (is_array($data)) {
+            $data = collect([$data]);
+        } elseif (!($data instanceof \Illuminate\Support\Collection)) {
+            $data = collect($data);
+        }
+        
+        return $this->exportCsv($data, $type);
     }
 }
 

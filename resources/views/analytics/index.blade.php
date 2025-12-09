@@ -261,50 +261,79 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
 
 <style>
-    /* Card Statistik */
+    :root {
+        --pln-blue: #21618C;
+        --pln-blue-dark: #1A4D73;
+        --pln-blue-light: #2E86AB;
+        --pln-blue-lighter: #E8F4F8;
+        --pln-blue-bg: #F5FAFC;
+        --text-dark: #1A1A1A;
+        --text-gray: #6C757D;
+    }
+
+    /* Card Statistik - PLN Blue Theme */
     .stat-card {
         background: white;
-        border-radius: 1.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.75rem;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.25rem;
         height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--pln-blue);
     }
 
     .stat-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 6px 20px rgba(33, 97, 140, 0.2);
+        border-color: var(--pln-blue);
     }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 1rem;
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        color: white;
+        font-size: 1.75rem;
+        color: var(--pln-blue);
+        background: var(--pln-blue-lighter);
+        flex-shrink: 0;
     }
 
     .stat-lantai .stat-icon {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue-lighter);
+        color: var(--pln-blue);
     }
 
     .stat-ruang .stat-icon {
-        background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        background: var(--pln-blue-lighter);
+        color: var(--pln-blue);
     }
 
     .stat-bidang .stat-icon {
-        background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        background: var(--pln-blue-lighter);
+        color: var(--pln-blue);
     }
 
     .stat-sub-bidang .stat-icon {
-        background: linear-gradient(135deg, #10b981, #34d399);
+        background: var(--pln-blue-lighter);
+        color: var(--pln-blue);
     }
 
     .stat-content {
@@ -312,56 +341,66 @@
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 2.25rem;
         font-weight: 800;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         line-height: 1;
     }
 
     .stat-label {
-        color: #64748b;
-        font-size: 0.9rem;
+        color: var(--text-gray);
+        font-size: 0.875rem;
         margin: 0.5rem 0 0 0;
-        font-weight: 500;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     /* Card Okupansi */
     .okupansi-card {
         background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
     }
 
     .okupansi-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        padding: 1.25rem 1.75rem;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .okupansi-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .okupansi-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
+        font-size: 1.25rem;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pln-blue-lighter);
+        border-radius: 8px;
     }
 
     .okupansi-body {
-        padding: 1.5rem;
+        padding: 1.75rem;
     }
 
     .okupansi-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 1.5rem;
     }
 
@@ -369,42 +408,46 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1rem;
-        border-radius: 1rem;
-        background: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 10px;
+        background: var(--pln-blue-bg);
+        border: 1px solid rgba(33, 97, 140, 0.1);
         transition: all 0.3s ease;
     }
 
     .okupansi-item:hover {
-        background: #f1f5f9;
+        background: var(--pln-blue-lighter);
+        border-color: var(--pln-blue);
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.15);
     }
 
     .okupansi-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 0.75rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         color: white;
+        flex-shrink: 0;
     }
 
     .okupansi-icon.organik {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue);
     }
 
     .okupansi-icon.tad {
-        background: linear-gradient(135deg, #10b981, #34d399);
+        background: var(--pln-blue-light);
     }
 
     .okupansi-icon.kontrak {
-        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        background: #2E86AB;
     }
 
     .okupansi-icon.rata {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue-dark);
     }
 
     .okupansi-content {
@@ -412,122 +455,142 @@
     }
 
     .okupansi-number {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--pln-blue);
         margin: 0;
         line-height: 1;
     }
 
     .okupansi-label {
-        color: #64748b;
-        font-size: 0.9rem;
-        margin: 0.25rem 0 0 0;
-        font-weight: 500;
+        color: var(--text-gray);
+        font-size: 0.875rem;
+        margin: 0.375rem 0 0 0;
+        font-weight: 600;
     }
 
     /* Card Chart */
     .chart-card {
         background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .chart-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        padding: 1.25rem 1.75rem;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .chart-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .chart-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
+        font-size: 1.25rem;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pln-blue-lighter);
+        border-radius: 8px;
     }
 
     .chart-body {
-        padding: 1.5rem;
+        padding: 1.75rem;
     }
 
     .chart-container {
         position: relative;
-        height: 300px;
+        height: 320px;
     }
 
     /* Card Aktivitas */
     .activity-card {
         background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 97, 140, 0.1);
+        border: 1px solid rgba(33, 97, 140, 0.15);
         overflow: hidden;
         height: 100%;
     }
 
     .activity-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        padding: 1.25rem 1.75rem;
+        border-bottom: 2px solid var(--pln-blue);
     }
 
     .activity-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--pln-blue);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .activity-title i {
-        color: #3b82f6;
+        color: var(--pln-blue);
+        font-size: 1.25rem;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pln-blue-lighter);
+        border-radius: 8px;
     }
 
     .activity-body {
         padding: 1.5rem;
-        max-height: 400px;
+        max-height: 420px;
         overflow-y: auto;
     }
 
     .activity-list {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.875rem;
     }
 
     .activity-item {
         display: flex;
         align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        transition: all 0.3s ease;
+        gap: 0.875rem;
+        padding: 1rem;
+        border-radius: 10px;
+        background: var(--pln-blue-bg);
+        border: 1px solid rgba(33, 97, 140, 0.1);
+        transition: all 0.2s ease;
     }
 
     .activity-item:hover {
-        background: #f8fafc;
+        background: var(--pln-blue-lighter);
+        border-color: var(--pln-blue);
+        transform: translateX(4px);
     }
 
     .activity-icon {
         flex-shrink: 0;
-        margin-top: 0.25rem;
+        margin-top: 0.125rem;
     }
 
     .activity-icon i {
-        color: #3b82f6;
-        font-size: 0.5rem;
+        color: var(--pln-blue);
+        font-size: 0.625rem;
     }
 
     .activity-content {
@@ -535,72 +598,89 @@
     }
 
     .activity-text {
-        color: #1e293b;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
+        color: var(--text-dark);
+        font-size: 0.9375rem;
+        margin-bottom: 0.375rem;
     }
 
     .activity-text strong {
-        color: #1e293b;
-        font-weight: 600;
+        color: var(--pln-blue);
+        font-weight: 700;
     }
 
     .activity-detail {
-        color: #64748b;
-        font-size: 0.85rem;
+        color: var(--text-gray);
+        font-size: 0.875rem;
         margin-bottom: 0.25rem;
     }
 
     .activity-time {
-        color: #64748b;
-        font-size: 0.8rem;
+        color: var(--text-gray);
+        font-size: 0.8125rem;
+        font-style: italic;
     }
 
     .empty-activity {
         text-align: center;
-        color: #64748b;
-        padding: 2rem 1rem;
+        color: var(--text-gray);
+        padding: 3rem 1rem;
     }
 
     .empty-activity i {
-        color: #94a3b8;
+        color: var(--pln-blue-lighter);
     }
 
     /* Aksi Header */
     .header-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .btn-modern {
-        padding: 0.5rem 1rem;
-        border-radius: 0.75rem;
-        border: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: flex;
+        border-radius: 10px;
+        padding: 0.625rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        text-decoration: none;
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modern:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(33, 97, 140, 0.2);
     }
 
     .btn-modern.btn-primary {
-        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        background: var(--pln-blue);
         color: white;
+        border: 1px solid var(--pln-blue);
+        box-shadow: 0 2px 6px rgba(33, 97, 140, 0.15);
     }
 
     .btn-modern.btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        background: var(--pln-blue-dark);
+        border-color: var(--pln-blue-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 97, 140, 0.25);
     }
 
     .btn-modern.btn-success {
-        background: linear-gradient(135deg, #10b981, #34d399);
+        background: #28a745;
         color: white;
+        border: 1px solid #28a745;
     }
 
     .btn-modern.btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        background: #218838;
+        border-color: #218838;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
     }
 
     /* Desain Responsive */
@@ -608,17 +688,17 @@
         .stat-card {
             flex-direction: column;
             text-align: center;
-            padding: 1rem;
+            padding: 1.25rem;
         }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
+            width: 56px;
+            height: 56px;
+            font-size: 1.5rem;
         }
 
         .stat-number {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
         }
 
         .okupansi-grid {
@@ -631,35 +711,40 @@
         }
 
         .chart-container {
-            height: 250px;
+            height: 280px;
         }
 
         .activity-body {
-            max-height: 300px;
+            max-height: 350px;
         }
 
         .header-actions {
             flex-direction: column;
         }
+
+        .header-actions .btn-modern {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     @media (max-width: 576px) {
         .stat-card {
-            padding: 0.75rem;
+            padding: 1rem;
         }
 
         .stat-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 1rem;
-        }
-
-        .stat-number {
+            width: 48px;
+            height: 48px;
             font-size: 1.25rem;
         }
 
+        .stat-number {
+            font-size: 1.5rem;
+        }
+
         .chart-container {
-            height: 200px;
+            height: 240px;
         }
     }
 </style>
@@ -684,6 +769,14 @@ const kantorStatusData = JSON.parse(chartDataEl.dataset.kantorStatus);
 const kontrakStatusData = JSON.parse(chartDataEl.dataset.kontrakStatus);
 const okupansiBidangData = JSON.parse(chartDataEl.dataset.okupansiBidang);
 
+// PLN Blue Color Palette
+const plnBlue = '#21618C';
+const plnBlueDark = '#1A4D73';
+const plnBlueLight = '#2E86AB';
+const plnSuccess = '#28a745';
+const plnWarning = '#ffc107';
+const plnDanger = '#dc3545';
+
 // Chart Status Kantor
 const kantorCtx = document.getElementById('kantorStatusChart').getContext('2d');
 new Chart(kantorCtx, {
@@ -692,15 +785,37 @@ new Chart(kantorCtx, {
         labels: Object.keys(kantorStatusData),
         datasets: [{
             data: Object.values(kantorStatusData),
-            backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
-            borderWidth: 2
+            backgroundColor: [plnSuccess, plnDanger, plnWarning],
+            borderWidth: 3,
+            borderColor: '#fff'
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom'
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        size: 12,
+                        weight: '600'
+                    },
+                    color: '#1A1A1A'
+                }
+            },
+            tooltip: {
+                backgroundColor: plnBlue,
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: {
+                    size: 13,
+                    weight: '700'
+                },
+                bodyFont: {
+                    size: 12
+                }
             }
         }
     }
@@ -714,15 +829,37 @@ new Chart(kontrakCtx, {
         labels: Object.keys(kontrakStatusData),
         datasets: [{
             data: Object.values(kontrakStatusData),
-            backgroundColor: ['#007bff', '#28a745', '#dc3545'],
-            borderWidth: 2
+            backgroundColor: [plnBlue, plnSuccess, plnDanger],
+            borderWidth: 3,
+            borderColor: '#fff'
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom'
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        size: 12,
+                        weight: '600'
+                    },
+                    color: '#1A1A1A'
+                }
+            },
+            tooltip: {
+                backgroundColor: plnBlue,
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: {
+                    size: 13,
+                    weight: '700'
+                },
+                bodyFont: {
+                    size: 12
+                }
             }
         }
     }
@@ -737,21 +874,59 @@ new Chart(okupansiCtx, {
         datasets: [{
             label: 'Total Pegawai',
             data: okupansiBidangData.map(item => item.total_pegawai),
-            backgroundColor: '#17a2b8',
-            borderColor: '#138496',
-            borderWidth: 1
+            backgroundColor: plnBlue,
+            borderColor: plnBlueDark,
+            borderWidth: 2,
+            borderRadius: 8,
+            hoverBackgroundColor: plnBlueLight
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                ticks: {
+                    font: {
+                        size: 11,
+                        weight: '600'
+                    },
+                    color: '#6C757D'
+                },
+                grid: {
+                    color: 'rgba(33, 97, 140, 0.1)',
+                    drawBorder: false
+                }
+            },
+            x: {
+                ticks: {
+                    font: {
+                        size: 11,
+                        weight: '600'
+                    },
+                    color: '#6C757D'
+                },
+                grid: {
+                    display: false
+                }
             }
         },
         plugins: {
             legend: {
                 display: false
+            },
+            tooltip: {
+                backgroundColor: plnBlue,
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: {
+                    size: 13,
+                    weight: '700'
+                },
+                bodyFont: {
+                    size: 12
+                }
             }
         }
     }

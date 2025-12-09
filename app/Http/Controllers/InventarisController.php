@@ -89,36 +89,126 @@ class InventarisController extends Controller
     public function create()
     {
         $actor = auth('admin')->user();
-        $kategori = KategoriInventaris::orderBy('nama_kategori')->get();
-        // Optional: filter master data sesuai scope aktor untuk UX yang benar
+        // Optimize: Cache kategori
+        $kategori = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.kategori', 600, function () {
+            return KategoriInventaris::select('id', 'nama_kategori')->orderBy('nama_kategori')->get();
+        });
+        
+        // Optional: filter master data sesuai scope aktor untuk UX yang benar dengan cache
         if ($actor->role === 'admin_regional') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::all();
-            $subBidang = SubBidang::all();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.bidang', 600, function () {
+                return Bidang::select('id', 'nama_bidang')->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.subBidang', 600, function () {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->get();
+            });
         } elseif ($actor->role === 'manager_bidang') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::where('id', $actor->bidang_id)->get();
-            $subBidang = SubBidang::where('bidang_id', $actor->bidang_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.bidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return Bidang::select('id', 'nama_bidang')->where('id', $actor->bidang_id)->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.subBidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->where('bidang_id', $actor->bidang_id)->get();
+            });
         } elseif ($actor->role === 'staf') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::where('id', $actor->bidang_id)->get();
-            $subBidang = SubBidang::where('bidang_id', $actor->bidang_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.bidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return Bidang::select('id', 'nama_bidang')->where('id', $actor->bidang_id)->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.subBidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->where('bidang_id', $actor->bidang_id)->get();
+            });
         } else {
-            $kantor = Kantor::all();
-            $gedung = Gedung::all();
-            $lantai = Lantai::all();
-            $ruang = Ruang::all();
-            $bidang = Bidang::all();
-            $subBidang = SubBidang::all();
+            $kantor = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.kantor.all', 600, function () {
+                return Kantor::select('id', 'nama_kantor')->orderBy('nama_kantor')->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.gedung.all', 600, function () {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->orderBy('nama_gedung')->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.lantai.all', 600, function () {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')->orderBy('nomor_lantai')->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.ruang.all', 600, function () {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')->orderBy('nama_ruang')->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.bidang.all', 600, function () {
+                return Bidang::select('id', 'nama_bidang')->orderBy('nama_bidang')->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.subBidang.all', 600, function () {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->orderBy('nama_sub_bidang')->get();
+            });
         }
 
         return view('admin.inventaris.create', compact('kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang', 'subBidang'));
@@ -175,10 +265,11 @@ class InventarisController extends Controller
             $data['gambar'] = 'uploads/inventaris/' . $filename;
         }
 
-        Inventaris::create($data);
+        $inventaris = Inventaris::create($data);
 
-        return redirect()->route('inventaris.index')
-            ->with('success', 'Inventaris berhasil ditambahkan!');
+        return redirect()->route('inventaris.show', $inventaris->id)
+            ->with('success', 'Inventaris berhasil ditambahkan!')
+            ->with('show_barcode', true);
     }
 
     /**
@@ -186,7 +277,16 @@ class InventarisController extends Controller
      */
     public function show($id)
     {
-        $inventaris = Inventaris::with(['kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang', 'subBidang'])->findOrFail($id);
+        // Optimize: Select specific columns & eager load only needed relationships
+        $inventaris = Inventaris::with([
+            'kategori:id,nama_kategori',
+            'kantor:id,nama_kantor',
+            'gedung:id,nama_gedung',
+            'lantai:id,nama_lantai,nomor_lantai',
+            'ruang:id,nama_ruang',
+            'bidang:id,nama_bidang',
+            'subBidang:id,nama_sub_bidang'
+        ])->select('inventaris.*')->findOrFail($id);
         $actor = auth('admin')->user();
         if ($actor->role === 'admin_regional' && $inventaris->lokasi_kantor_id != $actor->kantor_id) {
             return redirect()->route('inventaris.index')->with('error', 'Anda tidak memiliki akses untuk melihat data ini.');
@@ -219,36 +319,126 @@ class InventarisController extends Controller
             return redirect()->route('inventaris.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data ini.');
         }
 
-        $kategori = KategoriInventaris::orderBy('nama_kategori')->get();
-        // Filter master data sesuai scope aktor
+        // Optimize: Cache kategori
+        $kategori = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.kategori', 600, function () {
+            return KategoriInventaris::select('id', 'nama_kategori')->orderBy('nama_kategori')->get();
+        });
+        
+        // Filter master data sesuai scope aktor dengan cache
         if ($actor->role === 'admin_regional') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::all();
-            $subBidang = SubBidang::all();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.bidang', 600, function () {
+                return Bidang::select('id', 'nama_bidang')->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.subBidang', 600, function () {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->get();
+            });
         } elseif ($actor->role === 'manager_bidang') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::where('id', $actor->bidang_id)->get();
-            $subBidang = SubBidang::where('bidang_id', $actor->bidang_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.bidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return Bidang::select('id', 'nama_bidang')->where('id', $actor->bidang_id)->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.subBidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->where('bidang_id', $actor->bidang_id)->get();
+            });
         } elseif ($actor->role === 'staf') {
-            $kantor = Kantor::where('id', $actor->kantor_id)->get();
-            $gedung = Gedung::where('kantor_id', $actor->kantor_id)->get();
-            $lantai = Lantai::whereHas('gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $ruang = Ruang::whereHas('lantai.gedung', function($q) use($actor){ $q->where('kantor_id', $actor->kantor_id); })->get();
-            $bidang = Bidang::where('id', $actor->bidang_id)->get();
-            $subBidang = SubBidang::where('bidang_id', $actor->bidang_id)->get();
+            $kantor = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.kantor.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Kantor::select('id', 'nama_kantor')->where('id', $actor->kantor_id)->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.gedung.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->where('kantor_id', $actor->kantor_id)->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.lantai.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')
+                    ->whereHas('gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.ruang.{$actor->kantor_id}", 600, function () use ($actor) {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')
+                    ->whereHas('lantai.gedung', function($q) use($actor){ 
+                        $q->where('kantor_id', $actor->kantor_id); 
+                    })->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.bidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return Bidang::select('id', 'nama_bidang')->where('id', $actor->bidang_id)->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember("admin.inventaris.subBidang.{$actor->bidang_id}", 600, function () use ($actor) {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->where('bidang_id', $actor->bidang_id)->get();
+            });
         } else {
-            $kantor = Kantor::all();
-            $gedung = Gedung::all();
-            $lantai = Lantai::all();
-            $ruang = Ruang::all();
-            $bidang = Bidang::all();
-            $subBidang = SubBidang::all();
+            $kantor = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.kantor.all', 600, function () {
+                return Kantor::select('id', 'nama_kantor')->orderBy('nama_kantor')->get();
+            });
+            
+            $gedung = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.gedung.all', 600, function () {
+                return Gedung::select('id', 'nama_gedung', 'kantor_id')->orderBy('nama_gedung')->get();
+            });
+            
+            $lantai = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.lantai.all', 600, function () {
+                return Lantai::select('id', 'nama_lantai', 'nomor_lantai', 'gedung_id')->orderBy('nomor_lantai')->get();
+            });
+            
+            $ruang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.ruang.all', 600, function () {
+                return Ruang::select('id', 'nama_ruang', 'lantai_id')->orderBy('nama_ruang')->get();
+            });
+            
+            $bidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.bidang.all', 600, function () {
+                return Bidang::select('id', 'nama_bidang')->orderBy('nama_bidang')->get();
+            });
+            
+            $subBidang = \Illuminate\Support\Facades\Cache::remember('admin.inventaris.subBidang.all', 600, function () {
+                return SubBidang::select('id', 'nama_sub_bidang', 'bidang_id')->orderBy('nama_sub_bidang')->get();
+            });
         }
 
         return view('admin.inventaris.edit', compact('inventaris', 'kategori', 'kantor', 'gedung', 'lantai', 'ruang', 'bidang', 'subBidang'));

@@ -40,41 +40,41 @@
         }
 
         body {
-            background: linear-gradient(to bottom, var(--pln-blue-lighter) 0%, #F8F9FA 40%);
+            background: linear-gradient(135deg, var(--pln-blue-bg) 0%, #ffffff 100%);
             font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            padding: 1rem;
         }
 
         .login-container {
             background: var(--white);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(33, 97, 140, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(33, 97, 140, 0.2);
-            overflow: visible;
+            box-shadow: 0 2px 12px rgba(33, 97, 140, 0.12);
+            border: 1px solid rgba(33, 97, 140, 0.15);
+            overflow: hidden;
             max-width: 380px;
             width: 100%;
             position: relative;
             z-index: 1;
-            margin: 20px auto;
         }
 
         .login-header {
             background: var(--white);
             color: var(--pln-blue);
-            padding: 30px 25px 0px 25px;
+            padding: 1.5rem 1.5rem 1.25rem;
             text-align: center;
             position: relative;
-            border-bottom: 3px solid var(--pln-blue);
+            border-bottom: 2px solid var(--pln-blue);
         }
 
         .login-header .logo {
             position: relative;
             z-index: 2;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -82,22 +82,22 @@
 
         .login-header h2 {
             color: var(--pln-blue);
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 10px 0 6px 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0.5rem 0 0.375rem 0;
             position: relative;
         }
 
         .login-header p {
-            margin: 0 0 20px 0;
+            margin: 0 0 0 0;
             color: var(--text-gray);
             position: relative;
-            font-size: 0.8rem;
+            font-size: 0.8125rem;
             font-weight: 400;
         }
 
         .login-body {
-            padding: 30px 25px 30px 25px;
+            padding: 1.5rem;
             background: var(--white);
             position: relative;
             min-height: auto;
@@ -107,26 +107,26 @@
         .form-label {
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            margin-bottom: 0.625rem;
+            font-size: 0.875rem;
             display: flex;
             align-items: center;
         }
 
         .form-label i {
             color: var(--pln-blue);
-            margin-right: 8px;
-            font-size: 0.95rem;
-            width: 18px;
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+            width: 16px;
             text-align: center;
         }
 
         .form-control {
-            border-radius: 10px;
-            border: 2px solid var(--gray-border);
-            padding: 10px 14px;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            border: 2px solid rgba(33, 97, 140, 0.2);
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
             background: var(--white);
             color: var(--text-dark);
         }
@@ -140,7 +140,7 @@
 
         .form-control::placeholder {
             color: #ADB5BD;
-            font-size: 14px;
+            font-size: 0.875rem;
         }
 
         .btn-login {
@@ -148,12 +148,12 @@
             color: var(--white) !important;
             border: none;
             border-radius: 8px;
-            padding: 12px 20px;
+            padding: 0.75rem 1.25rem;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 0.9375rem;
             width: 100%;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(33, 97, 140, 0.2);
+            box-shadow: 0 2px 6px rgba(33, 97, 140, 0.15);
             cursor: pointer;
             margin-top: 0;
             text-transform: none;
@@ -241,10 +241,11 @@
         }
 
         .alert {
-            border-radius: 12px;
+            border-radius: 8px;
             border: none;
-            padding: 12px 16px;
-            font-size: 14px;
+            padding: 0.875rem 1rem;
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
         }
 
         .alert-danger {
@@ -263,15 +264,15 @@
             background-color: var(--pln-blue);
             border: 2px solid var(--pln-blue);
             border-right: none;
-            border-radius: 10px 0 0 10px;
+            border-radius: 8px 0 0 8px;
             color: var(--white);
-            padding: 10px 12px;
-            font-size: 14px;
+            padding: 0.75rem 0.875rem;
+            font-size: 0.875rem;
         }
 
         .input-group .form-control {
             border-left: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 0 8px 8px 0;
         }
 
         /* Password toggle button */
@@ -279,15 +280,15 @@
             background-color: var(--pln-blue);
             border: 2px solid var(--pln-blue);
             border-left: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 0 8px 8px 0;
             color: var(--white);
-            padding: 10px 14px;
+            padding: 0.75rem 0.875rem;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 45px;
+            min-width: 42px;
         }
 
         .password-toggle:hover {
@@ -331,9 +332,9 @@
         }
 
         .pln-logo {
-            height: 65px;
+            height: 48px;
             width: auto;
-            max-width: 150px;
+            max-width: 130px;
             object-fit: contain;
             background: transparent;
             border-radius: 0;
@@ -348,13 +349,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 16px 0 20px 0;
+            margin: 1rem 0 1.25rem 0;
         }
 
         .forgot-password {
             color: var(--pln-blue);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 0.8125rem;
             font-weight: 600;
             transition: all 0.2s ease;
         }
@@ -366,43 +367,46 @@
 
         /* Keep alert area height constant so form size doesn't change */
         .alert-fixed { 
-            min-height: 50px; 
-            margin-bottom: 16px;
+            min-height: 40px; 
+            margin-bottom: 1rem;
         }
         .alert-fixed:empty { 
             display: block; 
-            min-height: 50px; 
+            min-height: 40px; 
         }
 
         .invalid-feedback {
             color: var(--danger-color);
-            font-size: 13px;
-            margin-top: 5px;
+            font-size: 0.75rem;
+            margin-top: 0.375rem;
         }
 
         /* Desain Responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 0.75rem;
+            }
+
             .login-container {
-                max-width: 95%;
-                margin: 15px auto;
+                max-width: 100%;
                 border-radius: 12px;
             }
             
             .login-header {
-                padding: 25px 20px 0px 20px;
+                padding: 1.25rem 1.25rem 1rem;
             }
             
             .login-body {
-                padding: 25px 20px 25px 20px;
+                padding: 1.25rem;
             }
             
             .pln-logo {
-                height: 55px;
-                max-width: 130px;
+                height: 44px;
+                max-width: 120px;
             }
             
             .login-header h2 {
-                font-size: 1.2rem;
+                font-size: 1.125rem;
             }
             
             .login-header p {
@@ -412,96 +416,74 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 0.5rem;
             }
 
             .login-container {
                 max-width: 100%;
-                margin: 10px auto;
                 border-radius: 12px;
             }
             
             .login-header {
-                padding: 20px 15px 0px 15px;
+                padding: 1.25rem 1rem 1rem;
             }
             
             .login-body {
-                padding: 20px 15px 20px 15px;
+                padding: 1.25rem 1rem;
             }
             
             .pln-logo {
-                height: 50px;
-                max-width: 120px;
+                height: 40px;
+                max-width: 110px;
             }
 
             .login-header h2 {
-                font-size: 1.1rem;
-                margin: 8px 0 4px 0;
+                font-size: 1.0625rem;
             }
             
             .login-header p {
-                font-size: 0.7rem;
-                margin: 0 0 15px 0;
+                font-size: 0.75rem;
             }
             
             .form-control {
                 font-size: 16px; /* Prevent zoom on iOS */
-                padding: 11px 12px;
+                padding: 0.75rem 0.875rem;
             }
             
             .input-group-text {
-                padding: 11px 10px;
-                font-size: 13px;
+                padding: 0.75rem 0.75rem;
+                font-size: 0.8125rem;
             }
             
             .password-toggle {
-                padding: 11px 10px;
+                padding: 0.75rem 0.75rem;
                 min-width: 40px;
             }
             
             .btn-login {
-                padding: 12px 18px;
-                font-size: 14px;
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
             }
 
             .form-label {
-                font-size: 0.8rem;
-                margin-bottom: 6px;
+                font-size: 0.8125rem;
+                margin-bottom: 0.5rem;
             }
             
             .remember-me {
-                margin: 14px 0 18px 0;
+                margin: 0.875rem 0 1rem 0;
             }
             
             .forgot-password {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .login-header {
-                padding: 18px 12px 0px 12px;
-            }
-            
-            .login-body {
-                padding: 18px 12px 18px 12px;
-            }
-            
-            .pln-logo {
-                height: 45px;
-                max-width: 110px;
-            }
-            
-            .login-header h2 {
-                font-size: 1rem;
+                font-size: 0.75rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid" style="padding: 20px;">
+    <div class="container-fluid" style="padding: 0;">
         <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+            <div class="col-12">
                 <div class="login-container">
                     <!-- Header -->
                     <div class="login-header">
@@ -542,9 +524,9 @@
                             @csrf
 
                             <!-- Username -->
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label for="username" class="form-label">
-                                    <i class="fas fa-user me-2"></i>Username
+                                    <i class="fas fa-user"></i>Username
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text">
@@ -568,9 +550,9 @@
                             </div>
 
                             <!-- Password -->
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label for="password" class="form-label">
-                                    <i class="fas fa-lock me-2"></i>Password
+                                    <i class="fas fa-lock"></i>Password
                                 </label>
                                 <div class="input-group password-group">
                                     <span class="input-group-text">
@@ -609,7 +591,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="btn btn-login" id="loginButton">
-                                <i class="fas fa-sign-in-alt me-2"></i>
+                                <i class="fas fa-sign-in-alt"></i>
                                 <span>Masuk ke Admin Panel</span>
                             </button>
                         </form>
