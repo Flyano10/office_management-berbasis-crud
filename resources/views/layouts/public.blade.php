@@ -4926,7 +4926,7 @@
 
         /* Print Styles */
         @media print {
-            .navbar, .footer, .btn, .contact-fab {
+            .navbar, .footer, .btn {
                 display: none !important;
             }
             
@@ -5381,6 +5381,5 @@
     </script>
         
         @stack('scripts')
-        @include('components.contact-fab')
     </body>
     </html>

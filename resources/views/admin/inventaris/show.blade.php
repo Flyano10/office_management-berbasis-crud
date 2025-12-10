@@ -590,6 +590,39 @@
 @endpush
 
 @push('scripts')
+<!-- QR Code Data - Berisi detail lengkap inventaris -->
+@php
+$qrCodeData = "INVENTARIS PLN ICON PLUS\n";
+$qrCodeData .= "========================\n";
+$qrCodeData .= "Kode: " . $inventaris->kode_inventaris . "\n";
+$qrCodeData .= "Nama Barang: " . $inventaris->nama_barang . "\n";
+if($inventaris->merk) {
+    $qrCodeData .= "Merk: " . $inventaris->merk . "\n";
+}
+if($inventaris->harga) {
+    $qrCodeData .= "Harga: Rp " . number_format($inventaris->harga, 0, ',', '.') . "\n";
+}
+$qrCodeData .= "Kategori: " . $inventaris->kategori->nama_kategori . "\n";
+$qrCodeData .= "Kondisi: " . $inventaris->kondisi . "\n";
+$qrCodeData .= "Jumlah: " . $inventaris->jumlah . " unit\n";
+if($inventaris->tahun) {
+    $qrCodeData .= "Tahun: " . $inventaris->tahun . "\n";
+}
+if($inventaris->tanggal_pembelian) {
+    $qrCodeData .= "Tanggal Pembelian: " . \Carbon\Carbon::parse($inventaris->tanggal_pembelian)->format('d/m/Y') . "\n";
+}
+$qrCodeData .= "Lokasi: " . $inventaris->ruang->nama_ruang . ", " . $inventaris->lantai->nama_lantai . ", " . $inventaris->gedung->nama_gedung . "\n";
+$qrCodeData .= "Kantor: " . $inventaris->kantor->nama_kantor . "\n";
+$qrCodeData .= "Bidang: " . $inventaris->bidang->nama_bidang . "\n";
+if($inventaris->subBidang) {
+    $qrCodeData .= "Sub Bidang: " . $inventaris->subBidang->nama_sub_bidang . "\n";
+}
+if($inventaris->deskripsi) {
+    $qrCodeData .= "Deskripsi: " . $inventaris->deskripsi . "\n";
+}
+$qrCodeData .= "========================\n";
+$qrCodeData .= "PLN ICON PLUS";
+@endphp
 <!-- QR Code Library with fallback -->
 <script>
     // Track if QRCode is loaded
@@ -615,9 +648,9 @@
     function showQRCodeError() {
         const container = document.getElementById('barcode-{{ $inventaris->id }}');
         if (container) {
-            const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+            const barcodeData = @json($qrCodeData);
             // Try using online QR code API as last resort
-            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' + encodeURIComponent(barcodeData);
             container.innerHTML = '<div class="text-center">' +
                 '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;" onerror="this.parentElement.innerHTML=\'<div class=\\\'alert alert-warning\\\'><i class=\\\'fas fa-exclamation-triangle\\\'></i> QR Code tidak dapat dimuat. Pastikan koneksi internet aktif atau refresh halaman.</div>\'">' +
                 '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
@@ -706,7 +739,7 @@
 
     // Make functions global
     window.showBarcodeModal = function() {
-        const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+        const barcodeData = @json($qrCodeData);
         const modal = document.getElementById('barcodePrintModal');
         const printBarcode = document.getElementById('print-barcode');
         
@@ -752,7 +785,7 @@
     
     // Function to use QR Code API as fallback
     function useQRCodeAPI(container, data, modal) {
-        const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(data);
+        const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' + encodeURIComponent(data);
         const img = document.createElement('img');
         img.src = qrApiUrl;
         img.alt = 'QR Code';
@@ -795,11 +828,11 @@
         const printBarcode = document.getElementById('print-barcode');
         if (printBarcode && printBarcode.children.length === 0) {
             // QR code not generated yet, generate it first
-            const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+            const barcodeData = @json($qrCodeData);
             if (typeof QRCode !== 'undefined' && window.qrcodeLoaded) {
                 QRCode.toCanvas(printBarcode, barcodeData, {
-                    width: 300,
-                    margin: 3,
+                    width: 350,
+                    margin: 2,
                     color: {
                         dark: '#000000',
                         light: '#FFFFFF'
@@ -855,8 +888,8 @@
                     }
                 }
                 // If still not loaded, use API fallback
-                const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
-                const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+                const barcodeData = @json($qrCodeData);
+                const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' + encodeURIComponent(barcodeData);
                 container.innerHTML = '<div class="text-center">' +
                     '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;" onerror="this.parentElement.innerHTML=\'<div class=\\\'alert alert-warning\\\'><i class=\\\'fas fa-exclamation-triangle\\\'></i> QR Code tidak dapat dimuat.</div>\'">' +
                     '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
@@ -870,7 +903,7 @@
         }
 
         // Library is loaded, generate QR code
-        const barcodeData = '{{ $inventaris->kode_inventaris }}|{{ $inventaris->kantor->nama_kantor }}';
+        const barcodeData = @json($qrCodeData);
         
         // Clear loading indicator
         container.innerHTML = '';
@@ -888,7 +921,7 @@
                 if (error) {
                     console.error('Error generating QR Code:', error);
                     // Fallback to API
-                    const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+                    const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' + encodeURIComponent(barcodeData);
                     container.innerHTML = '<div class="text-center">' +
                         '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;">' +
                         '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
@@ -900,7 +933,7 @@
         } catch (e) {
             console.error('Exception generating QR Code:', e);
             // Fallback to API
-            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(barcodeData);
+            const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' + encodeURIComponent(barcodeData);
             container.innerHTML = '<div class="text-center">' +
                 '<img src="' + qrApiUrl + '" alt="QR Code" class="img-fluid" style="max-width: 200px;">' +
                 '<p class="mt-2 text-muted small">Menggunakan QR Code API</p>' +
@@ -949,83 +982,43 @@
 
 <!-- Barcode Print Modal -->
 <div class="modal fade" id="barcodePrintModal" tabindex="-1" aria-labelledby="barcodePrintModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
         <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
-            <div class="modal-header" style="background: linear-gradient(135deg, var(--pln-blue) 0%, var(--pln-blue-dark) 100%); border-bottom: none; padding: 1.5rem;">
-                <h5 class="modal-title text-white" id="barcodePrintModalLabel" style="font-weight: 700; font-size: 1.25rem;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--pln-blue) 0%, var(--pln-blue-dark) 100%); border-bottom: none; padding: 1rem 1.25rem;">
+                <h5 class="modal-title text-white" id="barcodePrintModalLabel" style="font-weight: 700; font-size: 1rem;">
                     <i class="fas fa-qrcode me-2"></i> Print Barcode Inventaris
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 2rem;">
+            <div class="modal-body" style="padding: 1.5rem;">
                 <div class="text-center" id="barcode-print-content">
-                    <!-- Header Info -->
-                    <div class="mb-4">
-                        <div class="d-inline-block px-4 py-2 mb-3" style="background: var(--pln-blue-lighter); border-radius: 8px; border: 2px solid var(--pln-blue);">
-                            <h5 class="mb-0" style="color: var(--pln-blue); font-weight: 700; font-size: 1.1rem;">
-                                <i class="fas fa-building me-2"></i>PLN Icon Plus
-                            </h5>
-                        </div>
-                        <div class="barcode-info-card" style="background: #f8f9fa; border-radius: 10px; padding: 1.5rem; margin: 0 auto; max-width: 500px; border: 1px solid #e9ecef;">
-                            <div class="row g-3 text-start">
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-hashtag me-2" style="color: var(--pln-blue); width: 20px;"></i>
-                                        <div>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kode Inventaris</small>
-                                            <strong style="color: var(--pln-blue); font-size: 1rem;">{{ $inventaris->kode_inventaris }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-box me-2" style="color: var(--pln-blue); width: 20px;"></i>
-                                        <div>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Nama Barang</small>
-                                            <strong style="color: #2d3748; font-size: 1rem;">{{ $inventaris->nama_barang }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-map-marker-alt me-2" style="color: var(--pln-blue); width: 20px;"></i>
-                                        <div>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kantor</small>
-                                            <strong style="color: #2d3748; font-size: 1rem;">{{ $inventaris->kantor->nama_kantor }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Label Sticker Layout (Preview) -->
+                    <div class="label-sticker-preview">
+                        <div class="label-top-section-preview">
+                            <div class="label-qr-section-preview">
+                                <div id="print-barcode" class="label-qr-code-preview"></div>
+                                <div class="label-code-preview">{{ $inventaris->kode_inventaris }}</div>
+                            </div>
+                            <div class="label-brand-section-preview">
+                                <div class="label-brand-hash-preview"># PLN</div>
+                                <div class="label-brand-name-preview">Icon Plus</div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- QR Code Container -->
-                    <div class="qr-code-wrapper mb-4" style="display: inline-block; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #e9ecef;">
-                        <div id="print-barcode"></div>
-                    </div>
-                    
-                    <!-- Barcode Text -->
-                    <div class="barcode-text mb-3" style="padding: 0.75rem 1.5rem; background: var(--pln-blue-lighter); border-radius: 8px; display: inline-block;">
-                        <code style="color: var(--pln-blue); font-size: 0.9rem; font-weight: 600; letter-spacing: 1px;">
-                            {{ $inventaris->kode_inventaris }} | {{ $inventaris->kantor->nama_kantor }}
-                        </code>
-                    </div>
-                    
-                    <!-- Instruction -->
-                    <div class="instruction-text">
-                        <small class="text-muted" style="font-size: 0.875rem;">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Scan QR Code untuk melihat detail inventaris
-                        </small>
+                        <div class="label-title-section-preview">
+                            <strong>ASET PLN ICON PLUS</strong>
+                        </div>
+                        <div class="label-warning-section-preview">
+                            <strong>DO NOT REMOVE THIS LABEL</strong>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e9ecef; padding: 1.25rem 2rem;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="min-width: 100px;">
-                    <i class="fas fa-times me-2"></i>Tutup
+            <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e9ecef; padding: 1rem 1.25rem;">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="min-width: 80px;">
+                    <i class="fas fa-times me-1"></i>Tutup
                 </button>
-                <button type="button" class="btn btn-success" onclick="window.printBarcode && window.printBarcode()" style="min-width: 120px; background: var(--pln-blue); border-color: var(--pln-blue);">
-                    <i class="fas fa-print me-2"></i>Print
+                <button type="button" class="btn btn-success btn-sm" onclick="window.printBarcode && window.printBarcode()" style="min-width: 100px; background: var(--pln-blue); border-color: var(--pln-blue);">
+                    <i class="fas fa-print me-1"></i>Print
                 </button>
             </div>
         </div>
@@ -1034,8 +1027,12 @@
 
 <style>
     /* Barcode Print Modal Styling */
+    #barcodePrintModal .modal-dialog {
+        max-width: 450px;
+    }
+    
     #barcode-print-content {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
     .barcode-info-card {
@@ -1060,11 +1057,138 @@
         margin: 0 auto;
     }
 
-    /* Print Styles */
+    /* Label Sticker Preview Styles */
+    .label-sticker-preview {
+        width: 84mm;
+        max-width: 100%;
+        min-height: 44mm;
+        background: white;
+        border: 2px solid #000;
+        border-radius: 8px;
+        padding: 6mm;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 500px) {
+        .label-sticker-preview {
+            width: 100%;
+            max-width: 84mm;
+            padding: 5mm;
+        }
+        
+        .label-qr-code-preview {
+            width: 25mm !important;
+            height: 25mm !important;
+            min-width: 25mm !important;
+            min-height: 25mm !important;
+        }
+    }
+
+    .label-top-section-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 4px;
+    }
+
+    .label-qr-section-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .label-qr-code-preview {
+        width: 28mm;
+        height: 28mm;
+        min-width: 28mm;
+        min-height: 28mm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 4px;
+    }
+
+    .label-qr-code-preview canvas,
+    .label-qr-code-preview img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain;
+        display: block;
+    }
+
+    .label-code-preview {
+        font-size: 8pt;
+        font-weight: 600;
+        color: #000;
+        text-align: left;
+        margin-top: 2px;
+    }
+
+    .label-brand-section-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        flex: 1;
+        margin-left: 8px;
+    }
+
+    .label-brand-hash-preview {
+        font-size: 11pt;
+        font-weight: 700;
+        color: #000;
+        line-height: 1.2;
+        margin-bottom: 2px;
+    }
+
+    .label-brand-name-preview {
+        font-size: 8pt;
+        font-weight: 500;
+        color: #000;
+        line-height: 1.2;
+    }
+
+    .label-title-section-preview {
+        text-align: center;
+        padding: 3px 0;
+        margin: 2px 0;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .label-title-section-preview strong {
+        font-size: 7pt;
+        font-weight: 700;
+        color: #000;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .label-warning-section-preview {
+        text-align: center;
+        padding-top: 2px;
+        margin-top: auto;
+    }
+
+    .label-warning-section-preview strong {
+        font-size: 6pt;
+        font-weight: 600;
+        color: #000;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Print Styles - Label Sticker di tengah A4 */
     @media print {
         @page {
             size: A4;
-            margin: 20mm;
+            margin: 0;
         }
         
         body * {
@@ -1075,8 +1199,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
+            width: 100%;
+            height: 100%;
             z-index: 9999;
             background: white !important;
             display: block !important;
@@ -1086,15 +1210,24 @@
         
         .modal-dialog {
             max-width: 100% !important;
-            margin: 0 !important;
+            width: 100% !important;
             height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         
         .modal-content {
             border: none !important;
             box-shadow: none !important;
-            height: 100% !important;
             border-radius: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100mm !important;
+            height: 60mm !important;
+            background: white !important;
         }
         
         .modal-header, .modal-footer {
@@ -1102,52 +1235,69 @@
         }
         
         .modal-body {
-            padding: 20mm !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+            padding: 8mm !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 100% !important;
         }
         
         #barcode-print-content, #barcode-print-content * {
             visibility: visible !important;
         }
         
-        #barcode-print-content {
-            position: relative !important;
-            left: auto !important;
-            top: auto !important;
-            transform: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 auto;
-        }
-        
-        .barcode-info-card {
+        .label-sticker-preview {
+            width: 84mm !important;
+            height: 44mm !important;
             border: 2px solid #000 !important;
+            background: white !important;
+            padding: 6mm !important;
+            margin: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            page-break-inside: avoid;
             box-shadow: none !important;
-            background: white !important;
         }
         
-        .qr-code-wrapper {
-            border: 2px solid #000 !important;
-            box-shadow: none !important;
-            background: white !important;
+        .label-qr-code-preview {
+            width: 28mm !important;
+            height: 28mm !important;
+            min-width: 28mm !important;
+            min-height: 28mm !important;
         }
         
-        .qr-code-wrapper img,
-        .qr-code-wrapper canvas {
-            max-width: 100% !important;
-            height: auto !important;
+        .label-qr-code-preview canvas,
+        .label-qr-code-preview img {
+            width: 28mm !important;
+            height: 28mm !important;
+            max-width: 28mm !important;
+            max-height: 28mm !important;
         }
         
-        .barcode-text {
-            border: 1px solid #000 !important;
-            background: white !important;
+        .label-code-preview {
+            font-size: 8pt !important;
+        }
+        
+        .label-brand-hash-preview {
+            font-size: 11pt !important;
+        }
+        
+        .label-brand-name-preview {
+            font-size: 8pt !important;
+        }
+        
+        .label-title-section-preview strong {
+            font-size: 7pt !important;
+        }
+        
+        .label-warning-section-preview strong {
+            font-size: 6pt !important;
         }
         
         /* Hide everything else */
-        .navbar, .sidebar, header, footer, .btn, button:not(.print-only) {
+        .navbar, .sidebar, header, footer, .btn, button {
             display: none !important;
         }
     }
